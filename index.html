@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Life decision maker — evaluate your next big move (Ukraine)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="viz-root">
+
+<header class="topbar">
+  <h1>Life decision maker — evaluate your next big move</h1>
+  <p class="sub" id="introSub"></p>
+  <nav class="tabs">
+    <button class="tab active" data-mode="car">Car: cash vs credit</button>
+    <button class="tab" data-mode="home">Apartment: mortgage vs cash vs rent</button>
+    <button class="tab" data-mode="mort">Mortgage variants: down payment &amp; term</button>
+    <button class="tab" data-mode="life">Life decisions: what's my best move?</button>
+    <button class="tab" data-mode="biz">Business ideas: which one to build?</button>
+  </nav>
+  <div class="quickbar" id="quickbar"></div>
+</header>
+
+<div class="layout">
+
+<aside class="panel" id="inputs">
+
+  <section data-mode="life biz">
+    <h2>You today</h2>
+    <label>Starting point
+      <select id="savePreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="zero">No savings — $0</option>
+        <option value="s10k">Some savings — $10,000</option>
+        <option value="s80k">Big cushion — $80,000</option>
+      </select>
+    </label>
+    <label>Savings you have now
+      <span class="row">
+        <input type="number" id="savings" value="10000" min="0" step="500">
+        <select id="savingsCurrency"><option>USD</option><option>UAH</option></select>
+      </span>
+      <small>Money you could put toward a purchase today. Until you spend it, it sits invested in the instrument below.</small>
+    </label>
+    <label>Current housing cost, USD/month
+      <input type="number" id="l_curRentUSD" value="0" min="0" step="25">
+      <small>0 if you live with family or already own your place. You keep paying this on every path except moving into your own flat.</small>
+    </label>
+    <label>Other living expenses, USD/month
+      <input type="number" id="l_livExpUSD" value="700" min="0" step="50">
+      <small>Food, transport, everything except housing. Whatever remains of your salary after expenses and payments is invested each month.</small>
+    </label>
+  </section>
+
+  <section>
+    <h2>Your job &amp; income</h2>
+    <label>Salary, per month
+      <span class="row">
+        <input type="number" id="salaryAmt" value="1500" min="0" step="100">
+        <select id="salaryCurrency"><option>USD</option><option>UAH</option></select>
+      </span>
+      <small>What every comparison starts from. On the business tab this is the income you give up
+        (or keep, if hired staff run the idea); on the loan tabs a USD salary makes a fixed UAH
+        payment shrink as the hryvnia devalues.</small>
+    </label>
+    <label>Salary growth, %/yr (in salary currency)
+      <input type="number" id="salaryGrowthPct" value="3" min="0" max="30" step="0.5">
+    </label>
+  </section>
+
+  <section data-mode="life">
+    <h2>Decisions to compare</h2>
+    <p class="dec-hint">Tick up to 6 moves to weigh against doing nothing.
+      <em>Lifestyle</em> is your own 0–10 score for how much you'd enjoy living that path —
+      it feeds the ranking through the "What matters to you" weights.</p>
+    <div class="dec-head"><span>Decision</span><span>Lifestyle</span></div>
+    <div class="dec-row"><span class="dec-fixed">Change nothing <small>(always compared)</small></span>
+      <input type="number" id="qol_nothing" value="5" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_carCash"> Car — cash</label>
+      <input type="number" id="qol_carCash" value="7" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_carCredit" checked> Car — credit</label>
+      <input type="number" id="qol_carCredit" value="6" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_flatLive" checked> Flat — mortgage, live in it</label>
+      <input type="number" id="qol_flatLive" value="9" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_flatBtl"> Flat — mortgage, rent it out</label>
+      <input type="number" id="qol_flatBtl" value="6" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_edu" checked> Education — earn more later</label>
+      <input type="number" id="qol_edu" value="7" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_job"> Change job</label>
+      <input type="number" id="qol_job" value="6" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_migrate"> Move abroad</label>
+      <input type="number" id="qol_migrate" value="5" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_biz" checked> Start a business</label>
+      <input type="number" id="qol_biz" value="6" min="0" max="10" step="1"></div>
+    <div class="dec-row"><label class="check"><input type="checkbox" id="d_combo" checked> Car on credit now + flat later</label>
+      <input type="number" id="qol_combo" value="8" min="0" max="10" step="1"></div>
+    <label>Combo: buy the flat in year
+      <input type="number" id="combo_flatDelayYr" value="3" min="0" max="15" step="1">
+      <small>The combined plan takes the car loan now and the mortgage this many years later —
+        the flat is priced at that year's value and exchange rate, and the down payment must
+        fit whatever you've saved by then.</small>
+    </label>
+  </section>
+
+  <section data-mode="life">
+    <h2>What matters to you</h2>
+    <p class="dec-hint">Weights 0–10. The ranking mixes five scores: wealth at the horizon,
+      how well the path survives a crisis, how heavy the payments feel, how liquid you stay,
+      and your lifestyle scores above.</p>
+    <label>Wealth at the horizon
+      <input type="number" id="w_wealth" value="5" min="0" max="10" step="1"></label>
+    <label>Crisis resilience
+      <input type="number" id="w_robust" value="3" min="0" max="10" step="1"></label>
+    <label>Low payment stress
+      <input type="number" id="w_stress" value="2" min="0" max="10" step="1"></label>
+    <label>Staying liquid
+      <input type="number" id="w_liq" value="1" min="0" max="10" step="1"></label>
+    <label>Lifestyle
+      <input type="number" id="w_qol" value="3" min="0" max="10" step="1"></label>
+  </section>
+
+  <section data-mode="life">
+    <h2>Education</h2>
+    <label>Cost, USD (paid upfront)
+      <input type="number" id="edu_costUSD" value="3000" min="0" step="250"></label>
+    <label>Study duration, months
+      <input type="number" id="edu_months" value="12" min="1" max="60" step="1"></label>
+    <label>Income lost while studying, % of salary
+      <input type="number" id="edu_dropPct" value="0" min="0" max="100" step="5">
+      <small>0 if you study evenings; 50 if you drop to half-time.</small></label>
+    <label>Salary raise afterwards, %
+      <input type="number" id="edu_bumpPct" value="25" min="0" max="200" step="5">
+      <small>Permanent bump once you finish, on top of normal salary growth.</small></label>
+  </section>
+
+  <section data-mode="life">
+    <h2>Job change</h2>
+    <label>Pay change on switching, %
+      <input type="number" id="job_changePct" value="15" min="-80" max="200" step="5">
+      <small>Positive = the new offer pays more from day one; negative = a pay cut for a better trajectory.</small></label>
+    <label>Salary growth at the new job, %/yr
+      <input type="number" id="job_newGrowthPct" value="8" min="0" max="40" step="0.5">
+      <small>Compare with your current growth under "Your income".</small></label>
+  </section>
+
+  <section data-mode="life">
+    <h2>Moving abroad</h2>
+    <label>Relocation cost, USD (one-time)
+      <input type="number" id="mig_costUSD" value="3000" min="0" step="250"></label>
+    <label>Salary abroad, USD/month
+      <input type="number" id="mig_salaryUSD" value="3000" min="0" step="100"></label>
+    <label>Rent abroad, USD/month
+      <input type="number" id="mig_rentUSD" value="900" min="0" step="50"></label>
+    <label>Other living expenses abroad, USD/month
+      <input type="number" id="mig_livUSD" value="1200" min="0" step="50">
+      <small>Replaces your current housing and living costs entirely.</small></label>
+  </section>
+
+  <section data-mode="life">
+    <h2>Own business</h2>
+    <label>Typical business
+      <select id="bizPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="carwash">Self-service car wash, 4 posts — ~$70k</option>
+        <option value="coffee">Coffee point (MAF) — ~$10k</option>
+        <option value="barber">Barbershop, 4 chairs — ~$25k</option>
+        <option value="shop">Online store — ~$6k</option>
+      </select>
+      <small>Rough mid-2026 Ukrainian figures — investment, ramp-up, revenue and bills. Edit anything below to go custom.</small>
+    </label>
+    <label>Startup investment, USD (paid upfront)
+      <input type="number" id="biz_investUSD" value="15000" min="0" step="500">
+      <small>Equipment, construction, permits, initial stock.</small></label>
+    <label>Ramp-up with no income, months
+      <input type="number" id="biz_rampMonths" value="6" min="0" max="60" step="1">
+      <small>You quit your job on day one; the business pays nothing until the ramp ends.</small></label>
+    <label>Revenue after ramp-up, USD/month
+      <input type="number" id="biz_revenueUSD" value="4000" min="0" step="100"></label>
+    <label>Operating bills, USD/month
+      <input type="number" id="biz_costsUSD" value="2000" min="0" step="100">
+      <small>Electricity, water, rent of the plot or premises, staff, chemicals/supplies. Held constant in real-USD terms.</small></label>
+    <label>Tax, % of revenue
+      <input type="number" id="biz_taxPct" value="6" min="0" max="50" step="0.5">
+      <small>FOP group 3: 5% single tax + 1% military levy. General system or hired staff cost more.</small></label>
+    <label>Revenue growth, %/yr
+      <input type="number" id="biz_growthPct" value="10" min="-20" max="60" step="1">
+      <small>The crisis scenario also cuts revenue by 30%.</small></label>
+    <label>Resale value, % of investment
+      <input type="number" id="biz_residualPct" value="40" min="0" max="150" step="5">
+      <small>What the business could be sold for — equipment, fit-out, client base. Counted in your net worth, held in real-USD terms.</small></label>
+    <p class="dec-hint" id="bizBreakEven"></p>
+  </section>
+
+  <section data-mode="biz">
+    <h2>Reality check — applied to every idea</h2>
+    <label>Revenue vs plan, %
+      <input type="number" id="bz_revFactorPct" value="100" min="10" max="200" step="5">
+      <small>Business plans are optimistic. 70 means every idea actually earns 70% of its planned revenue — sweep this in "What if…" to see which idea survives disappointment.</small></label>
+    <label>Bills vs plan, %
+      <input type="number" id="bz_costFactorPct" value="100" min="30" max="250" step="5">
+      <small>120 means electricity, rent and staff cost 20% more than planned.</small></label>
+  </section>
+
+  <section data-mode="biz">
+    <h2>Scaling — reinvest profit</h2>
+    <label class="check"><input type="checkbox" id="bz_scaleOn"> Reinvest profit to open more units
+      <small>Part of each month's profit goes into a war chest; when it covers the next unit, one opens and ramps up like the first. Applies to every idea.</small></label>
+    <label>Profit reinvested while expanding, %
+      <input type="number" id="bz_reinvestPct" value="50" min="0" max="100" step="5">
+      <small>The rest is paid out to you. Retaining more scales faster but leaves less to live on — watch the feasibility flags.</small></label>
+    <label>Next unit cost, % of the original investment
+      <input type="number" id="bz_unitCostPct" value="80" min="10" max="200" step="5">
+      <small>A repeat build is usually cheaper: design, permits and experience carry over. Prices rise with USD inflation.</small></label>
+    <label>Maximum units
+      <input type="number" id="bz_maxUnits" value="3" min="1" max="10" step="1">
+      <small>Every extra unit pays its own staff, whoever runs the first one. At the cap, all profit is paid out again and the war chest is released.</small></label>
+  </section>
+
+  <section data-mode="biz">
+    <h2>Idea 1</h2>
+    <label class="check"><input type="checkbox" id="bz1_on" checked> Compare this idea</label>
+    <label>Type
+      <select id="bz1Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="carwash" selected>Self-service car wash, 4 posts</option>
+        <option value="coffee">Coffee point (MAF)</option>
+        <option value="barber">Barbershop, 4 chairs</option>
+        <option value="shop">Online store</option>
+      </select></label>
+    <label>Startup investment, USD
+      <input type="number" id="bz1_investUSD" value="70000" min="0" step="500"></label>
+    <label>Ramp-up with no income, months
+      <input type="number" id="bz1_rampMonths" value="9" min="0" max="60" step="1"></label>
+    <label>Revenue after ramp-up, USD/month
+      <input type="number" id="bz1_revenueUSD" value="4500" min="0" step="100"></label>
+    <label>Operating bills, USD/month
+      <input type="number" id="bz1_costsUSD" value="1800" min="0" step="100">
+      <small>Electricity, water, rent of the plot, chemicals, maintenance.</small></label>
+    <label>Tax, % of revenue
+      <input type="number" id="bz1_taxPct" value="6" min="0" max="50" step="0.5"></label>
+    <label>Revenue growth, %/yr
+      <input type="number" id="bz1_growthPct" value="5" min="-20" max="60" step="1"></label>
+    <label>Resale value, % of investment
+      <input type="number" id="bz1_residualPct" value="50" min="0" max="150" step="5"></label>
+    <label>Who runs it
+      <select id="bz1_who">
+        <option value="quit">You — quit your job</option>
+        <option value="staff" selected>Hired staff — you keep your salary</option>
+      </select></label>
+    <label>Staff to replace you, USD/month
+      <input type="number" id="bz1_staffUSD" value="300" min="0" step="50">
+      <small>Extra wages so the business runs without you. Charged only when you keep your job.</small></label>
+  </section>
+
+  <section data-mode="biz">
+    <h2>Idea 2</h2>
+    <label class="check"><input type="checkbox" id="bz2_on" checked> Compare this idea</label>
+    <label>Type
+      <select id="bz2Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="carwash">Self-service car wash, 4 posts</option>
+        <option value="coffee" selected>Coffee point (MAF)</option>
+        <option value="barber">Barbershop, 4 chairs</option>
+        <option value="shop">Online store</option>
+      </select></label>
+    <label>Startup investment, USD
+      <input type="number" id="bz2_investUSD" value="10000" min="0" step="500"></label>
+    <label>Ramp-up with no income, months
+      <input type="number" id="bz2_rampMonths" value="3" min="0" max="60" step="1"></label>
+    <label>Revenue after ramp-up, USD/month
+      <input type="number" id="bz2_revenueUSD" value="3200" min="0" step="100"></label>
+    <label>Operating bills, USD/month
+      <input type="number" id="bz2_costsUSD" value="2300" min="0" step="100">
+      <small>Rent of the spot, coffee &amp; milk, barista, utilities.</small></label>
+    <label>Tax, % of revenue
+      <input type="number" id="bz2_taxPct" value="6" min="0" max="50" step="0.5"></label>
+    <label>Revenue growth, %/yr
+      <input type="number" id="bz2_growthPct" value="8" min="-20" max="60" step="1"></label>
+    <label>Resale value, % of investment
+      <input type="number" id="bz2_residualPct" value="40" min="0" max="150" step="5"></label>
+    <label>Who runs it
+      <select id="bz2_who">
+        <option value="quit" selected>You — quit your job</option>
+        <option value="staff">Hired staff — you keep your salary</option>
+      </select></label>
+    <label>Staff to replace you, USD/month
+      <input type="number" id="bz2_staffUSD" value="800" min="0" step="50"></label>
+  </section>
+
+  <section data-mode="biz">
+    <h2>Idea 3</h2>
+    <label class="check"><input type="checkbox" id="bz3_on" checked> Compare this idea</label>
+    <label>Type
+      <select id="bz3Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="carwash">Self-service car wash, 4 posts</option>
+        <option value="coffee">Coffee point (MAF)</option>
+        <option value="barber" selected>Barbershop, 4 chairs</option>
+        <option value="shop">Online store</option>
+      </select></label>
+    <label>Startup investment, USD
+      <input type="number" id="bz3_investUSD" value="25000" min="0" step="500"></label>
+    <label>Ramp-up with no income, months
+      <input type="number" id="bz3_rampMonths" value="4" min="0" max="60" step="1"></label>
+    <label>Revenue after ramp-up, USD/month
+      <input type="number" id="bz3_revenueUSD" value="5500" min="0" step="100"></label>
+    <label>Operating bills, USD/month
+      <input type="number" id="bz3_costsUSD" value="4100" min="0" step="100">
+      <small>Premises rent, masters' share, supplies, utilities.</small></label>
+    <label>Tax, % of revenue
+      <input type="number" id="bz3_taxPct" value="6" min="0" max="50" step="0.5"></label>
+    <label>Revenue growth, %/yr
+      <input type="number" id="bz3_growthPct" value="6" min="-20" max="60" step="1"></label>
+    <label>Resale value, % of investment
+      <input type="number" id="bz3_residualPct" value="30" min="0" max="150" step="5"></label>
+    <label>Who runs it
+      <select id="bz3_who">
+        <option value="quit" selected>You — quit your job</option>
+        <option value="staff">Hired staff — you keep your salary</option>
+      </select></label>
+    <label>Staff to replace you, USD/month
+      <input type="number" id="bz3_staffUSD" value="500" min="0" step="50"></label>
+  </section>
+
+  <section data-mode="biz">
+    <h2>Idea 4</h2>
+    <label class="check"><input type="checkbox" id="bz4_on"> Compare this idea</label>
+    <label>Type
+      <select id="bz4Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="carwash">Self-service car wash, 4 posts</option>
+        <option value="coffee">Coffee point (MAF)</option>
+        <option value="barber">Barbershop, 4 chairs</option>
+        <option value="shop" selected>Online store</option>
+      </select></label>
+    <label>Startup investment, USD
+      <input type="number" id="bz4_investUSD" value="6000" min="0" step="500"></label>
+    <label>Ramp-up with no income, months
+      <input type="number" id="bz4_rampMonths" value="6" min="0" max="60" step="1"></label>
+    <label>Revenue after ramp-up, USD/month
+      <input type="number" id="bz4_revenueUSD" value="4000" min="0" step="100"></label>
+    <label>Operating bills, USD/month
+      <input type="number" id="bz4_costsUSD" value="3300" min="0" step="100">
+      <small>Goods, advertising, delivery, returns.</small></label>
+    <label>Tax, % of revenue
+      <input type="number" id="bz4_taxPct" value="6" min="0" max="50" step="0.5"></label>
+    <label>Revenue growth, %/yr
+      <input type="number" id="bz4_growthPct" value="15" min="-20" max="60" step="1"></label>
+    <label>Resale value, % of investment
+      <input type="number" id="bz4_residualPct" value="10" min="0" max="150" step="5"></label>
+    <label>Who runs it
+      <select id="bz4_who">
+        <option value="quit" selected>You — quit your job</option>
+        <option value="staff">Hired staff — you keep your salary</option>
+      </select></label>
+    <label>Staff to replace you, USD/month
+      <input type="number" id="bz4_staffUSD" value="700" min="0" step="50"></label>
+  </section>
+
+  <section data-mode="car life">
+    <h2>Car &amp; purchase</h2>
+    <label>Typical car
+      <select id="carPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="used">Used car — market average (~$6,000)</option>
+        <option value="new">New crossover, e.g. Duster (~$27,000)</option>
+        <option value="premium">New premium SUV (~$45,000)</option>
+      </select>
+      <small>Fills price &amp; depreciation with mid-2026 market figures. Edit anything below to go custom.</small>
+    </label>
+    <label>Car price
+      <span class="row">
+        <input type="number" id="price" value="25000" min="0" step="500">
+        <select id="priceCurrency"><option>USD</option><option>UAH</option></select>
+      </span>
+      <small>Cars in Ukraine are effectively USD-priced.</small>
+    </label>
+    <label>Car depreciation, %/yr (in USD)
+      <input type="number" id="carDepPct" value="12" min="0" max="50" step="0.5">
+      <small>Value loss in USD terms; UAH value floats with FX.</small>
+    </label>
+    <label>Pension fund fee, % of price
+      <input type="number" id="pensionPct" value="3" min="0" max="10" step="0.5">
+      <small>3% on first registration in Ukraine (4–5% for expensive cars). Paid in both scenarios.</small>
+    </label>
+    <label>Registration &amp; plates, UAH
+      <input type="number" id="regFeeUAH" value="1500" min="0" step="100">
+    </label>
+    <label>Cash price difference, %
+      <input type="number" id="cashDiscountPct" value="0" min="-15" max="15" step="0.5">
+      <small>Positive = dealer discount for cash. Negative = the credit offer is cheaper (subsidised promo price).</small>
+    </label>
+  </section>
+
+  <section data-mode="car life">
+    <h2>Loan</h2>
+    <label>Typical offer
+      <select id="loanPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="standard">Standard bank loan — 16%, 20% down, 5 yrs</option>
+        <option value="promo">Dealer promo — 0.01%, 60% down, 2 yrs</option>
+        <option value="usedloan">Used-car loan — 20%, 30% down, 5 yrs</option>
+        <option value="nodown">No down payment — 22%, 7 yrs</option>
+      </select>
+      <small>Typical 2026 bank offers. Promo rates need a big down payment and carry a higher commission.</small>
+    </label>
+    <label>Down payment, %
+      <input type="number" id="dpPct" value="30" min="0" max="95" step="5">
+    </label>
+    <label>Loan term, years
+      <input type="number" id="loanYears" value="5" min="0.5" max="8" step="0.5">
+    </label>
+    <label>Interest rate, % nominal/yr
+      <input type="number" id="loanRatePct" value="16" min="0" max="60" step="0.5">
+      <small>Effective bank rates in UAH, incl. subsidised offers if you have one.</small>
+    </label>
+    <label>One-time commission, % of loan
+      <input type="number" id="commissionPct" value="1.5" min="0" max="10" step="0.25">
+    </label>
+    <label>Monthly admin fee, UAH
+      <input type="number" id="monthlyFeeUAH" value="0" min="0" step="50">
+    </label>
+    <label>KASKO insurance, % of car value/yr
+      <input type="number" id="kaskoPct" value="5.5" min="0" max="15" step="0.25">
+      <small>Mandatory while the loan lives.</small>
+    </label>
+    <label class="check"><input type="checkbox" id="kaskoCash">
+      Cash buyer also insures (KASKO) — whole horizon
+      <small>Leave off if you'd only carry KASKO because the bank forces you to.</small>
+    </label>
+    <label>Life insurance, %/yr of outstanding debt
+      <input type="number" id="lifeInsPct" value="0" min="0" max="3" step="0.1">
+      <small>Some banks require borrower life insurance (~0.3–0.6%/yr).</small>
+    </label>
+  </section>
+
+  <section data-mode="home life mort">
+    <h2>Apartment &amp; purchase</h2>
+    <label>Typical apartment
+      <select id="homePreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="kyiv1">Kyiv 1-room — $70,000, rent ~$430/mo</option>
+        <option value="kyiv2">Kyiv 2-room — $110,000, rent ~$670/mo</option>
+        <option value="region1">Regional city 1-room — $40,000, rent ~$250/mo</option>
+      </select>
+      <small>ЛУН market stats, June 2026. Sets price and both rent fields below.</small>
+    </label>
+    <label>Apartment price, USD
+      <input type="number" id="h_price" value="75000" min="0" step="1000">
+      <small>Housing in Ukraine is USD-denominated.</small>
+    </label>
+    <label>Appreciation, %/yr (in USD)
+      <input type="number" id="h_apprPct" value="2" min="-10" max="15" step="0.5">
+    </label>
+    <label>Purchase fees, % of price
+      <input type="number" id="h_feesPct" value="2.5" min="0" max="10" step="0.25">
+      <small>State duty 1% + pension fund 1% + notary &amp; appraisal.</small>
+    </label>
+    <label>Owner's maintenance, %/yr of value
+      <input type="number" id="h_maintPct" value="0.8" min="0" max="5" step="0.1">
+      <small>Repairs, building fund — costs a renter doesn't carry. Utilities are paid by both and omitted.</small>
+    </label>
+  </section>
+
+  <section data-mode="home life mort">
+    <h2>Mortgage</h2>
+    <label>Typical program
+      <select id="mortPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="eoselia3">єОселя 3% — defenders, medics, teachers</option>
+        <option value="eoselia7">єОселя 7% — young, IDPs, no own home</option>
+        <option value="market">Market mortgage — ~20%, 30% down</option>
+      </select>
+      <small>єОселя: 20 yrs, from 20% down (youth from 10%), loan cap ₴5M.</small>
+    </label>
+    <label>Down payment, %
+      <input type="number" id="h_dpPct" value="20" min="0" max="100" step="5">
+    </label>
+    <label>Term, years
+      <input type="number" id="h_loanYears" value="20" min="1" max="30" step="1">
+    </label>
+    <label>Interest rate, % nominal/yr
+      <input type="number" id="h_ratePct" value="7" min="0" max="30" step="0.5">
+      <small>єОселя: 3% or 7% for the first 10 years, then 6%/10% (the step isn't modelled — use a blended
+        rate for long horizons). Market rates ~19–22%.</small>
+    </label>
+    <label>One-time commission, % of loan
+      <input type="number" id="h_commPct" value="1" min="0" max="5" step="0.25">
+    </label>
+    <label>Property insurance, %/yr of value
+      <input type="number" id="h_insPct" value="0.4" min="0" max="3" step="0.1">
+      <small>Bank-required while the mortgage lives.</small>
+    </label>
+  </section>
+
+  <section data-mode="mort">
+    <h2>Variants — down payment + term</h2>
+    <p class="dec-hint">Up to ten combinations for the same apartment and mortgage rate
+      (both set above; the down payment and term above are ignored here).
+      Each row is one variant: down payment, % — and term, years.
+      <em>100% down</em> means buying outright, with no loan. Duplicates are collapsed.</p>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv1_on" checked> 1</label>
+      <input type="number" id="mv1_dpPct" value="10" min="0" max="100" step="5">
+      <input type="number" id="mv1_years" value="20" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv2_on" checked> 2</label>
+      <input type="number" id="mv2_dpPct" value="20" min="0" max="100" step="5">
+      <input type="number" id="mv2_years" value="20" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv3_on" checked> 3</label>
+      <input type="number" id="mv3_dpPct" value="30" min="0" max="100" step="5">
+      <input type="number" id="mv3_years" value="20" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv4_on" checked> 4</label>
+      <input type="number" id="mv4_dpPct" value="20" min="0" max="100" step="5">
+      <input type="number" id="mv4_years" value="10" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv5_on" checked> 5</label>
+      <input type="number" id="mv5_dpPct" value="30" min="0" max="100" step="5">
+      <input type="number" id="mv5_years" value="15" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv6_on" checked> 6</label>
+      <input type="number" id="mv6_dpPct" value="50" min="0" max="100" step="5">
+      <input type="number" id="mv6_years" value="10" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv7_on"> 7</label>
+      <input type="number" id="mv7_dpPct" value="50" min="0" max="100" step="5">
+      <input type="number" id="mv7_years" value="20" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv8_on"> 8</label>
+      <input type="number" id="mv8_dpPct" value="70" min="0" max="100" step="5">
+      <input type="number" id="mv8_years" value="10" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv9_on"> 9</label>
+      <input type="number" id="mv9_dpPct" value="40" min="0" max="100" step="5">
+      <input type="number" id="mv9_years" value="7" min="1" max="30" step="1"></div>
+    <div class="mv-row"><label class="check"><input type="checkbox" id="mv10_on"> 10</label>
+      <input type="number" id="mv10_dpPct" value="100" min="0" max="100" step="5">
+      <input type="number" id="mv10_years" value="1" min="1" max="30" step="1"></div>
+  </section>
+
+  <section data-mode="home life mort">
+    <h2>Renting &amp; buy-to-let</h2>
+    <label>Market rent for such an apartment, USD/month
+      <input type="number" id="h_rentUSD" value="500" min="0" step="25">
+      <small>What the renter pays — and what the buy-to-let landlord collects.</small>
+    </label>
+    <label>Rent growth, %/yr (in USD)
+      <input type="number" id="h_rentGrowthPct" value="2" min="-5" max="15" step="0.5">
+    </label>
+    <label>Buy-to-let: your own rent, USD/month
+      <input type="number" id="h_ownRentUSD" value="500" min="0" step="25">
+      <small>What you pay to live elsewhere while tenants pay off your flat. Living cheaper than you let is the classic house-hack.</small>
+    </label>
+    <label>Vacancy, % of the time
+      <input type="number" id="h_vacancyPct" value="8" min="0" max="50" step="1">
+      <small>~1 month a year empty between tenants.</small>
+    </label>
+    <label>Tax on rental income, %
+      <input type="number" id="h_rentTaxPct" value="23" min="0" max="50" step="0.5">
+      <small>Individuals: 18% PIT + 5% military levy. FOP regimes can be lower.</small>
+    </label>
+  </section>
+
+  <section>
+    <h2>Investment of the freed-up money</h2>
+    <label class="check"><input type="checkbox" id="investOff">
+      Don't invest the difference — clean price comparison
+      <small>The freed-up money just piles up as cash at 0% (still held in the currency below, so
+        hryvnia cash loses dollar value as the rate moves). The gaps between paths then show pure
+        costs — interest, fees, insurance, rent — with no investment income offsetting them.</small>
+    </label>
+    <label>Instrument
+      <select id="invPreset">
+        <option value="uah-dep">UAH bank deposit</option>
+        <option value="ovdp" selected>OVDP (gov bonds, UAH)</option>
+        <option value="usd-dep">USD bank deposit</option>
+        <option value="custom">Custom</option>
+      </select>
+    </label>
+    <label>Currency
+      <select id="invCurrency"><option>UAH</option><option>USD</option></select>
+    </label>
+    <label>Yield, %/yr
+      <input type="number" id="invYieldPct" value="16.5" min="0" max="60" step="0.25">
+    </label>
+    <label>Tax on income, %
+      <input type="number" id="invTaxPct" value="0" min="0" max="50" step="0.5">
+      <small>Deposits: 18% PIT + 5% military levy = 23%. OVDP: exempt.</small>
+    </label>
+    <label>Yield drift, pp/yr
+      <input type="number" id="yieldDriftPp" value="0" min="-10" max="10" step="0.25">
+      <small>Rates normalise over time: −1.5 means today's 16.5% reinvests at 15% next year, 13.5% the year after… (floored at 0).</small>
+    </label>
+  </section>
+
+  <section>
+    <h2>Macro &amp; horizon</h2>
+    <label>Comparison horizon, years
+      <input type="number" id="horizonYears" value="5" min="1" max="30" step="1">
+      <small>For apartments, use 15–25 to see the full mortgage play out.</small>
+    </label>
+    <label>Exchange rate today, UAH/USD
+      <input type="number" id="fx0" value="41.7" min="1" step="0.1">
+    </label>
+    <label>Inflation (UAH CPI), %/yr
+      <input type="number" id="inflPct" value="11" min="0" max="60" step="0.5">
+    </label>
+    <label>USD inflation (US CPI), %/yr
+      <input type="number" id="usdInflPct" value="3" min="0" max="15" step="0.25">
+      <small>Dollars lose purchasing power too — "today's $" results use this.</small>
+    </label>
+    <label>UAH devaluation vs USD, %/yr
+      <input type="number" id="devalPct" value="8" min="-10" max="50" step="0.5">
+    </label>
+    <label class="check"><input type="checkbox" id="pppLink">
+      Derive devaluation from the inflation gap (PPP)
+      <small>Sets devaluation ≈ (1+UAH CPI)/(1+USD CPI) − 1. Long-run the exchange rate tracks the inflation differential; deviations are real appreciation/depreciation.</small>
+    </label>
+  </section>
+
+</aside>
+
+<main class="results">
+
+  <div id="verdict" class="verdict"></div>
+
+  <div class="outcomes" id="scoreboard" hidden></div>
+
+  <div class="outcomes" id="outcomes"></div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <figure class="chart-card">
+    <figcaption>
+      <span class="chart-title">Net worth over time</span>
+      <span class="chart-controls">
+        <select id="chartUnit" class="unit-select">
+          <option value="uah">nominal ₴</option>
+          <option value="uah-real">today's ₴</option>
+          <option value="usd">nominal $</option>
+          <option value="usd-real">today's $</option>
+        </select>
+      </span>
+    </figcaption>
+    <p class="chart-sub">Everything you'd own minus what you'd still owe, month by month, for each path.
+      The line that ends highest on the right is the winning strategy. Hover for exact numbers;
+      switch the unit above to see the same picture in dollars or inflation-adjusted money.</p>
+    <div class="legend" id="legendWealth"></div>
+    <div class="chart" id="chartWealth"></div>
+  </figure>
+
+  <figure class="chart-card" id="mortCard" hidden>
+    <figcaption>
+      <span class="chart-title">When does each variant come out ahead of renting?</span>
+    </figcaption>
+    <p class="chart-sub">Each line is one down-payment + term variant, shown as its lead over
+      renting + investing, in today's dollars. Below zero the buyer is behind (in the minus);
+      where a line crosses zero, that variant starts to pay off. The table lists each variant's
+      upfront cost, monthly payment, deepest minus, break-even point and final result.</p>
+    <div class="legend" id="legendMort"></div>
+    <div class="chart" id="chartMort"></div>
+    <div id="mortTable"></div>
+  </figure>
+
+  <figure class="chart-card" id="payCard" hidden>
+    <figcaption><span class="chart-title">What each variant costs — month 1</span></figcaption>
+    <p class="chart-sub">The required payment at the start: fixed hryvnia annuity, bank-required
+      property insurance (only while the loan lives) and owner's maintenance (always). Dollar
+      figures use today's exchange rate — with a dollar salary the same ₴ payment costs fewer
+      dollars every year as the hryvnia devalues, so month 1 is the heaviest point.</p>
+    <div id="payTable"></div>
+  </figure>
+
+  <figure class="chart-card" id="debtCard" hidden>
+    <figcaption>
+      <span class="chart-title">Remaining loan debt over time</span>
+      <span class="chart-controls">
+        <select id="debtUnit" class="unit-select">
+          <option value="usd">nominal $</option>
+          <option value="uah">nominal ₴</option>
+        </select>
+      </span>
+    </figcaption>
+    <p class="chart-sub">How much you still owe the bank, month by month, for each variant. The debt
+      is fixed in hryvnia and amortizes with every annuity payment; switch to dollars to see
+      devaluation melt it even faster — the bank can't index it to the exchange rate. A line
+      hitting zero is the loan paid off.</p>
+    <div class="legend" id="legendDebt"></div>
+    <div class="chart" id="chartDebt"></div>
+  </figure>
+
+  <figure class="chart-card">
+    <figcaption>
+      <span class="chart-title">Required payments, % of your salary</span>
+      <span class="chart-controls" id="burdenWarn"></span>
+    </figcaption>
+    <p class="chart-sub">How big a bite each path's required payments take out of your monthly salary.
+      A falling line means the payment gets easier to carry over time — with a dollar salary, a fixed
+      hryvnia loan payment shrinks every year as the hryvnia devalues. A line below zero means the path
+      nets you extra income that month (a raise, rent from tenants, business profit). One-time outlays
+      such as a future down payment are not counted here — they show as a step down in the net-worth chart.</p>
+    <div class="legend" id="legendBurden"></div>
+    <div class="chart" id="chartBurden"></div>
+  </figure>
+
+  <figure class="chart-card">
+    <figcaption><span class="chart-title" id="whyTitle"></span></figcaption>
+    <p class="chart-sub">What drives the result. Bars to the right add money, bars to the left cost money;
+      added up they equal the net result in the bottom row.</p>
+    <div class="chart" id="chartWhy"></div>
+  </figure>
+
+  <figure class="chart-card">
+    <figcaption>
+      <span class="chart-title">What if… — sensitivity to one input</span>
+      <span class="chart-controls">
+        <select id="sweepParam" class="unit-select"></select>
+      </span>
+    </figcaption>
+    <p class="chart-sub">The whole simulation re-run with one input swept across a range, everything else
+      as set on the left. On the car and apartment tabs each line is a path's <em>advantage over the
+      baseline path</em> at the horizon, in today's dollars (above zero = beats it); on the life-plan tab
+      lines are absolute net worth. The dashed line marks your current setting — hover any point to see
+      exactly how much you'd gain or lose by moving the input.</p>
+    <div class="legend" id="legendSweep"></div>
+    <div class="chart" id="chartSweep"></div>
+    <p class="chart-sub" id="sweepNote"></p>
+  </figure>
+
+  <figure class="chart-card" id="scCard" hidden>
+    <figcaption><span class="chart-title">Two scenarios side by side — with and without inflation</span></figcaption>
+    <p class="chart-sub">Set a down payment, loan term and horizon for each scenario. Each chart shows
+      that scenario's lead over renting + investing in two ways: <em>nominal $</em> — the dollars you'd
+      actually see at that future date, with inflation baked in — and <em>today's $</em> — the same line
+      with US inflation removed, i.e. real purchasing power. Both charts share one vertical scale, so
+      heights are directly comparable even when the horizons differ.</p>
+    <div class="sc-controls">
+      <span class="sc-tag">A</span>
+      <label>Down, %<input type="number" id="sc1_dpPct" value="20" min="0" max="100" step="5"></label>
+      <label>Term, yrs<input type="number" id="sc1_years" value="20" min="1" max="30" step="1"></label>
+      <label>Horizon, yrs<input type="number" id="sc1_horizonYr" value="20" min="1" max="30" step="1"></label>
+      <span class="sc-gap"></span>
+      <span class="sc-tag">B</span>
+      <label>Down, %<input type="number" id="sc2_dpPct" value="50" min="0" max="100" step="5"></label>
+      <label>Term, yrs<input type="number" id="sc2_years" value="10" min="1" max="30" step="1"></label>
+      <label>Horizon, yrs<input type="number" id="sc2_horizonYr" value="10" min="1" max="30" step="1"></label>
+    </div>
+    <div class="sc-grid">
+      <div>
+        <div class="legend" id="legendSc1"></div>
+        <div class="chart" id="chartSc1"></div>
+        <p class="chart-sub" id="noteSc1"></p>
+      </div>
+      <div>
+        <div class="legend" id="legendSc2"></div>
+        <div class="chart" id="chartSc2"></div>
+        <p class="chart-sub" id="noteSc2"></p>
+      </div>
+    </div>
+  </figure>
+
+  <figure class="chart-card">
+    <figcaption><span class="chart-title">Macro path behind the numbers (today = 1×)</span></figcaption>
+    <p class="chart-sub">The assumptions everything above is built on: how the exchange rate and
+      consumer prices are assumed to move. “2×” means doubled compared to today. Change them in
+      “Macro &amp; horizon” on the left.</p>
+    <div class="legend" id="legendMacro"></div>
+    <div class="chart" id="chartMacro"></div>
+  </figure>
+
+  <details class="details" open>
+    <summary>Numbers behind the result</summary>
+    <table id="detailTable"></table>
+  </details>
+
+  <p class="note">Model notes: annuity schedule with nominal-rate/12 monthly interest; investment interest compounds monthly and is taxed as it accrues; insurance and maintenance are recalculated on the asset's current value; the asset appears in both net-worth lines where both sides hold it. "Today's ₴/$" deflate by the respective CPI. On the life-decisions tab, every path earns the same salary and pays the same living expenses; income changes (new job, education, business, moving) are modelled as differences from your current salary; a plan whose account dips below zero is flagged as not fitting the budget (past that point the numbers assume borrowing at the investment rate, which flatters it). The decision score is a weighted mix of five 0–100 criteria: wealth and crisis-wealth are scaled between the worst and best path on screen (so scores are relative, not absolute), payment stress uses the peak share of salary, liquidity is the share of final wealth held in the investment account rather than in property, cars or offset by debt, and lifestyle is your own rating. Not modelled: devaluation shocks (real UAH moves stepwise, not smoothly), rate resets on the loan, early repayment, deposit-guarantee and bank risk, taxes on selling property, and the option value of holding liquid cash.</p>
+
+</main>
+
+</div>
+
+<div id="tooltip" class="tooltip" hidden></div>
+
+<script src="engine.js"></script>
+<script src="defaults.js"></script>
+<script src="car.js"></script>
+<script src="home.js"></script>
+<script src="mort.js"></script>
+<script src="decisions.js"></script>
+<script src="life.js"></script>
+<script src="business.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
