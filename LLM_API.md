@@ -160,19 +160,22 @@ is on). A 100% down payment behaves as a cash purchase.
 ### Biz mode: global controls
 - reality check: `bz_revFactorPct` (100), `bz_costFactorPct` (100) — every
   idea's revenue / bills as % of its plan
-- scaling: `bz_scaleOn` (false), `bz_reinvestPct` (50, % of profit retained
+- scaling: `bz_scaleOn` (true), `bz_reinvestPct` (50, % of profit retained
   while expanding), `bz_unitCostPct` (80, next unit as % of original
   investment), `bz_maxUnits` (3)
 
 ### Biz mode: idea slots 1–4 (replace N)
-- `bzN_on` (1–3 true, 4 false), `bzNPreset` ('carwash'|'coffee'|'barber'|'shop'|'custom' —
+- `bzN_on` (1–3 true, 4 false), `bzNPreset` ('carwash'|'coffee'|'barber'|'shop'|'vending'|'custom' —
   display name only; numbers below are what count)
 - `bzN_who` ('staff' = keep your salary, hire staff | 'quit' = run it yourself)
 - `bzN_investUSD`, `bzN_rampMonths`, `bzN_revenueUSD`, `bzN_costsUSD`,
   `bzN_taxPct`, `bzN_growthPct`, `bzN_residualPct`, `bzN_staffUSD` (staff to
   replace you; extra scaled units always pay it)
+- `bzN_hoursWk` — informational only: your hands-on hours/week if you run it
+  yourself; results show ~20% of it as oversight when staff runs a unit
 - slot defaults: 1 = car wash ($70k, staff-run), 2 = coffee ($10k), 3 =
-  barbershop ($25k), 4 = online store ($6k, off)
+  barbershop ($25k), 4 = online store ($6k, off); vending preset = ~8 coffee/
+  snack machines, $12k, $2.2k/mo revenue, $1.1k/mo bills, ~10 h/week
 
 ## Model conventions worth knowing
 

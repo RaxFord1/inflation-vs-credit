@@ -165,6 +165,7 @@
         <option value="coffee">Coffee point (MAF) — ~$10k</option>
         <option value="barber">Barbershop, 4 chairs — ~$25k</option>
         <option value="shop">Online store — ~$6k</option>
+        <option value="vending">Vending machines, ~8 coffee/snack — ~$12k</option>
       </select>
       <small>Rough mid-2026 Ukrainian figures — investment, ramp-up, revenue and bills. Edit anything below to go custom.</small>
     </label>
@@ -203,7 +204,7 @@
 
   <section data-mode="biz">
     <h2>Scaling — reinvest profit</h2>
-    <label class="check"><input type="checkbox" id="bz_scaleOn"> Reinvest profit to open more units
+    <label class="check"><input type="checkbox" id="bz_scaleOn" checked> Reinvest profit to open more units
       <small>Part of each month's profit goes into a war chest; when it covers the next unit, one opens and ramps up like the first. Applies to every idea.</small></label>
     <label>Profit reinvested while expanding, %
       <input type="number" id="bz_reinvestPct" value="50" min="0" max="100" step="5">
@@ -226,6 +227,7 @@
         <option value="coffee">Coffee point (MAF)</option>
         <option value="barber">Barbershop, 4 chairs</option>
         <option value="shop">Online store</option>
+        <option value="vending">Vending machines</option>
       </select></label>
     <label>Startup investment, USD
       <input type="number" id="bz1_investUSD" value="70000" min="0" step="500"></label>
@@ -250,6 +252,9 @@
     <label>Staff to replace you, USD/month
       <input type="number" id="bz1_staffUSD" value="300" min="0" step="50">
       <small>Extra wages so the business runs without you. Charged only when you keep your job.</small></label>
+    <label>Your time if you run it yourself, hours/week
+      <input type="number" id="bz1_hoursWk" value="15" min="0" max="100" step="1">
+      <small>Informational only — shown in the results. If hired staff runs it, you still spend ~20% of this on oversight; every extra scaled unit adds that oversight too.</small></label>
   </section>
 
   <section data-mode="biz">
@@ -262,6 +267,7 @@
         <option value="coffee" selected>Coffee point (MAF)</option>
         <option value="barber">Barbershop, 4 chairs</option>
         <option value="shop">Online store</option>
+        <option value="vending">Vending machines</option>
       </select></label>
     <label>Startup investment, USD
       <input type="number" id="bz2_investUSD" value="10000" min="0" step="500"></label>
@@ -285,6 +291,8 @@
       </select></label>
     <label>Staff to replace you, USD/month
       <input type="number" id="bz2_staffUSD" value="800" min="0" step="50"></label>
+    <label>Your time if you run it yourself, hours/week
+      <input type="number" id="bz2_hoursWk" value="60" min="0" max="100" step="1"></label>
   </section>
 
   <section data-mode="biz">
@@ -297,6 +305,7 @@
         <option value="coffee">Coffee point (MAF)</option>
         <option value="barber" selected>Barbershop, 4 chairs</option>
         <option value="shop">Online store</option>
+        <option value="vending">Vending machines</option>
       </select></label>
     <label>Startup investment, USD
       <input type="number" id="bz3_investUSD" value="25000" min="0" step="500"></label>
@@ -320,6 +329,8 @@
       </select></label>
     <label>Staff to replace you, USD/month
       <input type="number" id="bz3_staffUSD" value="500" min="0" step="50"></label>
+    <label>Your time if you run it yourself, hours/week
+      <input type="number" id="bz3_hoursWk" value="45" min="0" max="100" step="1"></label>
   </section>
 
   <section data-mode="biz">
@@ -332,6 +343,7 @@
         <option value="coffee">Coffee point (MAF)</option>
         <option value="barber">Barbershop, 4 chairs</option>
         <option value="shop" selected>Online store</option>
+        <option value="vending">Vending machines</option>
       </select></label>
     <label>Startup investment, USD
       <input type="number" id="bz4_investUSD" value="6000" min="0" step="500"></label>
@@ -355,6 +367,8 @@
       </select></label>
     <label>Staff to replace you, USD/month
       <input type="number" id="bz4_staffUSD" value="700" min="0" step="50"></label>
+    <label>Your time if you run it yourself, hours/week
+      <input type="number" id="bz4_hoursWk" value="45" min="0" max="100" step="1"></label>
   </section>
 
   <section data-mode="car life">

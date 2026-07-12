@@ -56,10 +56,10 @@ const NUM_IDS = [
   // biz tab
   'bz_revFactorPct', 'bz_costFactorPct',
   'bz_reinvestPct', 'bz_unitCostPct', 'bz_maxUnits',
-  'bz1_investUSD', 'bz1_rampMonths', 'bz1_revenueUSD', 'bz1_costsUSD', 'bz1_taxPct', 'bz1_growthPct', 'bz1_residualPct', 'bz1_staffUSD',
-  'bz2_investUSD', 'bz2_rampMonths', 'bz2_revenueUSD', 'bz2_costsUSD', 'bz2_taxPct', 'bz2_growthPct', 'bz2_residualPct', 'bz2_staffUSD',
-  'bz3_investUSD', 'bz3_rampMonths', 'bz3_revenueUSD', 'bz3_costsUSD', 'bz3_taxPct', 'bz3_growthPct', 'bz3_residualPct', 'bz3_staffUSD',
-  'bz4_investUSD', 'bz4_rampMonths', 'bz4_revenueUSD', 'bz4_costsUSD', 'bz4_taxPct', 'bz4_growthPct', 'bz4_residualPct', 'bz4_staffUSD',
+  'bz1_investUSD', 'bz1_rampMonths', 'bz1_revenueUSD', 'bz1_costsUSD', 'bz1_taxPct', 'bz1_growthPct', 'bz1_residualPct', 'bz1_staffUSD', 'bz1_hoursWk',
+  'bz2_investUSD', 'bz2_rampMonths', 'bz2_revenueUSD', 'bz2_costsUSD', 'bz2_taxPct', 'bz2_growthPct', 'bz2_residualPct', 'bz2_staffUSD', 'bz2_hoursWk',
+  'bz3_investUSD', 'bz3_rampMonths', 'bz3_revenueUSD', 'bz3_costsUSD', 'bz3_taxPct', 'bz3_growthPct', 'bz3_residualPct', 'bz3_staffUSD', 'bz3_hoursWk',
+  'bz4_investUSD', 'bz4_rampMonths', 'bz4_revenueUSD', 'bz4_costsUSD', 'bz4_taxPct', 'bz4_growthPct', 'bz4_residualPct', 'bz4_staffUSD', 'bz4_hoursWk',
   'w_wealth', 'w_robust', 'w_stress', 'w_liq', 'w_qol',
   'qol_nothing', 'qol_carCash', 'qol_carCredit', 'qol_flatLive', 'qol_flatBtl',
   'qol_edu', 'qol_job', 'qol_migrate', 'qol_biz', 'qol_combo',
@@ -112,10 +112,11 @@ const SCENARIO_PRESETS = {
  * The same figures feed the life tab's single business (biz_*) and the four
  * idea slots on the business tab (bz1_… bz4_). */
 const BIZ_PRESET_VALUES = {
-  carwash: { investUSD: 70000, rampMonths: 9, revenueUSD: 4500, costsUSD: 1800, taxPct: 6, growthPct: 5,  residualPct: 50, staffUSD: 300 },
-  coffee:  { investUSD: 10000, rampMonths: 3, revenueUSD: 3200, costsUSD: 2300, taxPct: 6, growthPct: 8,  residualPct: 40, staffUSD: 800 },
-  barber:  { investUSD: 25000, rampMonths: 4, revenueUSD: 5500, costsUSD: 4100, taxPct: 6, growthPct: 6,  residualPct: 30, staffUSD: 500 },
-  shop:    { investUSD: 6000,  rampMonths: 6, revenueUSD: 4000, costsUSD: 3300, taxPct: 6, growthPct: 15, residualPct: 10, staffUSD: 700 },
+  carwash: { investUSD: 70000, rampMonths: 9, revenueUSD: 4500, costsUSD: 1800, taxPct: 6, growthPct: 5,  residualPct: 50, staffUSD: 300, hoursWk: 15 },
+  coffee:  { investUSD: 10000, rampMonths: 3, revenueUSD: 3200, costsUSD: 2300, taxPct: 6, growthPct: 8,  residualPct: 40, staffUSD: 800, hoursWk: 60 },
+  barber:  { investUSD: 25000, rampMonths: 4, revenueUSD: 5500, costsUSD: 4100, taxPct: 6, growthPct: 6,  residualPct: 30, staffUSD: 500, hoursWk: 45 },
+  shop:    { investUSD: 6000,  rampMonths: 6, revenueUSD: 4000, costsUSD: 3300, taxPct: 6, growthPct: 15, residualPct: 10, staffUSD: 700, hoursWk: 45 },
+  vending: { investUSD: 12000, rampMonths: 3, revenueUSD: 2200, costsUSD: 1100, taxPct: 6, growthPct: 8,  residualPct: 45, staffUSD: 400, hoursWk: 10 },
 };
 for (const sel of ['bizPreset', 'bz1Preset', 'bz2Preset', 'bz3Preset', 'bz4Preset']) {
   const life = sel === 'bizPreset'; // the life tab's business always assumes you quit
@@ -124,7 +125,7 @@ for (const sel of ['bizPreset', 'bz1Preset', 'bz2Preset', 'bz3Preset', 'bz4Prese
   for (const kind in BIZ_PRESET_VALUES) {
     SCENARIO_PRESETS[sel][kind] = {};
     for (const f in BIZ_PRESET_VALUES[kind]) {
-      if (life && f === 'staffUSD') continue; // no staff input on the life tab
+      if (life && (f === 'staffUSD' || f === 'hoursWk')) continue; // no staff/time inputs on the life tab
       SCENARIO_PRESETS[sel][kind][prefix + f] = BIZ_PRESET_VALUES[kind][f];
     }
   }
@@ -223,7 +224,7 @@ const QUICKBAR = {
   ],
   life: [
     { sel: 'savePreset', title: 'Savings', labels: { zero: '$0', s10k: '$10k', s80k: '$80k' } },
-    { sel: 'bizPreset', title: 'Business', labels: { carwash: 'Car wash $70k', coffee: 'Coffee $10k', barber: 'Barbershop $25k', shop: 'Online store $6k' } },
+    { sel: 'bizPreset', title: 'Business', labels: { carwash: 'Car wash $70k', coffee: 'Coffee $10k', barber: 'Barbershop $25k', shop: 'Online store $6k', vending: 'Vending $12k' } },
     { sel: 'carPreset', title: 'Car', labels: { used: 'Used ~$6k', new: 'New ~$27k' } },
     { sel: 'loanPreset', title: 'Car loan', labels: { standard: 'Bank 16%', promo: 'Promo 0.01%' } },
     { sel: 'homePreset', title: 'Flat', labels: { kyiv1: 'Kyiv 1-rm $70k', region1: 'Regional $40k' } },
@@ -231,8 +232,8 @@ const QUICKBAR = {
   ],
   biz: [
     { sel: 'savePreset', title: 'Savings', labels: { zero: '$0', s10k: '$10k', s80k: '$80k' } },
-    { sel: 'bz1Preset', title: 'Idea 1', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store' } },
-    { sel: 'bz2Preset', title: 'Idea 2', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store' } },
+    { sel: 'bz1Preset', title: 'Idea 1', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store', vending: 'Vending' } },
+    { sel: 'bz2Preset', title: 'Idea 2', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store', vending: 'Vending' } },
   ],
 };
 

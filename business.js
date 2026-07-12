@@ -11,7 +11,7 @@
 
 const BIZ_SLOT_LABELS = {
   carwash: 'Car wash', coffee: 'Coffee point', barber: 'Barbershop',
-  shop: 'Online store', custom: '',
+  shop: 'Online store', vending: 'Vending', custom: '',
 };
 
 function bizIdeaCfg(p, i) {
@@ -30,6 +30,7 @@ function bizIdeaCfg(p, i) {
     staffUSD: keepJob ? p[`bz${i}_staffUSD`] * (p.bz_costFactorPct / 100) : 0,
     // additional units always need staff, whoever runs the first one
     staffRawUSD: p[`bz${i}_staffUSD`] * (p.bz_costFactorPct / 100),
+    hoursWk: p[`bz${i}_hoursWk`], // informational: hands-on h/week if self-run
   };
 }
 
@@ -42,6 +43,29 @@ function bizNetUSD(cfg, m) {
       (1 - cfg.taxPct / 100) -
     (cfg.costsUSD + cfg.staffUSD) *
       Math.pow(1 + cfg.usdInflPct / 100, m * MONTH);
+}
+
+// total net profit, USD/month, across every built unit at month m
+function bizUnitsNetUSD(cfg, units, m) {
+  const ramp = Math.round(cfg.rampMonths);
+  let net = 0;
+  for (const u of units) {
+    const age = m - u.start;
+    if (age <= ramp) continue;
+    net += cfg.revenueUSD *
+        Math.pow(1 + cfg.growthPct / 100, (age - ramp) * MONTH) *
+        (1 - cfg.taxPct / 100) -
+      (cfg.costsUSD + (u.first ? cfg.staffUSD : cfg.staffRawUSD)) *
+        Math.pow(1 + cfg.usdInflPct / 100, m * MONTH);
+  }
+  return net;
+}
+
+// your weekly hours: hands-on if you run it, ~20% oversight if staff does;
+// every extra scaled unit is staff-run and adds the same oversight
+function bizHours(cfg, unitCount) {
+  const over = Math.max(2, Math.round(cfg.hoursWk * 0.2));
+  return (cfg.keepJob ? over : cfg.hoursWk) + (unitCount - 1) * over;
 }
 
 function bizSim(p) {
@@ -85,17 +109,8 @@ function bizSim(p) {
     compileBlocks([curRentBlock(ctx)]), // keep your job
     ...cfgs.map((cfg, k) => {
       const state = states[k];
-      const ramp = Math.round(cfg.rampMonths);
       const infl = (m) => Math.pow(1 + cfg.usdInflPct / 100, m * MONTH);
       const unitCostUSD = cfg.investUSD * scale.unitCostPct;
-      const unitNetUSD = (m, u) => {
-        const age = m - u.start;
-        if (age <= ramp) return 0;
-        return cfg.revenueUSD *
-            Math.pow(1 + cfg.growthPct / 100, (age - ramp) * MONTH) *
-            (1 - cfg.taxPct / 100) -
-          (cfg.costsUSD + (u.first ? cfg.staffUSD : cfg.staffRawUSD)) * infl(m);
-      };
       return compileBlocks([
         curRentBlock(ctx),
         { kind: 'upfront', uah: cfg.investUSD * p.fx0 },
@@ -109,8 +124,7 @@ function bizSim(p) {
         { // salary lost only if you quit; staff wages are inside unitNetUSD
           kind: 'stream',
           uah: (m) => {
-            let net = 0;
-            for (const u of state.units) net += unitNetUSD(m, u);
+            const net = bizUnitsNetUSD(cfg, state.units, m);
             let payout = net;
             if (scale.on && state.units.length < scale.maxUnits) {
               const retained = Math.max(0, net) * scale.reinvest;
@@ -180,7 +194,9 @@ function bizSim(p) {
         ? `, on top of the salary you keep — total income ~${usd(incomeUSD[winner - 1])}/month vs ${usd(salaryUSDat(0))} from the job alone (staff wages already deducted).`
         : `. The comparison already charges it the salary you give up and the investment income your savings would have earned.`) +
       (scale.on && states[winner - 1] && states[winner - 1].units.length > 1
-        ? ` Reinvesting profit grows it to ${states[winner - 1].units.length} units by the horizon.`
+        ? ` Reinvesting profit grows it to ${states[winner - 1].units.length} units by the horizon — ` +
+          `together netting ~${usd(bizUnitsNetUSD(cfgs[winner - 1], states[winner - 1].units, months))}/month by then, ` +
+          `~${bizHours(cfgs[winner - 1], states[winner - 1].units.length)} h/week of your time.`
         : '') +
       `</div>` +
       `<div class="units">Reality check applied: revenue at ${p.bz_revFactorPct}% of plan, bills at ${p.bz_costFactorPct}%.</div>`;
@@ -232,6 +248,19 @@ function bizSim(p) {
       (cfgs[k].keepJob ? ' − staff' : '') + ')', usd(profit0[k]) + '/month']);
     tableRows.push(['Your total monthly income after ramp-up',
       `${usd(incomeUSD[k])} (${cfgs[k].keepJob ? 'salary + business' : 'business only'}) — the job alone pays ${usd(salaryUSDat(0))}`]);
+    const netEndUSD = bizUnitsNetUSD(cfgs[k], states[k].units, months);
+    tableRows.push(['Monthly profit at the horizon',
+      `~${usd(netEndUSD)}/mo across ${states[k].units.length} unit${states[k].units.length > 1 ? 's' : ''}, nominal USD ` +
+      `(≈${usd(netEndUSD / Math.pow(1 + p.usdInflPct / 100, yrs))} in today’s $)`]);
+    const over = Math.max(2, Math.round(cfgs[k].hoursWk * 0.2));
+    const extraUnits = states[k].units.length - 1;
+    tableRows.push(['Your time, rough estimate',
+      (cfgs[k].keepJob
+        ? `~${over} h/week overseeing the staff who run it (hands-on work is ~${cfgs[k].hoursWk} h/week, done by them)`
+        : `~${cfgs[k].hoursWk} h/week running it yourself`) +
+      (extraUnits > 0
+        ? ` + ~${over * extraUnits} h/week for ${extraUnits} extra staff-run unit${extraUnits > 1 ? 's' : ''} — ~${bizHours(cfgs[k], states[k].units.length)} h/week total`
+        : '')]);
     tableRows.push(['Break-even on the investment', beText(breakEven[k])]);
     tableRows.push(['Resale value counted in net worth',
       `${usd(cfgs[k].investUSD * cfgs[k].residualPct / 100)} (${cfgs[k].residualPct}% of the investment, real-USD)`]);

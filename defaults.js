@@ -122,31 +122,32 @@ const PARAM_DEFAULTS = {
   /* --- biz tab: reality check & scaling (apply to every idea) --- */
   bz_revFactorPct: 100,  // every idea's revenue, % of its plan
   bz_costFactorPct: 100, // every idea's bills & staff, % of plan
-  bz_scaleOn: false,
+  bz_scaleOn: true,
   bz_reinvestPct: 50,    // profit retained while expanding, %
   bz_unitCostPct: 80,    // next unit's cost, % of the original investment
   bz_maxUnits: 3,
 
-  /* --- biz tab: idea slots (who: 'quit' | 'staff') --- */
+  /* --- biz tab: idea slots (who: 'quit' | 'staff'; hoursWk is informational —
+   * your hands-on hours per week if you run the unit yourself) --- */
   bz1_on: true,  bz1Preset: 'carwash', bz1_who: 'staff',
   bz1_investUSD: 70000, bz1_rampMonths: 9, bz1_revenueUSD: 4500,
   bz1_costsUSD: 1800, bz1_taxPct: 6, bz1_growthPct: 5,
-  bz1_residualPct: 50, bz1_staffUSD: 300,
+  bz1_residualPct: 50, bz1_staffUSD: 300, bz1_hoursWk: 15,
 
   bz2_on: true,  bz2Preset: 'coffee', bz2_who: 'quit',
   bz2_investUSD: 10000, bz2_rampMonths: 3, bz2_revenueUSD: 3200,
   bz2_costsUSD: 2300, bz2_taxPct: 6, bz2_growthPct: 8,
-  bz2_residualPct: 40, bz2_staffUSD: 800,
+  bz2_residualPct: 40, bz2_staffUSD: 800, bz2_hoursWk: 60,
 
   bz3_on: true,  bz3Preset: 'barber', bz3_who: 'quit',
   bz3_investUSD: 25000, bz3_rampMonths: 4, bz3_revenueUSD: 5500,
   bz3_costsUSD: 4100, bz3_taxPct: 6, bz3_growthPct: 6,
-  bz3_residualPct: 30, bz3_staffUSD: 500,
+  bz3_residualPct: 30, bz3_staffUSD: 500, bz3_hoursWk: 45,
 
   bz4_on: false, bz4Preset: 'shop', bz4_who: 'quit',
   bz4_investUSD: 6000, bz4_rampMonths: 6, bz4_revenueUSD: 4000,
   bz4_costsUSD: 3300, bz4_taxPct: 6, bz4_growthPct: 15,
-  bz4_residualPct: 10, bz4_staffUSD: 700,
+  bz4_residualPct: 10, bz4_staffUSD: 700, bz4_hoursWk: 45,
 };
 
 /* Machine-readable summary of a module result — everything an LLM needs

@@ -109,12 +109,23 @@ function homeRun(p) {
     strategies: [mortgage, cash, rent, btl],
   });
 
+  // buy-to-let monthly cash flow: net rent minus annuity+insurance (while the
+  // loan runs) and maintenance — what the flat "pays you" per month
+  const insM = (m) => (p.h_insPct / 100) * homeUAH(m) / 12;
+  const netRentM = (m) =>
+    rentUAH(m) * (1 - p.h_vacancyPct / 100) * (1 - p.h_rentTaxPct / 100);
+  const btlFlowM = (m) => netRentM(m) - maintMonthly(m) -
+    (m <= loanMonths ? annuity + insM(m) : 0);
+
   return {
     r, t, t2, months,
     advMC: r.finals[0] - r.finals[1], // mortgage vs cash purchase
     priceUAH0, fees, dpAmount, principal, commission, annuity,
     homeEndUAH: homeUAH(months), rentNowUAH: rentUAH(1),
     debtEnd: debt,
+    btlRentM1: netRentM(1), btlFlowM1: btlFlowM(1),
+    btlRentEnd: netRentM(months), btlFlowEnd: btlFlowM(months),
+    loanDoneAtEnd: months > loanMonths,
   };
 }
 
@@ -186,6 +197,10 @@ function homeSim(p) {
       ['Rent, first month', uah(s.rentNowUAH)],
       ['Rent paid over horizon, total', uah(t.rent)],
       ['section', 'Buy-to-let'],
+      ['Net rent the flat brings in, month 1', `${uah(s.btlRentM1)}/mo (${usd(s.btlRentM1 / p.fx0)}) after ${p.h_vacancyPct}% vacancy and ${p.h_rentTaxPct}% tax`],
+      ['Cash flow after mortgage, insurance & maintenance, month 1', `${uahSigned(s.btlFlowM1)}/mo (${signed(s.btlFlowM1 / p.fx0, usd)})`],
+      ['Cash flow at the horizon', `${uahSigned(s.btlFlowEnd)}/mo (${signed(s.btlFlowEnd / r.fxEnd, usd)})` +
+        (s.loanDoneAtEnd ? ' — mortgage paid off, net rent is ' + uah(s.btlRentEnd) + '/mo' : ' — mortgage still running')],
       ['Rental income collected, net of vacancy & tax', uah(s.t2.netRent)],
       ['Own rent paid while letting', uah(s.t2.ownRent)],
       ['Mortgage interest paid (buy-to-let)', uah(s.t2.interest)],
