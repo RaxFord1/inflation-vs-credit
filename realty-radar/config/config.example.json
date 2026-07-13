@@ -1,0 +1,106 @@
+{
+  "$schema": "./config.schema.md",
+  "_comment": "Скопіюй у config/config.json та відредагуй під себе. Ключі/токени тримай у .env, не тут.",
+
+  "currency": {
+    "displayCurrency": "USD",
+    "usdToUah": 41.7,
+    "_comment": "Курс для приведення всіх цін до однієї валюти при порівнянні/дедуплікації. Онови періодично або лиши null щоб тягнути з НБУ автоматично.",
+    "autoRateFromNBU": true
+  },
+
+  "filters": {
+    "_comment": "Глобальні пороги інтересу. Кожне джерело може перекрити свої під-фільтри.",
+    "propertyTypes": ["apartment", "house", "commercial", "land"],
+    "_propertyTypesHelp": "apartment=квартира, house=будинок, commercial=комерція, land=земля (лише житлова/під забудову — с/г відсіюється), room=кімната, garage=гараж",
+    "purpose": ["residential", "commercial"],
+    "_purposeHelp": "residential=житлове, commercial=комерційне. Землю с/г призначення (ферма/аграрка/город) НЕ включаємо.",
+    "excludeLandUse": ["agricultural", "farming", "садівництво", "для ведення особистого селянського господарства", "ОСГ", "для товарного сільськогосподарського виробництва"],
+
+    "priceUSD": { "min": 5000, "max": 120000 },
+    "areaSqm": { "min": 20, "max": null },
+    "landAreaSotka": { "min": null, "max": null },
+    "rooms": { "min": 1, "max": null },
+    "yearBuilt": { "min": null, "max": null },
+    "excludeKeywords": ["без ремонту, аварійний", "під знос"],
+    "requireKeywords": []
+  },
+
+  "cities": [
+    {
+      "name": "Львів",
+      "domria": { "state_id": 5, "city_id": 10 },
+      "prozorroRegion": "Львівська область",
+      "olxSearchUrls": [
+        "https://www.olx.ua/uk/nedvizhimost/kvartiry/prodazha-kvartir/lvov/",
+        "https://www.olx.ua/uk/nedvizhimost/doma/prodazha-domov/lvov/"
+      ],
+      "lunUrls": [
+        "https://lun.ua/uk/продаж-квартир-львів"
+      ],
+      "priceUSD": { "min": 20000, "max": 150000 }
+    },
+    {
+      "name": "Івано-Франківськ",
+      "domria": { "state_id": 9, "city_id": 21 },
+      "prozorroRegion": "Івано-Франківська область",
+      "olxSearchUrls": [
+        "https://www.olx.ua/uk/nedvizhimost/kvartiry/prodazha-kvartir/ivano-frankovsk/"
+      ],
+      "lunUrls": []
+    }
+  ],
+
+  "sources": {
+    "domria": { "enabled": true, "maxPagesPerQuery": 3, "operationType": 1 },
+    "prozorro": { "enabled": true, "cavCategories": ["realty"], "maxPagesPerRun": 5 },
+    "olx": { "enabled": true, "maxPagesPerUrl": 3, "useBrowserFallback": false },
+    "lun": { "enabled": false, "maxPagesPerUrl": 2 }
+  },
+
+  "dedup": {
+    "priceTolerancePct": 6,
+    "areaToleranceSqm": 3,
+    "addressSimilarity": 0.82,
+    "_comment": "Оголошення на різних сайтах вважаються одним об'єктом якщо збігаються район+площа(±) і ціна близька, або якщо збігається геокоордината/адреса. Показуємо найдешевше з групи."
+  },
+
+  "ai": {
+    "enabled": true,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "analyzePhotos": true,
+    "maxPhotosPerListing": 4,
+    "onlyEvaluateAbovePreScore": 40,
+    "_comment": "Алгоритм спочатку рахує дешевий pre-score (ціна за м², відхилення від медіани міста, відповідність фільтрам). ШІ викликається лише для оголошень з pre-score >= порогу — щоб економити токени. ШІ повертає оцінку 0-100, короткий вердикт та червоні прапорці.",
+    "minAiScoreToNotify": 65,
+    "dailyBudgetCalls": 400
+  },
+
+  "notify": {
+    "telegram": { "enabled": true, "sendPhotos": true, "quietHours": { "from": 23, "to": 8 } },
+    "onlyNew": true,
+    "alsoNotifyPriceDropPct": 5,
+    "_comment": "quietHours у локальному часі — сповіщення накопичуються й шлються після 'to'."
+  },
+
+  "schedule": {
+    "collectCron": "*/30 * * * *",
+    "_collectHelp": "Кожні 30 хв. Не став надто часто — це виглядає як бот. Розкид (jitter) додається автоматично.",
+    "jitterMaxSec": 240,
+    "timezone": "Europe/Kiev"
+  },
+
+  "politeness": {
+    "minDelayMsBetweenRequests": 2500,
+    "maxDelayMsBetweenRequests": 7000,
+    "perDomainConcurrency": 1,
+    "maxRetries": 3,
+    "backoffBaseMs": 4000,
+    "rotateUserAgents": true,
+    "respectRobotsHint": true,
+    "_comment": "Людиноподібні паузи між запитами, 1 запит за раз на домен, експоненційний backoff при 429/403."
+  },
+
+  "web": { "enabled": true, "port": 8787, "host": "127.0.0.1" }
+}

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Realty Radar — нерухомість України</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">🏠 Realty Radar <span class="sub">нерухомість України</span></div>
+    <div class="statbar" id="statbar"></div>
+    <div class="actions">
+      <button id="runBtn" class="btn primary">🔄 Зібрати зараз</button>
+      <span id="runMsg" class="runmsg"></span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="filters" id="filters">
+      <h3>Фільтри</h3>
+
+      <label>Тип</label>
+      <div class="chips" id="fType">
+        <button data-v="all" class="chip active">Усі</button>
+        <button data-v="apartment" class="chip">Квартири</button>
+        <button data-v="house" class="chip">Будинки</button>
+        <button data-v="commercial" class="chip">Комерція</button>
+        <button data-v="land" class="chip">Земля</button>
+      </div>
+
+      <label>Призначення</label>
+      <div class="chips" id="fPurpose">
+        <button data-v="all" class="chip active">Усі</button>
+        <button data-v="residential" class="chip">Житлове</button>
+        <button data-v="commercial" class="chip">Комерційне</button>
+      </div>
+
+      <label>Місто</label>
+      <select id="fCity"><option value="all">Усі міста</option></select>
+
+      <label>Джерело</label>
+      <select id="fSource">
+        <option value="all">Усі джерела</option>
+        <option value="domria">DOM.RIA</option>
+        <option value="prozorro">Prozorro (аукціони)</option>
+        <option value="olx">OLX</option>
+        <option value="lun">LUN</option>
+      </select>
+
+      <label>Ціна, $ (від / до)</label>
+      <div class="row2">
+        <input type="number" id="fPriceMin" placeholder="від" />
+        <input type="number" id="fPriceMax" placeholder="до" />
+      </div>
+
+      <label>Мін. оцінка ШІ: <b id="scoreVal">0</b></label>
+      <input type="range" id="fScore" min="0" max="100" value="0" />
+
+      <label class="check"><input type="checkbox" id="fDeals" /> Лише вигідні (≥65)</label>
+      <label class="check"><input type="checkbox" id="fGroup" checked /> Обʼєднувати дублі між сайтами</label>
+
+      <label>Сортування</label>
+      <select id="fSort">
+        <option value="ai_score">За оцінкою ШІ</option>
+        <option value="price">За ціною ↑</option>
+        <option value="price_sqm">За $/м² ↑</option>
+        <option value="newest">Найновіші</option>
+      </select>
+
+      <button id="applyBtn" class="btn primary full">Застосувати</button>
+      <button id="saveFiltersBtn" class="btn ghost full">💾 Зберегти як пороги інтересу</button>
+      <p class="hint">Збереження оновлює <code>config.json</code> — збирач використає ці пороги для сповіщень.</p>
+    </aside>
+
+    <main class="results">
+      <div class="results-head"><span id="count">—</span><span id="loading" class="loading"></span></div>
+      <div id="cards" class="cards"></div>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden"><div class="modal-inner" id="modalInner"></div></div>
+  <script src="app.js"></script>
+</body>
+</html>

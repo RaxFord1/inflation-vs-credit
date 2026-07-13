@@ -1,0 +1,8 @@
+node_modules/
+data/*.db
+data/*.db-*
+data/photos_cache/
+.env
+config/config.json
+*.log
+.DS_Store

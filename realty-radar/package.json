@@ -1,0 +1,29 @@
+{
+  "name": "realty-radar",
+  "version": "0.1.0",
+  "description": "Збирач нових оголошень про нерухомість в Україні (DOM.RIA / Prozorro.Sale / OLX / LUN) з дедуплікацією, оцінкою угод через ШІ (gpt-4o-mini, аналіз фото) та нотифаєром у Telegram.",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "collect": "node --disable-warning=ExperimentalWarning src/index.js --once",
+    "web": "node --disable-warning=ExperimentalWarning src/index.js --web-only",
+    "eval": "node --disable-warning=ExperimentalWarning src/index.js --eval-only",
+    "discover:domria": "node --disable-warning=ExperimentalWarning scripts/domria-discover.js",
+    "discover:olx": "node --disable-warning=ExperimentalWarning scripts/olx-discover.js",
+    "init": "node scripts/init.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3"
+  },
+  "optionalDependencies": {
+    "playwright": "^1.47.0"
+  },
+  "author": "",
+  "license": "MIT"
+}

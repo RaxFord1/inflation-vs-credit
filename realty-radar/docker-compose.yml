@@ -1,0 +1,13 @@
+services:
+  realty-radar:
+    build: .
+    container_name: realty-radar
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8787:8787"   # веб-UI лише локально; для сервера прибери 127.0.0.1
+    volumes:
+      - ./config:/app/config    # твій config.json
+      - ./data:/app/data        # база даних (persist)
+    environment:
+      - TZ=Europe/Kiev
