@@ -1,0 +1,4672 @@
+{
+  "mode": "find",
+  "scanned": 129,
+  "passed": 81,
+  "rejected": 48,
+  "ruleCount": 3,
+  "ruleErrors": [],
+  "marketMedianUSD": 18500,
+  "kpis": [
+    {
+      "label": "Отобрано / всего",
+      "value": "81 / 129",
+      "note": "48 отсеяно (фильтры и правила)"
+    },
+    {
+      "label": "Лучший балл",
+      "value": "77 / 100",
+      "note": "Tesla Model 3 2019"
+    },
+    {
+      "label": "Медиана рынка (в выборке)",
+      "value": "$18,500",
+      "note": "по всем объявлениям в выдаче"
+    },
+    {
+      "label": "Лучшая цена/качество",
+      "value": "$7,500",
+      "note": "59% к медиане модели"
+    }
+  ],
+  "results": [
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38386958.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 15999,
+      "mileageKm": 107000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 77,
+      "verdict": "caution",
+      "priceVsMarketPct": -14,
+      "flags": [
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 80.27837837837838,
+        "mileage": 58.85714285714286,
+        "age": 58,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 80,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40148386.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 17000,
+      "mileageKm": 100000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 74,
+      "verdict": "ok",
+      "priceVsMarketPct": -8,
+      "flags": [],
+      "scoreParts": {
+        "price": 72.16216216216216,
+        "mileage": 62.85714285714286,
+        "age": 58,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 72,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40070765.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 7500,
+      "mileageKm": 100000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 70,
+      "verdict": "caution",
+      "priceVsMarketPct": -59,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "подозрительно дёшево — вероятно тяжёлый ремонт/распил"
+      ],
+      "scoreParts": {
+        "price": 100,
+        "mileage": 53.33333333333333,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40148114.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 12500,
+      "mileageKm": 98000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 70,
+      "verdict": "caution",
+      "priceVsMarketPct": -32,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 100,
+        "mileage": 54.66666666666667,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39427789.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 13500,
+      "mileageKm": 98000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 70,
+      "verdict": "caution",
+      "priceVsMarketPct": -27,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 100,
+        "mileage": 71,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39399679.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 14700,
+      "mileageKm": 98000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 68,
+      "verdict": "caution",
+      "priceVsMarketPct": -21,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 90.8108108108108,
+        "mileage": 64,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_33384030.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 15999,
+      "mileageKm": 74000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 68,
+      "verdict": "caution",
+      "priceVsMarketPct": -14,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 80.27837837837838,
+        "mileage": 77.71428571428571,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39595327.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 16899,
+      "mileageKm": 34000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 68,
+      "verdict": "caution",
+      "priceVsMarketPct": -9,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 72.98108108108107,
+        "mileage": 97.33333333333334,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39968537.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 16200,
+      "mileageKm": 82000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 67,
+      "verdict": "caution",
+      "priceVsMarketPct": -12,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 78.64864864864865,
+        "mileage": 79,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40132565.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 20499,
+      "mileageKm": 84000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 67,
+      "verdict": "ok",
+      "priceVsMarketPct": 11,
+      "flags": [],
+      "scoreParts": {
+        "price": 43.7918918918919,
+        "mileage": 64,
+        "age": 64,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 72,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38313400.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 15500,
+      "mileageKm": 92000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 66,
+      "verdict": "caution",
+      "priceVsMarketPct": -16,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 84.32432432432432,
+        "mileage": 58.66666666666667,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40150011.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 21350,
+      "mileageKm": 48000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 66,
+      "verdict": "ok",
+      "priceVsMarketPct": 15,
+      "flags": [],
+      "scoreParts": {
+        "price": 36.891891891891895,
+        "mileage": 56,
+        "age": 82,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 64,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40006008.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 16200,
+      "mileageKm": 105000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 65,
+      "verdict": "caution",
+      "priceVsMarketPct": -12,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 78.64864864864865,
+        "mileage": 60,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 56,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40095268.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 17000,
+      "mileageKm": 71000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 65,
+      "verdict": "caution",
+      "priceVsMarketPct": -8,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 72.16216216216216,
+        "mileage": 79.42857142857143,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38074698.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 18000,
+      "mileageKm": 44000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 65,
+      "verdict": "caution",
+      "priceVsMarketPct": -3,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 64.05405405405405,
+        "mileage": 84.8,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40076365.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 18480,
+      "mileageKm": 27000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 65,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 60.16216216216216,
+        "mileage": 84,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40140849.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 19500,
+      "mileageKm": 105000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 65,
+      "verdict": "caution",
+      "priceVsMarketPct": 5,
+      "flags": [
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 51.89189189189191,
+        "mileage": 36.00000000000001,
+        "age": 70,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 72,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40126546.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 16800,
+      "mileageKm": 69000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 64,
+      "verdict": "caution",
+      "priceVsMarketPct": -9,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 73.78378378378378,
+        "mileage": 64.8,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40097856.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 17200,
+      "mileageKm": 78000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 64,
+      "verdict": "caution",
+      "priceVsMarketPct": -7,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 70.54054054054053,
+        "mileage": 81,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40068879.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 17000,
+      "mileageKm": 89000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 63,
+      "verdict": "caution",
+      "priceVsMarketPct": -8,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 72.16216216216216,
+        "mileage": 69.14285714285714,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39861496.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 17000,
+      "mileageKm": 99000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 62,
+      "verdict": "caution",
+      "priceVsMarketPct": -8,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 72.16216216216216,
+        "mileage": 63.42857142857143,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40131675.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 17500,
+      "mileageKm": 92000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 62,
+      "verdict": "caution",
+      "priceVsMarketPct": -5,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 68.10810810810811,
+        "mileage": 67.42857142857143,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39875880.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 18500,
+      "mileageKm": 70000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 62,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 60,
+        "mileage": 73.33333333333333,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39951391.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 18999,
+      "mileageKm": 59000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 62,
+      "verdict": "caution",
+      "priceVsMarketPct": 3,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 55.95405405405404,
+        "mileage": 86.28571428571428,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39550391.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 16900,
+      "mileageKm": 107000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 61,
+      "verdict": "caution",
+      "priceVsMarketPct": -9,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 72.97297297297297,
+        "mileage": 48.66666666666667,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39475798.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 17500,
+      "mileageKm": 81000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 61,
+      "verdict": "caution",
+      "priceVsMarketPct": -5,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 68.10810810810811,
+        "mileage": 55.199999999999996,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37740759.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 18500,
+      "mileageKm": 75000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 61,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 60,
+        "mileage": 77.14285714285714,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38456453.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 18500,
+      "mileageKm": 77000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 61,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 60,
+        "mileage": 81.5,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40005090.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 21000,
+      "mileageKm": 26000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 61,
+      "verdict": "caution",
+      "priceVsMarketPct": 14,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 39.72972972972974,
+        "mileage": 94,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39877968.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 18000,
+      "mileageKm": 106000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 60,
+      "verdict": "caution",
+      "priceVsMarketPct": -3,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 64.05405405405405,
+        "mileage": 67,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39997591.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 17300,
+      "mileageKm": 96000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 59,
+      "verdict": "caution",
+      "priceVsMarketPct": -6,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 69.72972972972973,
+        "mileage": 43.2,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40142116.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 17500,
+      "mileageKm": 110000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 59,
+      "verdict": "caution",
+      "priceVsMarketPct": -5,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 68.10810810810811,
+        "mileage": 46.66666666666666,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39417752.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 19700,
+      "mileageKm": 45000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 59,
+      "verdict": "caution",
+      "priceVsMarketPct": 6,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 50.270270270270274,
+        "mileage": 60,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39596919.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 20000,
+      "mileageKm": 62000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 59,
+      "verdict": "caution",
+      "priceVsMarketPct": 8,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 47.837837837837824,
+        "mileage": 84.57142857142857,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40137037.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 21000,
+      "mileageKm": 42000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 59,
+      "verdict": "caution",
+      "priceVsMarketPct": 14,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 39.72972972972974,
+        "mileage": 86.4,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39490681.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 17500,
+      "mileageKm": 103000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 58,
+      "verdict": "caution",
+      "priceVsMarketPct": -5,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 68.10810810810811,
+        "mileage": 37.6,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40013554.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 18499,
+      "mileageKm": 85000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 58,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 60.008108108108104,
+        "mileage": 52,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37470976.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 19000,
+      "mileageKm": 90000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 58,
+      "verdict": "caution",
+      "priceVsMarketPct": 3,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 55.94594594594595,
+        "mileage": 60,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39260517.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 20000,
+      "mileageKm": 54000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 58,
+      "verdict": "caution",
+      "priceVsMarketPct": 8,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 47.837837837837824,
+        "mileage": 66,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37047523.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 23000,
+      "mileageKm": 3000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 58,
+      "verdict": "caution",
+      "priceVsMarketPct": 24,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 23.513513513513523,
+        "mileage": 100,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40147246.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 25500,
+      "mileageKm": 64000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 58,
+      "verdict": "ok",
+      "priceVsMarketPct": 38,
+      "flags": [],
+      "scoreParts": {
+        "price": 3.2432432432432563,
+        "mileage": 83.42857142857142,
+        "age": 58,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 64,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37656858.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 17999,
+      "mileageKm": 99000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 57,
+      "verdict": "caution",
+      "priceVsMarketPct": -3,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 64.06216216216217,
+        "mileage": 40.8,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40143196.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 18600,
+      "mileageKm": 108000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 57,
+      "verdict": "caution",
+      "priceVsMarketPct": 1,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 59.1891891891892,
+        "mileage": 58.28571428571429,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38929424.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 18900,
+      "mileageKm": 107000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 57,
+      "verdict": "caution",
+      "priceVsMarketPct": 2,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 56.75675675675676,
+        "mileage": 48.66666666666667,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40094305.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 25900,
+      "mileageKm": 61000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 57,
+      "verdict": "ok",
+      "priceVsMarketPct": 40,
+      "flags": [],
+      "scoreParts": {
+        "price": 1.4210854715202004e-14,
+        "mileage": 71.2,
+        "age": 70,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 64,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40060508.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 18490,
+      "mileageKm": 107000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 56,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 60.08108108108108,
+        "mileage": 34.39999999999999,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40062984.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 22600,
+      "mileageKm": 19000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 56,
+      "verdict": "caution",
+      "priceVsMarketPct": 22,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 26.756756756756765,
+        "mileage": 82,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40099776.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 18500,
+      "mileageKm": 96000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 55,
+      "verdict": "caution",
+      "priceVsMarketPct": 0,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 60,
+        "mileage": 23.999999999999993,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37861801.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 19100,
+      "mileageKm": 103000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 55,
+      "verdict": "caution",
+      "priceVsMarketPct": 3,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 55.13513513513515,
+        "mileage": 37.6,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38517030.html",
+      "source": "manual",
+      "year": 2020,
+      "priceUSD": 19700,
+      "mileageKm": 105000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 55,
+      "verdict": "caution",
+      "priceVsMarketPct": 6,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 50.270270270270274,
+        "mileage": 50,
+        "age": 64,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40145692.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 20599,
+      "mileageKm": 67000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 55,
+      "verdict": "caution",
+      "priceVsMarketPct": 11,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 42.981081081081065,
+        "mileage": 53,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40013725.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 21500,
+      "mileageKm": 51000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 55,
+      "verdict": "caution",
+      "priceVsMarketPct": 16,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 35.67567567567569,
+        "mileage": 79.19999999999999,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39031336.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 26400,
+      "mileageKm": 78000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 55,
+      "verdict": "ok",
+      "priceVsMarketPct": 43,
+      "flags": [],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 57.599999999999994,
+        "age": 70,
+        "condition": 100,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "ok",
+          "score": 100,
+          "findings": [
+            "без повреждений"
+          ]
+        },
+        "ai": {
+          "status": "ok",
+          "score": 64,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38019856.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 18999,
+      "mileageKm": 110000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 54,
+      "verdict": "caution",
+      "priceVsMarketPct": 3,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 55.95405405405404,
+        "mileage": 32.00000000000001,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37881030.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 22200,
+      "mileageKm": 55000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 54,
+      "verdict": "caution",
+      "priceVsMarketPct": 20,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 30.000000000000007,
+        "mileage": 76,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39801382.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 23999,
+      "mileageKm": 16000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 54,
+      "verdict": "caution",
+      "priceVsMarketPct": 30,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 15.413513513513514,
+        "mileage": 88,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40130636.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 25100,
+      "mileageKm": 6000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 54,
+      "verdict": "caution",
+      "priceVsMarketPct": 36,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 6.486486486486498,
+        "mileage": 100,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39873856.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 18999,
+      "mileageKm": 100000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 53,
+      "verdict": "caution",
+      "priceVsMarketPct": 3,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 55.95405405405404,
+        "mileage": 19.999999999999993,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39589280.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 19499,
+      "mileageKm": 108000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 53,
+      "verdict": "caution",
+      "priceVsMarketPct": 5,
+      "flags": [
+        "ДТП — проверить историю по VIN",
+        "большой пробег"
+      ],
+      "scoreParts": {
+        "price": 51.89999999999999,
+        "mileage": 33.6,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40012408.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 21900,
+      "mileageKm": 45000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 53,
+      "verdict": "caution",
+      "priceVsMarketPct": 18,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 32.43243243243245,
+        "mileage": 60,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39766914.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 19499,
+      "mileageKm": 99000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 52,
+      "verdict": "caution",
+      "priceVsMarketPct": 5,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 51.89999999999999,
+        "mileage": 21.000000000000007,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39758822.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 19700,
+      "mileageKm": 95000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 52,
+      "verdict": "caution",
+      "priceVsMarketPct": 6,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 50.270270270270274,
+        "mileage": 25.000000000000007,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 48,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38482131.html",
+      "source": "manual",
+      "year": 2021,
+      "priceUSD": 21700,
+      "mileageKm": 75000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 52,
+      "verdict": "caution",
+      "priceVsMarketPct": 17,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 34.05405405405405,
+        "mileage": 60,
+        "age": 70,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38457222.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 21999,
+      "mileageKm": 67000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 51,
+      "verdict": "caution",
+      "priceVsMarketPct": 19,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 31.62972972972973,
+        "mileage": 53,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39733471.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 24100,
+      "mileageKm": 34000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 51,
+      "verdict": "caution",
+      "priceVsMarketPct": 30,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 14.59459459459459,
+        "mileage": 74.66666666666667,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39930250.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 28477,
+      "mileageKm": 15000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 51,
+      "verdict": "caution",
+      "priceVsMarketPct": 54,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 90,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40130669.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 22000,
+      "mileageKm": 57000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 50,
+      "verdict": "caution",
+      "priceVsMarketPct": 19,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 31.62162162162161,
+        "mileage": 44,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39822975.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 22700,
+      "mileageKm": 49000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 50,
+      "verdict": "caution",
+      "priceVsMarketPct": 23,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 25.945945945945958,
+        "mileage": 54.66666666666667,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40134537.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 23900,
+      "mileageKm": 40000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 50,
+      "verdict": "caution",
+      "priceVsMarketPct": 29,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 16.21621621621623,
+        "mileage": 66.66666666666667,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39829439.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 24999,
+      "mileageKm": 40000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 49,
+      "verdict": "caution",
+      "priceVsMarketPct": 35,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 7.305405405405423,
+        "mileage": 80,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37625179.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 26000,
+      "mileageKm": 25000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 49,
+      "verdict": "caution",
+      "priceVsMarketPct": 41,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 86.66666666666666,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40116133.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 27400,
+      "mileageKm": 20000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 49,
+      "verdict": "caution",
+      "priceVsMarketPct": 48,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 80,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40131169.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 22700,
+      "mileageKm": 80000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 48,
+      "verdict": "caution",
+      "priceVsMarketPct": 23,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 25.945945945945958,
+        "mileage": 40,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_36283299.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 28000,
+      "mileageKm": 42000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 48,
+      "verdict": "caution",
+      "priceVsMarketPct": 51,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 99,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_36283735.html",
+      "source": "manual",
+      "year": 2018,
+      "priceUSD": 24000,
+      "mileageKm": 100000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 47,
+      "verdict": "caution",
+      "priceVsMarketPct": 30,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 15.405405405405396,
+        "mileage": 70,
+        "age": 52,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40146786.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 25300,
+      "mileageKm": 36000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 45,
+      "verdict": "caution",
+      "priceVsMarketPct": 37,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 4.864864864864863,
+        "mileage": 48,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_37738813.html",
+      "source": "manual",
+      "year": 2019,
+      "priceUSD": 27000,
+      "mileageKm": 77000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 44,
+      "verdict": "caution",
+      "priceVsMarketPct": 46,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 76,
+        "age": 58,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2023",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_40088584.html",
+      "source": "manual",
+      "year": 2023,
+      "priceUSD": 22500,
+      "mileageKm": 92000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 42,
+      "verdict": "caution",
+      "priceVsMarketPct": 22,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 27.567567567567565,
+        "mileage": 0,
+        "age": 82,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_38023278.html",
+      "source": "manual",
+      "year": 2022,
+      "priceUSD": 24999,
+      "mileageKm": 85000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 42,
+      "verdict": "caution",
+      "priceVsMarketPct": 35,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 7.305405405405423,
+        "mileage": 35,
+        "age": 76,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39488505.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 27500,
+      "mileageKm": 43000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 41,
+      "verdict": "caution",
+      "priceVsMarketPct": 49,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 0,
+        "mileage": 34,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "url": "https://auto.ria.com/uk/auto_tesla_model_3_39713113.html",
+      "source": "manual",
+      "year": 2024,
+      "priceUSD": 23800,
+      "mileageKm": 80000,
+      "region": "UNKNOWN",
+      "fuel": "ev",
+      "gearbox": "auto",
+      "vin": null,
+      "score": 40,
+      "verdict": "caution",
+      "priceVsMarketPct": 29,
+      "flags": [
+        "ДТП — проверить историю по VIN"
+      ],
+      "scoreParts": {
+        "price": 17.02702702702703,
+        "mileage": 0,
+        "age": 88,
+        "condition": 52,
+        "history": 73
+      },
+      "checks": {
+        "vin": {
+          "status": "warn",
+          "score": 55,
+          "findings": [
+            "VIN не указан — историю не проверить"
+          ]
+        },
+        "history": {
+          "status": "skip",
+          "score": 90,
+          "findings": [
+            "нет данных истории — заказать отчёт (Carfax/CarVertical/AUTO.RIA перевірка)"
+          ]
+        },
+        "damage": {
+          "status": "warn",
+          "score": 50,
+          "findings": [
+            "тип не указан — искать историю аукциона по VIN (Copart/IAAI/bidfax/autoastat)"
+          ]
+        },
+        "ai": {
+          "status": "warn",
+          "score": 40,
+          "findings": [
+            "эвристическая оценка (подключите AI-провайдера для реального анализа)"
+          ]
+        }
+      }
+    }
+  ],
+  "rejectedSample": [
+    {
+      "title": "Tesla Model 3 2019",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2021",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2024",
+      "stage": "filter",
+      "reasons": [
+        "цена > $30000"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2020",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2022",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2019",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    },
+    {
+      "title": "Tesla Model 3 2018",
+      "stage": "filter",
+      "reasons": [
+        "пробег > 110,000 км"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "id": "vin",
+      "label": "VIN & реестр",
+      "desc": "Проверка VIN и наличия авто в государственном реестре (МВС/сервисные центры). Провайдер: ctx.providers.registry(vin) → { found, plate, firstReg, liens, stolen }."
+    },
+    {
+      "id": "history",
+      "label": "История (ДТП, пробег, владельцы)",
+      "desc": "История эксплуатации: аварии, скрутка пробега, число владельцев, страна ввоза. Провайдер: ctx.providers.history(vin) → { accidents, odometerRollback, lastKnownKm, owners }."
+    },
+    {
+      "id": "damage",
+      "label": "Тип повреждений",
+      "desc": "Классификация повреждений и допустимость. Допустимые типы задаёт cf_allowDamageTypes; по умолчанию — только косметика/лёгкий перёд-зад. Структурные, залив, огонь — стоп."
+    },
+    {
+      "id": "ai",
+      "label": "AI-анализ соответствия",
+      "desc": "Оценка ИИ «подходит ли нам эта машина» по всем критериям сразу. Провайдер: ctx.providers.ai(prompt) → { score 0..100, verdict, notes }. Без провайдера — прозрачная эвристика + готовый промпт (listing.aiPrompt)."
+    }
+  ],
+  "assumptions": {
+    "cf_make": "Tesla",
+    "cf_model": "Model 3",
+    "cf_priceMaxUSD": 30000,
+    "cf_yearMin": 2018,
+    "cf_mileageMaxKm": 110000,
+    "cf_region": "any",
+    "cf_allowDamaged": true,
+    "cf_useBuiltinRules": false,
+    "cf_rulesText": "warn: damaged  # ДТП — проверить историю по VIN\nwarn: mileageKm > 100000  # большой пробег\nwarn: priceUSD < market * 0.6  # подозрительно дёшево — вероятно тяжёлый ремонт/распил",
+    "cf_w_price": 30,
+    "cf_w_mileage": 20,
+    "cf_w_age": 15,
+    "cf_w_condition": 20,
+    "cf_w_history": 15,
+    "cf_topN": 200,
+    "cf_thisYear": 2026,
+    "fx0": 41.7
+  }
+}

@@ -1,2 +1,12 @@
 .playwright-mcp/
 *.zip
+
+# secrets — anywhere in the tree
+.env
+.env.*
+!*.env.example
+*.pem
+*.key
+
+# dependency installs — anywhere in the tree
+node_modules/

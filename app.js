@@ -32,6 +32,10 @@ const INTROS = {
     'and operating bills (electricity, rent, staff). Choose who runs each idea: quit and run it yourself (the ' +
     'comparison charges the salary you give up), or hire staff to replace you and collect salary and profit together. ' +
     'Use the “Reality check” inputs — and sweep them in “What if…” — to see which idea survives revenue coming in below plan.',
+  find: 'Підбір авто в Україні та Європі за співвідношенням ціна/якість. Задайте фільтри зліва, ' +
+    'опишіть свою логіку правилами текстом (напр. «Tesla — тільки європейка»), і кожне оголошення пройде ' +
+    'фільтри → правила → перевірки (VIN/реєстр, історія ДТП і пробігу, тип пошкоджень, AI-аналіз відповідності) → ' +
+    'оцінку 0–100. Демо-набір працює офлайн; для живого пошуку оберіть джерело та вкажіть ключ.',
 };
 
 const NUM_IDS = [
@@ -1296,7 +1300,286 @@ function kpi(k) {
   return `<div class="kpi"><div class="label">${k.label}</div><div class="value ${k.cls || ''}">${k.value}</div>${k.delta ? `<div class="delta">${k.delta}</div>` : ''}</div>`;
 }
 
+/* ---------- car finder (find mode) ----------
+ * A different kind of result — a ranked, vetted short-list rather than a wealth
+ * curve — so it renders into its own card and hides the financial charts. */
+let finderData = null;    // listings fetched live or pasted, reused across re-renders
+let finderStatus = '';    // one-line status/error shown in the finder toolbar
+let finderRes = null;     // last findCars() result, reused by the sortable table
+let finderSort = { key: 'score', dir: -1 };  // column sort state
+const finderFilters = { q: '', region: 'any', status: 'any', minScore: 0 };
+const finderExpanded = new Set(); // listing ids with the score breakdown open
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function readFinderParams() {
+  const p = { ...PARAM_DEFAULTS };
+  const numIds = ['cf_yearMin', 'cf_yearMax', 'cf_priceMinUSD', 'cf_priceMaxUSD',
+    'cf_mileageMaxKm', 'cf_topN', 'cf_w_price', 'cf_w_mileage', 'cf_w_age',
+    'cf_w_condition', 'cf_w_history'];
+  for (const id of numIds) { const e = $(id); if (e) p[id] = parseFloat(e.value) || 0; }
+  const txtIds = ['cf_make', 'cf_model', 'cf_bodyType', 'cf_apiKey', 'cf_allowDamageTypes',
+    'cf_rulesText', 'cf_source', 'cf_region', 'cf_fuel', 'cf_gearbox'];
+  for (const id of txtIds) { const e = $(id); if (e) p[id] = e.value; }
+  p.cf_allowDamaged = $('cf_allowDamaged').checked;
+  p.cf_useBuiltinRules = $('cf_useBuiltinRules').checked;
+  p.fx0 = parseFloat($('fx0').value) || 41.7;
+  return p;
+}
+
+function currentFinderListings() {
+  const t = $('cf_listingsText').value.trim();
+  if (t) {
+    try { const a = JSON.parse(t); if (Array.isArray(a) && a.length) return a; }
+    catch (e) { finderStatus = 'JSON помилка у вставлених оголошеннях: ' + e.message; }
+  }
+  if (finderData) return finderData;
+  return CF_SAMPLE_LISTINGS;
+}
+
+async function cfLiveSearch() {
+  const p = readFinderParams();
+  if (p.cf_source === 'sample') { finderStatus = 'Для живого пошуку оберіть джерело (AUTO.RIA / mobile.de).'; renderFinder(); return; }
+  finderStatus = 'Завантаження з ' + p.cf_source + '…'; renderFinder();
+  try {
+    const src = CF_SOURCES[p.cf_source];
+    const listings = await src.fetchLive(p);
+    finderData = listings;
+    finderStatus = `Отримано ${listings.length} оголошень з ${src.label}.`;
+  } catch (e) {
+    finderStatus = 'Живий пошук не вдався: ' + e.message +
+      ' — у браузері це часто CORS; спробуйте `node cli.js find --live` або вставте оголошення вручну.';
+  }
+  renderFinder();
+}
+
+const CF_STAT = { ok: '✓', warn: '⚠', fail: '✕', skip: '?' };
+
+function cfItemHTML(e, rank) {
+  const l = e.listing;
+  const scls = e.score >= 70 ? 'good' : e.score >= 50 ? 'mid' : 'bad';
+  const specs = [
+    l.year || '—',
+    cfNumUAHless(l.mileageKm) + ' км',
+    l.fuel !== 'unknown' ? l.fuel : null,
+    l.gearbox !== 'unknown' ? l.gearbox : null,
+    l.region + (l.country ? ' · ' + l.country : ''),
+    l.seller !== 'unknown' ? l.seller : null,
+  ].filter(Boolean).map(esc).join(' · ');
+  const vsMkt = Math.round((e.priceRatio - 1) * 100);
+  const flags = e.flags.map((f) => `<span class="cf-flag">⚠ ${esc(f)}</span>`).join('');
+  const boosts = e.boosts.map((b) =>
+    `<span class="cf-boost ${b.pts >= 0 ? 'good' : 'bad'}">${b.pts >= 0 ? '+' : ''}${b.pts} ${esc(b.why)}</span>`).join('');
+  const checks = ['vin', 'history', 'damage', 'ai'].map((id) => {
+    const c = e.checks[id];
+    return `<div class="cf-check ${c.status}"><span class="cf-cstat">${CF_STAT[c.status] || '?'}</span>` +
+      `<span class="cf-clabel">${esc(c.label)}</span>` +
+      `<span class="cf-cfind">${esc((c.findings || []).join('; '))}</span></div>`;
+  }).join('');
+  const title = l.url
+    ? `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.title)}</a>`
+    : esc(l.title);
+  return `<div class="cf-item">
+    <div class="cf-head">
+      <span class="cf-rank">${rank}</span>
+      <span class="cf-score ${scls}">${e.score}</span>
+      <span class="cf-title">${title}<span class="cf-src">${esc(l.source)}</span></span>
+      <span class="cf-price">$${cfNumUAHless(l.priceUSD)}<span class="cf-vsmkt ${vsMkt <= 0 ? 'good' : 'bad'}">${vsMkt >= 0 ? '+' : ''}${vsMkt}% до ринку</span></span>
+    </div>
+    <div class="cf-specs">${specs}${l.vin ? ' · VIN ' + esc(l.vin) : ' · без VIN'}</div>
+    ${flags || boosts ? `<div class="cf-tags">${flags}${boosts}</div>` : ''}
+    <div class="cf-checks">${checks}</div>
+    <details class="cf-ai"><summary>AI-промпт для перевірки відповідності</summary><pre>${esc(e.aiPrompt)}</pre></details>
+  </div>`;
+}
+// finder uses its own thousands formatter to avoid the ₴ symbol
+const cfNumUAHless = (v) => new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(Math.round(v || 0));
+
+function renderFinder() {
+  $('results').classList.add('finder-only');
+  $('quickbar').innerHTML = ''; // finder has no quick-scenario chips
+  const card = $('finderCard');
+  card.hidden = false;
+
+  const p = readFinderParams();
+  finderStatus = ''; // recomputed below if listings parse fails
+  const listings = currentFinderListings();
+  let res;
+  try { res = findCars(p, listings); }
+  catch (e) { card.innerHTML = `<div class="verdict cash-wins"><strong>Помилка підбору:</strong> ${esc(e.message)}</div>`; return; }
+
+  const best = res.results[0];
+  const verdict = best
+    ? `<strong>Знайдено ${res.passed} з ${res.scanned}. Лідер: ${esc(best.listing.title)} — ${best.score}/100`
+      + (best.flags.length ? ', з застереженнями' : '') + `.</strong>`
+      + `<div class="why">Відсіяно ${res.rejected.length} (фільтри та правила). Активних правил: ${res.ruleCount}. `
+      + `Медіана ринку у вибірці: $${cfNumUAHless(res.marketStats.overall)}.</div>`
+    : `<strong>Нічого не підійшло під фільтри.</strong><div class="why">Пом'якшіть фільтри або змініть джерело. Відсіяно ${res.rejected.length}.</div>`;
+
+  const ruleErr = res.ruleErrors.length
+    ? `<div class="cf-banner warn">Помилки у правилах: ${res.ruleErrors.map(esc).join(' · ')}</div>` : '';
+
+  const srcSel = p.cf_source;
+  const toolbar = `<div class="cf-toolbar">
+      <button id="cfLiveBtn" class="chip"${srcSel === 'sample' ? ' disabled title="оберіть джерело для живого пошуку"' : ''}>⟳ Живий пошук (${esc(srcSel)})</button>
+      <span class="cf-status">${esc(finderStatus)}</span>
+    </div>`;
+
+  // client-side controls over the computed set: search + region/status/min-score
+  const regions = ['any', ...Array.from(new Set(res.evaluated.map((e) => e.listing.region)))];
+  const controls = `<div class="cf-controls">
+      <input type="text" class="cf-q" placeholder="Пошук: марка, модель, місто, VIN…" value="${esc(finderFilters.q)}">
+      <select class="cf-fregion">${regions.map((r) => `<option value="${r}"${finderFilters.region === r ? ' selected' : ''}>${r === 'any' ? 'Всі регіони' : r}</option>`).join('')}</select>
+      <select class="cf-fstatus">
+        <option value="any"${finderFilters.status === 'any' ? ' selected' : ''}>Будь-який статус</option>
+        <option value="ok"${finderFilters.status === 'ok' ? ' selected' : ''}>Без застережень</option>
+        <option value="flag"${finderFilters.status === 'flag' ? ' selected' : ''}>Із застереженнями</option>
+        <option value="clean"${finderFilters.status === 'clean' ? ' selected' : ''}>Без відмітки ДТП</option>
+      </select>
+      <label class="cf-minlbl">бал ≥ <input type="number" class="cf-fmin" min="0" max="100" step="5" value="${finderFilters.minScore}"></label>
+      <span class="cf-count"></span>
+    </div>`;
+
+  const rej = res.rejected.length
+    ? `<details class="cf-rejected"><summary>Відсіяно: ${res.rejected.length}</summary>` +
+      res.rejected.slice(0, 60).map((r) =>
+        `<div class="cf-rej"><span class="cf-rstage ${r.stage}">${r.stage === 'rule' ? 'правило' : 'фільтр'}</span> ` +
+        `${esc(r.listing.title)} — ${esc(r.reasons.join('; '))}</div>`).join('') +
+      '</details>' : '';
+
+  const checksNote = `<div class="cf-note">Клік по заголовку колонки — сортування; ▸ у рядку — розбір балу та перевірки (VIN, історія, пошкодження, AI). ` +
+    `Реальні реєстри та ІІ підключаються через <code>cf_providers</code>; у демо-режимі — прозорі евристики.</div>`;
+
+  card.innerHTML =
+    `<div class="verdict${best && !best.flags.length ? '' : ' cash-wins'}">${verdict}</div>` +
+    ruleErr + toolbar +
+    `<div class="kpis">${res.kpis.map(kpi).join('')}</div>` +
+    controls +
+    `<div class="cf-table-wrap" id="cfTable"></div>` +
+    rej + checksNote;
+
+  finderRes = res;
+  renderFinderTable();
+  const btn = $('cfLiveBtn');
+  if (btn) btn.onclick = cfLiveSearch;
+}
+
+/* Human-readable breakdown of why a score is high or low. Each scoring
+ * dimension (0–100) is turned into a labelled bar + a plus/minus note. */
+const CF_PART_LABELS = { price: 'Ціна відносно ринку', mileage: 'Пробіг за вік', age: 'Вік авто', condition: 'Стан / пошкодження', history: 'Історія / чистота' };
+function cfScoreExplain(e) {
+  const p = e.parts || {};
+  const cls = (v) => v >= 67 ? 'good' : v >= 45 ? 'mid' : 'bad';
+  const bars = Object.keys(CF_PART_LABELS).map((k) => {
+    const v = Math.round(p[k] || 0);
+    return `<div class="cf-part"><span class="cf-pl">${CF_PART_LABELS[k]}</span>` +
+      `<span class="cf-pbar"><span class="cf-pfill ${cls(v)}" style="width:${v}%"></span></span>` +
+      `<span class="cf-pv ${cls(v)}">${v}</span></div>`;
+  }).join('');
+  // verbal summary: what pulls the score up / down
+  const up = [], down = [];
+  const vs = Math.round((e.priceRatio - 1) * 100);
+  if (vs <= -8) up.push(`дешевше ринку на ${-vs}%`); else if (vs >= 10) down.push(`дорожче ринку на ${vs}%`);
+  if ((p.mileage || 0) >= 67) up.push('невеликий пробіг для віку'); else if ((p.mileage || 0) < 45) down.push('великий пробіг для віку');
+  if ((p.age || 0) >= 67) up.push('свіжий рік'); else if ((p.age || 0) < 40) down.push('вік');
+  if (!e.listing.damaged) up.push('без пошкоджень'); else down.push('ДТП — потрібна перевірка VIN/об’єму');
+  if ((e.checks.vin && e.checks.vin.status === 'ok')) up.push('VIN валідний'); else if (e.listing.vin === '') down.push('немає VIN');
+  const boosts = (e.boosts || []).map((b) => `${b.pts >= 0 ? '+' : ''}${b.pts} ${esc(b.why.split('#')[0])}`).join(', ');
+  return `<div class="cf-explain">
+      <div class="cf-parts">${bars}</div>
+      <div class="cf-verbal">
+        ${up.length ? `<div class="cf-up">▲ Підвищує: ${up.map(esc).join(', ')}.</div>` : ''}
+        ${down.length ? `<div class="cf-down">▼ Знижує: ${down.map(esc).join(', ')}.</div>` : ''}
+        ${boosts ? `<div class="cf-adj">Правила: ${boosts}.</div>` : ''}
+        <div class="cf-formula">Підсумок = зважена сума × ваги (ціна ${finderRes.params.cf_w_price}, пробіг ${finderRes.params.cf_w_mileage}, вік ${finderRes.params.cf_w_age}, стан ${finderRes.params.cf_w_condition}, історія ${finderRes.params.cf_w_history}) + 15% AI ± правила.</div>
+      </div>
+    </div>`;
+}
+
+const CF_SORTVAL = {
+  score: (e) => e.score,
+  car: (e) => (e.listing.make + ' ' + e.listing.model + ' ' + e.listing.year).toLowerCase(),
+  year: (e) => e.listing.year,
+  price: (e) => e.listing.priceUSD,
+  mileage: (e) => e.listing.mileageKm || 0,
+  region: (e) => e.listing.region,
+  status: (e) => e.flags.length,
+};
+const CF_COLS = [
+  { key: 'score', label: 'Бал' }, { key: 'car', label: 'Авто' }, { key: 'year', label: 'Рік' },
+  { key: 'price', label: 'Ціна' }, { key: 'mileage', label: 'Пробіг' },
+  { key: 'region', label: 'Регіон' }, { key: 'status', label: 'Статус' },
+];
+
+function renderFinderTable() {
+  const host = $('cfTable');
+  if (!host || !finderRes) return;
+  const q = finderFilters.q.trim().toLowerCase();
+  let rows = finderRes.evaluated.filter((e) => {
+    const l = e.listing;
+    if (q && !((l.title + ' ' + (l._raw.city || '') + ' ' + l.vin).toLowerCase().includes(q))) return false;
+    if (finderFilters.region !== 'any' && l.region !== finderFilters.region) return false;
+    if (finderFilters.minScore && e.score < finderFilters.minScore) return false;
+    if (finderFilters.status === 'ok' && e.flags.length) return false;
+    if (finderFilters.status === 'flag' && !e.flags.length) return false;
+    if (finderFilters.status === 'clean' && l.damaged) return false;
+    return true;
+  });
+  const { key, dir } = finderSort;
+  const val = CF_SORTVAL[key] || CF_SORTVAL.score;
+  rows.sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : 0) * dir; });
+
+  const head = `<tr><th class="cf-rk">#</th>` + CF_COLS.map((c) =>
+    `<th data-sort="${c.key}" class="cf-sortable${finderSort.key === c.key ? ' active' : ''}">${c.label}` +
+    `<span class="cf-arrow">${finderSort.key === c.key ? (dir < 0 ? '▾' : '▴') : ''}</span></th>`).join('') + `</tr>`;
+
+  const body = rows.map((e, i) => {
+    const l = e.listing;
+    const scls = e.score >= 70 ? 'good' : e.score >= 55 ? 'mid' : 'bad';
+    const vs = Math.round((e.priceRatio - 1) * 100);
+    const open = finderExpanded.has(l.id);
+    const status = l.damaged
+      ? `<span class="cf-st vin">⚠ перевірити VIN</span>`
+      : `<span class="cf-st ok">без відмітки ДТП</span>`;
+    const flags = e.flags.map((f) => `<span class="cf-fl">${esc(f)}</span>`).join('');
+    const main = `<tr class="cf-trow${open ? ' open' : ''}" data-id="${esc(l.id)}">
+      <td class="cf-rk">${i + 1}</td>
+      <td><span class="cf-score ${scls}">${e.score}</span></td>
+      <td class="cf-car"><button class="cf-exp" data-id="${esc(l.id)}" aria-label="розгорнути">${open ? '▾' : '▸'}</button>` +
+        `<a href="${esc(l.url || '#')}" target="_blank" rel="noopener">${esc(l.make)} ${esc(l.model)}</a>` +
+        `<span class="cf-city">${esc(l._raw.city || l.source || '')}</span></td>
+      <td class="cf-num">${l.year || '—'}</td>
+      <td class="cf-num">$${cfNumUAHless(l.priceUSD)}<span class="cf-vs ${vs <= 0 ? 'g' : 'r'}">${vs >= 0 ? '+' : ''}${vs}%</span></td>
+      <td class="cf-num">${l.mileageKm ? cfNumUAHless(l.mileageKm) : '—'}</td>
+      <td>${esc(l.region)}</td>
+      <td class="cf-stcell">${status}${flags}</td>
+    </tr>`;
+    const detail = open
+      ? `<tr class="cf-drow"><td colspan="8">${cfScoreExplain(e)}${cfChecksHTML(e)}</td></tr>`
+      : '';
+    return main + detail;
+  }).join('');
+
+  host.innerHTML = `<table class="cf-table"><thead>${head}</thead><tbody>${body || '<tr><td colspan="8" class="cf-empty">Нічого не знайдено під фільтри таблиці</td></tr>'}</tbody></table>`;
+  const cnt = document.querySelector('.cf-count');
+  if (cnt) cnt.textContent = `${rows.length} з ${finderRes.evaluated.length}`;
+}
+
+/* the 4 vetting checks as chips + findings (used inside an expanded row) */
+function cfChecksHTML(e) {
+  return `<div class="cf-checks">` + ['vin', 'history', 'damage', 'ai'].map((id) => {
+    const c = e.checks[id];
+    return `<div class="cf-check ${c.status}"><span class="cf-cstat">${CF_STAT[c.status] || '?'}</span>` +
+      `<span class="cf-clabel">${esc(c.label)}</span>` +
+      `<span class="cf-cfind">${esc((c.findings || []).join('; '))}</span></div>`;
+  }).join('') + `</div>` +
+    `<details class="cf-ai"><summary>AI-промпт для перевірки відповідності</summary><pre>${esc(e.aiPrompt)}</pre></details>`;
+}
+
 function render() {
+  if (mode === 'find') { renderFinder(); return; }
+  $('results').classList.remove('finder-only');
+  $('finderCard').hidden = true;
   // PPP link: devaluation follows the inflation differential when checked
   const ppp = $('pppLink').checked;
   $('devalPct').disabled = ppp;
@@ -1427,6 +1710,33 @@ for (const id of LIFE_DEC_IDS) {
 }
 document.getElementById('inputs').addEventListener('input', render);
 $('scCard').addEventListener('input', render);
+
+/* finder results: column sort, row expand, and in-table filters — these only
+ * re-render the table body, so the filter inputs keep focus while typing. */
+$('finderCard').addEventListener('click', (e) => {
+  const th = e.target.closest('th[data-sort]');
+  if (th) {
+    const k = th.dataset.sort;
+    if (finderSort.key === k) finderSort.dir *= -1;
+    else finderSort = { key: k, dir: (k === 'car' || k === 'region') ? 1 : -1 };
+    renderFinderTable();
+    return;
+  }
+  const exp = e.target.closest('.cf-exp');
+  if (exp) {
+    const id = exp.dataset.id;
+    if (finderExpanded.has(id)) finderExpanded.delete(id); else finderExpanded.add(id);
+    renderFinderTable();
+  }
+});
+$('finderCard').addEventListener('input', (e) => {
+  if (e.target.classList.contains('cf-q')) { finderFilters.q = e.target.value; renderFinderTable(); }
+  else if (e.target.classList.contains('cf-fmin')) { finderFilters.minScore = parseFloat(e.target.value) || 0; renderFinderTable(); }
+});
+$('finderCard').addEventListener('change', (e) => {
+  if (e.target.classList.contains('cf-fregion')) { finderFilters.region = e.target.value; renderFinderTable(); }
+  else if (e.target.classList.contains('cf-fstatus')) { finderFilters.status = e.target.value; renderFinderTable(); }
+});
 $('chartUnit').addEventListener('change', render);
 $('debtUnit').addEventListener('change', render);
 $('sweepParam').addEventListener('change', (e) => {
@@ -1465,17 +1775,19 @@ applyParamsToDOM({ ...PARAM_DEFAULTS, ...urlParams });
 /* Programmatic API (browser console, Playwright, LLM agents):
  *   LDM.run('life', {savings: 20000})  → JSON summary, no UI involved
  *   LDM.apply('biz', {bz_scaleOn: true}) → set the UI and re-render */
+const ALL_MODES = { ...MODULES, find: { finder: true } };
 window.LDM = {
   defaults: PARAM_DEFAULTS,
-  modes: Object.keys(MODULES),
+  modes: Object.keys(ALL_MODES),
   run(m, overrides = {}) {
     const p = { ...PARAM_DEFAULTS, ...overrides };
+    if (m === 'find') return cfSummarize(findCars(p, overrides.listings || CF_SAMPLE_LISTINGS));
     return summarizeResult(m, MODULES[m].run(p), p);
   },
   apply(m, overrides = {}) {
     applyParamsToDOM({ ...readParams(), ...overrides });
-    setMode(MODULES[m] ? m : mode);
+    setMode(ALL_MODES[m] ? m : mode);
   },
 };
 
-setMode(urlMode && MODULES[urlMode] ? urlMode : 'car');
+setMode(urlMode && ALL_MODES[urlMode] ? urlMode : 'car');

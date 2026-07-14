@@ -1,0 +1,74 @@
+[
+  {
+    "year": 2021,
+    "priceUSD": 19500,
+    "mileageKm": 105000,
+    "city": "Київ",
+    "id": 40140849,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_40140849.html"
+  },
+  {
+    "year": 2023,
+    "priceUSD": 21350,
+    "mileageKm": 48000,
+    "city": "Львів",
+    "id": 40150011,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_40150011.html"
+  },
+  {
+    "year": 2019,
+    "priceUSD": 25500,
+    "mileageKm": 64000,
+    "city": "Київ",
+    "id": 40147246,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_40147246.html"
+  },
+  {
+    "year": 2020,
+    "priceUSD": 20499,
+    "mileageKm": 84000,
+    "city": "Хуст",
+    "id": 40132565,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_40132565.html"
+  },
+  {
+    "year": 2021,
+    "priceUSD": 25900,
+    "mileageKm": 61000,
+    "city": "Київ",
+    "id": 40094305,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_40094305.html"
+  },
+  {
+    "year": 2019,
+    "priceUSD": 17000,
+    "mileageKm": 100000,
+    "city": "Львів",
+    "id": 40148386,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_40148386.html"
+  },
+  {
+    "year": 2019,
+    "priceUSD": 15999,
+    "mileageKm": 107000,
+    "city": "Солонка",
+    "id": 38386958,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_38386958.html"
+  },
+  {
+    "year": 2021,
+    "priceUSD": 26400,
+    "mileageKm": 78000,
+    "city": "Вінниця",
+    "id": 39031336,
+    "dmg": 0,
+    "url": "https://auto.ria.com/uk/auto_tesla_model_3_39031336.html"
+  }
+]

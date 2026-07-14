@@ -17,6 +17,7 @@
     <button class="tab" data-mode="mort">Mortgage variants: down payment &amp; term</button>
     <button class="tab" data-mode="life">Life decisions: what's my best move?</button>
     <button class="tab" data-mode="biz">Business ideas: which one to build?</button>
+    <button class="tab" data-mode="find">Пошук авто: підбір і перевірка</button>
   </nav>
   <div class="quickbar" id="quickbar"></div>
 </header>
@@ -52,7 +53,7 @@
     </label>
   </section>
 
-  <section>
+  <section data-mode="car home mort life biz">
     <h2>Your job &amp; income</h2>
     <label>Salary, per month
       <span class="row">
@@ -371,6 +372,121 @@
       <input type="number" id="bz4_hoursWk" value="45" min="0" max="100" step="1"></label>
   </section>
 
+  <section data-mode="find">
+    <h2>Що шукаємо</h2>
+    <label>Джерело оголошень
+      <select id="cf_source">
+        <option value="sample">Демо-набір (офлайн, без мережі)</option>
+        <option value="autoria">AUTO.RIA (потрібен API-ключ)</option>
+        <option value="mobilede">mobile.de (через провайдера)</option>
+      </select>
+      <small>Живий пошук ходить у AUTO.RIA/mobile.de. У браузері їх часто блокує CORS — тоді запусти <code>node cli.js find --live</code> або встав оголошення нижче.</small>
+    </label>
+    <label>API-ключ AUTO.RIA (developer.ria.com)
+      <input type="text" id="cf_apiKey" value="" placeholder="безкоштовний ключ">
+    </label>
+    <label>Марка
+      <input type="text" id="cf_make" value="Tesla" placeholder="будь-яка">
+    </label>
+    <label>Модель
+      <input type="text" id="cf_model" value="" placeholder="будь-яка">
+    </label>
+    <label>Рік від / до
+      <span class="row">
+        <input type="number" id="cf_yearMin" value="2018" min="1990" max="2030" step="1">
+        <input type="number" id="cf_yearMax" value="0" min="0" max="2030" step="1" title="0 = без обмеження">
+      </span>
+    </label>
+    <label>Ціна, $ від / до
+      <span class="row">
+        <input type="number" id="cf_priceMinUSD" value="0" min="0" step="500">
+        <input type="number" id="cf_priceMaxUSD" value="30000" min="0" step="500">
+      </span>
+    </label>
+    <label>Пробіг до, км
+      <input type="number" id="cf_mileageMaxKm" value="150000" min="0" step="5000">
+    </label>
+    <label>Регіон
+      <select id="cf_region">
+        <option value="any">Будь-який</option>
+        <option value="UA">Україна</option>
+        <option value="EU">Європа</option>
+        <option value="US">США/Канада</option>
+        <option value="OTHER">Інше</option>
+      </select>
+    </label>
+    <label>Паливо
+      <select id="cf_fuel">
+        <option value="any">Будь-яке</option>
+        <option value="petrol">Бензин</option>
+        <option value="diesel">Дизель</option>
+        <option value="EV">Електро</option>
+        <option value="hybrid">Гібрид</option>
+        <option value="gas">Газ</option>
+      </select>
+    </label>
+    <label>КПП
+      <select id="cf_gearbox">
+        <option value="any">Будь-яка</option>
+        <option value="auto">Автомат</option>
+        <option value="manual">Механіка</option>
+      </select>
+    </label>
+    <label>Тип кузова
+      <input type="text" id="cf_bodyType" value="" placeholder="будь-який (sedan, suv…)">
+    </label>
+    <label>Скільки показати (топ N)
+      <input type="number" id="cf_topN" value="10" min="1" max="50" step="1">
+    </label>
+  </section>
+
+  <section data-mode="find">
+    <h2>Пошкодження та перевірки</h2>
+    <label class="check"><input type="checkbox" id="cf_allowDamaged" checked>
+      Розглядати пошкоджені авто
+      <small>Якщо вимкнено — биті відсіюються фільтром одразу. Якщо ввімкнено — їх усе одно судять правила й перевірки.</small>
+    </label>
+    <label>Допустимі типи пошкоджень
+      <input type="text" id="cf_allowDamageTypes" value="front,rear" placeholder="front, rear">
+      <small>Через кому. Залив (flood), пожежа (fire), силові (structural), airbag — завжди стоп.</small>
+    </label>
+    <p class="dec-hint">Кожне авто проходить перевірки: <em>VIN&nbsp;/&nbsp;реєстр</em>, <em>історія (ДТП, пробіг, власники)</em>,
+      <em>тип пошкоджень</em>, <em>AI-аналіз відповідності</em>. Реальні реєстри й ІІ підключаються через провайдери
+      (<code>cf_providers</code>); без них — прозорі евристики.</p>
+  </section>
+
+  <section data-mode="find">
+    <h2>Правила (логіка текстом)</h2>
+    <label class="check"><input type="checkbox" id="cf_useBuiltinRules" checked>
+      Вбудовані правила (Tesla — тільки європейка тощо)
+    </label>
+    <label>Свої правила — по одному на рядок
+      <textarea id="cf_rulesText" rows="6" spellcheck="false" placeholder="reject: make = Tesla and region != EU  # тільки європейка&#10;warn: priceUSD &lt; market * 0.6  # підозріло дешево&#10;boost 12: fuel = EV  # надаємо перевагу електро"></textarea>
+      <small>Дії: <code>reject</code>, <code>warn</code>, <code>boost N</code>, <code>penalize N</code>.
+        Поля: make, model, year, priceUSD, mileageKm, region, fuel, gearbox, damaged, damageType,
+        vin, seller, titleStatus, market, kmPerYear, age. Оператори: = ≠ &lt; &gt; ≤ ≥, and/or/not, in / not in [a, b].</small>
+    </label>
+    <label>Вставити оголошення вручну (JSON-масив)
+      <textarea id="cf_listingsText" rows="4" spellcheck="false" placeholder='[{"make":"Tesla","model":"Model 3","year":2021,"price":24500,"currency":"USD","country":"DE","mileage":61000,"vin":"..."}]'></textarea>
+      <small>Якщо не порожньо — використовуються ці оголошення замість демо-набору/живого пошуку.</small>
+    </label>
+  </section>
+
+  <section data-mode="find">
+    <h2>Ваги оцінки ціна/якість</h2>
+    <p class="dec-hint">Відносна важливість кожного критерію (нормалізується автоматично).</p>
+    <label>Ціна відносно ринку
+      <input type="number" id="cf_w_price" value="30" min="0" max="100" step="5"></label>
+    <label>Пробіг за вік
+      <input type="number" id="cf_w_mileage" value="20" min="0" max="100" step="5"></label>
+    <label>Вік авто
+      <input type="number" id="cf_w_age" value="15" min="0" max="100" step="5"></label>
+    <label>Стан / пошкодження
+      <input type="number" id="cf_w_condition" value="20" min="0" max="100" step="5"></label>
+    <label>Історія / чистота
+      <input type="number" id="cf_w_history" value="15" min="0" max="100" step="5"></label>
+  </section>
+
   <section data-mode="car life">
     <h2>Car &amp; purchase</h2>
     <label>Typical car
@@ -568,7 +684,7 @@
     </label>
   </section>
 
-  <section>
+  <section data-mode="car home mort life biz">
     <h2>Investment of the freed-up money</h2>
     <label class="check"><input type="checkbox" id="investOff">
       Don't invest the difference — clean price comparison
@@ -627,7 +743,9 @@
 
 </aside>
 
-<main class="results">
+<main class="results" id="results">
+
+  <div id="finderCard" hidden></div>
 
   <div id="verdict" class="verdict"></div>
 
@@ -796,6 +914,7 @@
 <script src="decisions.js"></script>
 <script src="life.js"></script>
 <script src="business.js"></script>
+<script src="carfinder.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -148,6 +148,37 @@ const PARAM_DEFAULTS = {
   bz4_investUSD: 6000, bz4_rampMonths: 6, bz4_revenueUSD: 4000,
   bz4_costsUSD: 3300, bz4_taxPct: 6, bz4_growthPct: 15,
   bz4_residualPct: 10, bz4_staffUSD: 700, bz4_hoursWk: 45,
+
+  /* --- find tab: car finder & vetting (Ukraine / Europe) ---
+   * Filters are hard cut-offs; '', 0 or 'any' means "don't filter on this".
+   * cf_rulesText holds user rules in the text DSL (see carfinder.js); the
+   * built-in rules run too unless cf_useBuiltinRules is false. Weights are the
+   * relative importance of each scoring dimension (auto-normalized). */
+  cf_source: 'sample',        // 'sample' | 'autoria' | 'mobilede' (live needs a key/provider)
+  cf_apiKey: '',              // AUTO.RIA developer key (developer.ria.com), used by live search
+  cf_make: 'Tesla',
+  cf_model: '',
+  cf_yearMin: 2018,
+  cf_yearMax: 0,              // 0 = no upper bound
+  cf_priceMinUSD: 0,
+  cf_priceMaxUSD: 30000,
+  cf_mileageMaxKm: 150000,
+  cf_region: 'any',           // 'any' | 'UA' | 'EU' | 'US' | 'OTHER'
+  cf_fuel: 'any',             // 'any' | petrol | diesel | EV | hybrid | gas
+  cf_gearbox: 'any',          // 'any' | auto | manual
+  cf_bodyType: 'any',
+  cf_allowDamaged: true,      // let damaged cars through the filter (rules/checks still judge them)
+  cf_allowDamageTypes: 'front,rear', // damage types you'd still consider (comma/space list)
+  cf_topN: 10,
+  cf_thisYear: 2026,
+  cf_useBuiltinRules: true,
+  cf_rulesText: '',           // extra rules, one per line: "reject: <cond>  # reason"
+  // scoring weights (relative)
+  cf_w_price: 30,
+  cf_w_mileage: 20,
+  cf_w_age: 15,
+  cf_w_condition: 20,
+  cf_w_history: 15,
 };
 
 /* Machine-readable summary of a module result — everything an LLM needs

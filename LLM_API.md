@@ -14,7 +14,9 @@ echo '<json>' | node cli.js
 
 Modes: `car` (cash vs credit), `home` (mortgage vs cash vs rent vs buy-to-let),
 `mort` (up to ten mortgage down-payment + term variants vs renting),
-`life` (multi-criteria life decisions), `biz` (business ideas vs keeping your job).
+`life` (multi-criteria life decisions), `biz` (business ideas vs keeping your job),
+`find` (car sourcing & vetting — Ukraine/Europe; see the dedicated section below,
+it returns a ranked short-list, not a wealth curve).
 
 ```bash
 # What should I do with $20k over 10 years?
@@ -176,6 +178,107 @@ is on). A 100% down payment behaves as a cash purchase.
 - slot defaults: 1 = car wash ($70k, staff-run), 2 = coffee ($10k), 3 =
   barbershop ($25k), 4 = online store ($6k, off); vending preset = ~8 coffee/
   snack machines, $12k, $2.2k/mo revenue, $1.1k/mo bills, ~10 h/week
+
+## Car finder & vetting (`find` mode)
+
+A different pipeline from the financial simulators: it takes a pile of car
+listings (Ukraine / Europe), applies hard **filters**, a **text rule engine**,
+per-car **vetting checks** (VIN/registry, accident+odometer history, damage
+type, AI suitability), and a **price/quality score (0–100)**, then returns a
+ranked short-list. Source: `carfinder.js`. Pure & synchronous over a supplied
+array of listings; live sourcing wraps it.
+
+```bash
+# score the built-in demo listings (works offline), short aliases allowed
+node cli.js find make=Tesla priceMaxUSD=30000 region=EU
+
+# your own rules on top of the built-ins (one per line)
+node cli.js '{"mode":"find","overrides":{
+  "cf_make":"", "cf_priceMaxUSD":20000,
+  "cf_rulesText":"reject: fuel = diesel\nboost 15: region = EU\nwarn: kmPerYear > 25000"}}'
+
+# feed a JSON file of listings instead of the demo set
+node cli.js find make=any --listings=my_listings.json
+
+# live fetch from AUTO.RIA (needs a free developer.ria.com key)
+node cli.js find make=Tesla source=autoria apiKey=YOUR_KEY --live
+```
+
+Browser: `LDM.run('find', { cf_make: 'Tesla', listings: [...] })` → the summary
+below (pass `listings` to score your own; omitted → the demo set). `LDM.apply('find')`
+switches to the tab. The tab also has a **Live search** button and a manual
+JSON paste box.
+
+### Parameters (defaults in parentheses)
+
+Filters — `''`/`0`/`any` means "don't filter": `cf_make` (Tesla), `cf_model` (''),
+`cf_yearMin` (2018), `cf_yearMax` (0), `cf_priceMinUSD` (0), `cf_priceMaxUSD`
+(30000), `cf_mileageMaxKm` (150000), `cf_region` (any: UA/EU/US/OTHER),
+`cf_fuel` (any), `cf_gearbox` (any), `cf_bodyType` (''), `cf_allowDamaged`
+(true), `cf_allowDamageTypes` ('front,rear'), `cf_topN` (10). Logic:
+`cf_useBuiltinRules` (true), `cf_rulesText` (''). Scoring weights (auto-normalized):
+`cf_w_price` (30), `cf_w_mileage` (20), `cf_w_age` (15), `cf_w_condition` (20),
+`cf_w_history` (15). Sourcing: `cf_source` (sample|autoria|mobilede), `cf_apiKey`
+(''), `cf_thisYear` (2026). CLI aliases (find mode only): `make model yearMin
+yearMax priceMinUSD priceMaxUSD mileageMaxKm region fuel gearbox bodyType source
+apiKey topN rules allowDamaged allowDamageTypes` map to their `cf_*` names.
+
+### Rule DSL (the "logic in text")
+
+One rule per line: `<action>[ N]: <condition>  # reason`. Actions: `reject`
+(drop the car), `warn` (flag it), `boost N` / `penalize N` (± N points on the
+score, default 10). Conditions read the listing fields plus derived values:
+`make model year priceUSD mileageKm region(UA/EU/US/OTHER) country fuel gearbox
+bodyType vin seller titleStatus damaged damageType ownersCount photos` and
+`market` (median price for that model), `kmPerYear`, `age`. Operators: `= != <
+> <= >=`, `and or not`, `in / not in [a, b]`, arithmetic `+ - * /`. Bare words
+are string literals (no quoting): `region != EU`, `fuel = EV`. Built-in rules
+(toggle with `cf_useBuiltinRules`) include *Tesla ⇒ EU-only*, reject
+flood/fire/structural damage, warn on suspiciously-cheap (`priceUSD < market*0.6`)
+and very high `kmPerYear`. Malformed lines are reported in `ruleErrors`, never
+thrown.
+
+### Checks & providers
+
+Each check falls back to a transparent heuristic; plug real sources through
+`cf_providers` (browser/Node only, not the CLI kv form):
+`cf_providers.registry(vin)`, `cf_providers.history(vin)`,
+`cf_providers.ai(prompt)`, `cf_providers.mobilede(params)`. Without an AI
+provider, each car still carries a ready-to-send `aiPrompt`. Add a check by
+pushing to `CF_CHECKS`; add a source by adding to `CF_SOURCES`.
+
+### `find` result schema
+
+```jsonc
+{
+  "mode": "find",
+  "scanned": 10, "passed": 1, "rejected": 9,
+  "ruleCount": 6, "ruleErrors": [],
+  "marketMedianUSD": 13450,
+  "kpis": [{ "label": "...", "value": "...", "note": "..." }],
+  "results": [{
+    "title": "Tesla Model 3 2021 (DE)", "url": "...", "source": "mobilede",
+    "year": 2021, "priceUSD": 24500, "mileageKm": 61000,
+    "region": "EU", "fuel": "EV", "gearbox": "auto", "vin": "…",
+    "score": 70, "verdict": "ok",           // ok | caution | rejected
+    "priceVsMarketPct": 20,                  // +20% vs the model's median
+    "flags": [], "scoreParts": { "price": 30, "mileage": 78, … },
+    "checks": { "vin": {"status":"ok","score":90,"findings":[…]}, "history": …, "damage": …, "ai": … }
+  }],
+  "rejectedSample": [{ "title": "…", "stage": "rule", "reasons": ["Tesla — только европейка"] }],
+  "checks": [{ "id": "vin", "label": "…", "desc": "…" }],
+  "assumptions": { /* cf_* params used */ }
+}
+```
+
+### Listing shape (for `--listings` / pasted JSON / providers)
+
+Any subset works; missing fields are tolerated (checks flag what they can't
+verify). Recognized keys: `make model year price currency(USD|UAH|EUR) mileage
+country region fuel gearbox bodyType vin seller(private|dealer) damaged
+damageType(none|front|rear|side|flood|fire|structural|airbag|unknown)
+titleStatus ownersCount photos url title history{accidents,odometerRollback,
+lastKnownKm,registeredInRegistry,stolen,liens}`.
 
 ## Model conventions worth knowing
 

@@ -30,6 +30,12 @@ async function searchIds(cfg, city, category, page) {
   let url = `${BASE}/dom/search?${q.toString()}`;
   if (city.domria?.city_id != null) url += `&city_id[]=${city.domria.city_id}`;
   const data = await politeFetch(url, { expect: 'json', referer: 'https://dom.ria.com/' });
+  // API повертає 200 з {error: "..."} (напр. HourOverlimit) — не ковтаємо мовчки
+  if (data?.error) {
+    const err = new Error(`API: ${typeof data.error === 'string' ? data.error : JSON.stringify(data.error)}`);
+    err.fatal = data.error_type === 'HourOverlimit'; // далі бити не варто — ліміт години
+    throw err;
+  }
   // можливі форми відповіді: {items:[...], count} або {result:{search_result:{items:[...]}}}
   const items = data.items || data?.result?.search_result?.items || data?.search_result?.items || [];
   const count = data.count ?? data?.result?.search_result?.count ?? items.length;
@@ -91,20 +97,33 @@ export async function* collect(cfg, ctx) {
   const types = cfg.filters.propertyTypes.map(propertyTypeToDomriaCategory).filter(Boolean);
   const categories = [...new Set(types)];
   const maxPages = cfg.sources.domria.maxPagesPerQuery ?? 3;
+  // Безкоштовний ключ має маленький погодинний ліміт — не палимо його весь
+  // за один прогін і виходимо одразу, щойно вперлись у 429/HourOverlimit.
+  const maxItems = cfg.sources.domria.maxItemsPerRun ?? 30;
+  let fetched = 0;
 
   for (const category of categories) {
     for (let page = 0; page < maxPages; page++) {
       let res;
       try { res = await searchIds(cfg, city, category, page); }
-      catch (e) { log.warn(`domria search cat=${category} p=${page}: ${e.message}`); break; }
+      catch (e) {
+        log.warn(`domria search cat=${category} p=${page}: ${e.message}`);
+        if (e.fatal || e.status === 429) { log.warn('domria: погодинний ліміт ключа вичерпано — джерело дочекається наступної години'); return; }
+        break;
+      }
       if (!res.items?.length) break;
       log.debug(`domria ${city.name} cat=${category} p=${page}: ${res.items.length} id`);
       for (const id of res.items) {
+        if (fetched >= maxItems) { log.info(`domria: досяг maxItemsPerRun=${maxItems} — решта наступного разу`); return; }
         try {
           const info = await fetchInfo(cfg, id);
+          fetched++;
           const l = normalizeInfo(info, city);
           if (l) yield l;
-        } catch (e) { log.debug(`domria info ${id}: ${e.message}`); }
+        } catch (e) {
+          if (e.status === 429) { log.warn('domria: HTTP 429 — погодинний ліміт ключа вичерпано, зупиняю джерело'); return; }
+          log.debug(`domria info ${id}: ${e.message}`);
+        }
       }
       if (res.items.length < 10) break; // остання сторінка
     }

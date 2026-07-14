@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Почему так мало — Tesla Model 3 ≤$30k ≤110k км</title><style>
+:root{--bg:#0f1115;--card:#171a21;--line:#2a2f3a;--fg:#e8eaed;--mut:#9aa0aa;--good:#22c55e;--mid:#eab308;--bad:#ef4444;--acc:#3b82f6}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,Segoe UI,sans-serif;padding:26px}.wrap{max-width:1000px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px}.stamp{color:var(--mut);font-size:13px;margin-bottom:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}h2{font-size:15px;margin:0 0 10px}
+.funnel{display:flex;flex-direction:column;gap:8px}.step{display:flex;align-items:center;gap:12px}.bar{height:34px;border-radius:7px;display:flex;align-items:center;padding:0 12px;color:#0b0b0b;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.b1{background:#3b82f6;color:#fff}.b2{background:#22c55e}.b3{background:#eab308}.b4{background:#ef4444;color:#fff}.b5{background:#64748b;color:#fff}.slabel{color:var(--mut);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line)}th{color:var(--mut);border-top:none}.tl a{color:var(--acc);text-decoration:none}.num{font-variant-numeric:tabular-nums}.mut{color:var(--mut);font-size:12px}
+.big{background:#12241a;border-left:4px solid var(--good)}.note{color:var(--mut);font-size:13px}.note code{background:#0b0d11;padding:1px 5px;border-radius:4px}b{color:#fff}
+</style></head><body><div class="wrap">
+<h1>«Почему так мало вариантов?» — Tesla Model 3, ≤$30k, ≤110k км</h1>
+<div class="stamp">AUTO.RIA · 10 страниц выдачи, 129 объявлений (дедуп) · 2026-07-13</div>
+
+<div class="card big"><h2>Короткий ответ</h2><div class="note" style="color:#e8eaed">
+Вариантов на рынке <b>много</b> — 2000+ Model 3 всего, 81 в вашем бюджете только в этой выборке. «Мало» получается на выходе, потому что <b>90% из них — битые</b> («Був в ДТП», ввоз из США после аукциона). Раньше срабатывало ещё два жёстких ограничения, которые я теперь смягчил: «только европейка» (а под $30k их почти нет) и «нет фото до ремонта = отказ» — хотя фото с аукциона ищутся по VIN.
+</div></div>
+
+<div class="card"><h2>Воронка (реальные числа)</h2><div class="funnel">
+<div class="step"><div class="bar b1" style="width:100%">2000+ всего Model 3 на AUTO.RIA</div></div>
+<div class="step"><div class="bar b2" style="width:64%">129 собрано (10 стр. свежей выдачи)</div></div>
+<div class="step"><div class="bar b3" style="width:40%">81 в бюджете ≤$30k и ≤110k км</div><span class="slabel">− 45 по пробегу, − 3 по цене</span></div>
+<div class="step"><div class="bar b4" style="width:36%">73 с меткой «Був в ДТП» (90%)</div></div>
+<div class="step"><div class="bar b5" style="width:8%">8 без метки ДТП (10%) — и те не гарантированно чистые</div></div>
+</div></div>
+
+<div class="card"><h2>Что я изменил в логике (по вашему замечанию про фото «до»)</h2><div class="note">
+Продавец показывает уже <b>отремонтированную</b> машину, а фото «до» лежат на аукционных архивах и находятся <b>по VIN</b> (Copart/IAAI → bidfax, bidhistory, stat.vin, autoastat). Поэтому:<br><br>
+• «Нет фото ДО в объявлении» — теперь <b>НЕ отказ</b>, а флаг <code>нужна проверка VIN</code> (статус проверки «повреждения» = warn, а не fail).<br>
+• Полный отказ остаётся только для подтверждённо тяжёлого: <b>утопленник, удар в батарею, силовые (пороги/стойки/шасі), подушки, пожар</b>.<br>
+• Ежедневная задача теперь ищет историю аукциона по VIN; если объём — лёгкий перёд/зад → кандидат, если силовые/подушки → отказ.<br>
+<span style="color:#fca5a5">Оговорка:</span> сами сайты bidfax/autoastat блокируют ботов (robots/403), поэтому в фоне VIN-историю тянем через ваш браузер (Claude in Chrome) или платный API (CarVertical). WebSearch по VIN подтверждает наличие записи, но фото — уже в браузере.
+</div></div>
+
+<div class="card"><h2>8 кандидата без метки ДТП (проверить по VIN в первую очередь)</h2>
+<table><thead><tr><th>#</th><th>Авто</th><th>Цена</th><th>Пробег</th><th>Город</th><th>Статус</th></tr></thead><tbody><tr><td>1</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_40140849.html" target="_blank">Model 3 2021</a></td><td class="num">$19 500</td><td class="num">105 000 км</td><td>Київ</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>2</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_40150011.html" target="_blank">Model 3 2023</a></td><td class="num">$21 350</td><td class="num">48 000 км</td><td>Львів</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>3</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_40147246.html" target="_blank">Model 3 2019</a></td><td class="num">$25 500</td><td class="num">64 000 км</td><td>Київ</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>4</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_40132565.html" target="_blank">Model 3 2020</a></td><td class="num">$20 499</td><td class="num">84 000 км</td><td>Хуст</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>5</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_40094305.html" target="_blank">Model 3 2021</a></td><td class="num">$25 900</td><td class="num">61 000 км</td><td>Київ</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>6</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_40148386.html" target="_blank">Model 3 2019</a></td><td class="num">$17 000</td><td class="num">100 000 км</td><td>Львів</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>7</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_38386958.html" target="_blank">Model 3 2019</a></td><td class="num">$15 999</td><td class="num">107 000 км</td><td>Солонка</td><td class="mut">без метки ДТП — проверить VIN</td></tr><tr><td>8</td><td class="tl"><a href="https://auto.ria.com/uk/auto_tesla_model_3_39031336.html" target="_blank">Model 3 2021</a></td><td class="num">$26 400</td><td class="num">78 000 км</td><td>Вінниця</td><td class="mut">без метки ДТП — проверить VIN</td></tr></tbody></table>
+<div class="note" style="margin-top:8px">Важно: «без метки» ≠ «не битая». Ранее, открывая такие карточки, я почти всегда находил в описании ДТП или ввоз из США. Это просто список, с которого стоит начать проверку VIN.</div></div>
+
+<div class="card"><h2>Вывод</h2><div class="note">
+Под ваши условия (Tesla Model 3, ≤$30k, ≤110k км) на украинском рынке предложений <b>много</b>, но это почти сплошь <b>восстановленные американки после ДТП</b>. «Чистой европейки» в этом бюджете практически нет. Реальный выбор — это <b>«битые, но восстановленные»</b>, которые надо отбирать по <b>VIN-истории аукциона</b>: лёгкий перёд/зад с адекватными фото «до» — можно; силовые/батарея/подушки/залив — мимо. Если готовы поднять бюджет или смотреть Model Y / другие модели — дайте знать, расширю поиск.
+</div></div>
+</div></body></html>

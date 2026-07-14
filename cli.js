@@ -29,13 +29,15 @@ const vm = require('node:vm');
 // load the browser scripts into one shared context, like <script> tags do
 const ctx = vm.createContext({ console });
 for (const f of ['engine.js', 'decisions.js', 'defaults.js',
-  'car.js', 'home.js', 'mort.js', 'life.js', 'business.js']) {
+  'car.js', 'home.js', 'mort.js', 'life.js', 'business.js', 'carfinder.js']) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx, { filename: f });
 }
 // top-level const/function bindings live in the context's lexical scope,
 // so pull the handles out with an in-context expression
-const { PARAM_DEFAULTS, summarizeResult, carSim, homeSim, mortSim, lifeSim, bizSim } =
-  vm.runInContext('({ PARAM_DEFAULTS, summarizeResult, carSim, homeSim, mortSim, lifeSim, bizSim })', ctx);
+const { PARAM_DEFAULTS, summarizeResult, carSim, homeSim, mortSim, lifeSim, bizSim,
+  findCars, findCarsLive, cfSummarize, CF_SAMPLE_LISTINGS } =
+  vm.runInContext('({ PARAM_DEFAULTS, summarizeResult, carSim, homeSim, mortSim, lifeSim, bizSim,' +
+    ' findCars, findCarsLive, cfSummarize, CF_SAMPLE_LISTINGS })', ctx);
 const SIMS = { car: carSim, home: homeSim, mort: mortSim, life: lifeSim, biz: bizSim };
 
 function parseInput(argv) {
@@ -49,6 +51,8 @@ function parseInput(argv) {
   const req = { mode: args[0], overrides: {}, series: false };
   for (const a of args.slice(1)) {
     if (a === '--series') { req.series = true; continue; }
+    if (a === '--live') { req.live = true; continue; }
+    if (a.startsWith('--listings=')) { req.listingsFile = a.slice('--listings='.length); continue; }
     const eq = a.indexOf('=');
     if (eq < 0) throw new Error(`expected key=value, got "${a}"`);
     const k = a.slice(0, eq);
@@ -74,15 +78,41 @@ function runOnce(mode, p, withSeries) {
   return out;
 }
 
-try {
+async function main() {
   const req = parseInput(process.argv);
-  if (!SIMS[req.mode]) {
-    throw new Error(`mode must be one of ${Object.keys(SIMS).join(', ')}`);
+  if (req.mode !== 'find' && !SIMS[req.mode]) {
+    throw new Error(`mode must be one of ${Object.keys(SIMS).join(', ')}, find`);
+  }
+  // find mode accepts short aliases (make=, priceMaxUSD=…) mapped to cf_*
+  if (req.mode === 'find') {
+    const A = { make: 'cf_make', model: 'cf_model', yearMin: 'cf_yearMin', yearMax: 'cf_yearMax',
+      priceMinUSD: 'cf_priceMinUSD', priceMaxUSD: 'cf_priceMaxUSD', mileageMaxKm: 'cf_mileageMaxKm',
+      region: 'cf_region', fuel: 'cf_fuel', gearbox: 'cf_gearbox', bodyType: 'cf_bodyType',
+      source: 'cf_source', apiKey: 'cf_apiKey', topN: 'cf_topN', rules: 'cf_rulesText',
+      allowDamaged: 'cf_allowDamaged', allowDamageTypes: 'cf_allowDamageTypes' };
+    for (const k in { ...req.overrides }) if (A[k]) { req.overrides[A[k]] = req.overrides[k]; delete req.overrides[k]; }
   }
   for (const k in req.overrides || {}) {
     if (!(k in PARAM_DEFAULTS)) throw new Error(`unknown parameter "${k}" — see LLM_API.md`);
   }
   const p = { ...PARAM_DEFAULTS, ...(req.overrides || {}) };
+
+  // Car finder is a different kind of result (a ranked short-list, not a
+  // two-strategy wealth curve), so it has its own runner and summarizer.
+  if (req.mode === 'find') {
+    let res;
+    if (req.live || p.cf_source === 'autoria' || p.cf_source === 'mobilede') {
+      if (p.cf_source === 'sample') p.cf_source = 'autoria';
+      res = await findCarsLive(p);
+    } else {
+      let listings = CF_SAMPLE_LISTINGS;
+      if (req.listingsFile) listings = JSON.parse(fs.readFileSync(req.listingsFile, 'utf8'));
+      else if (Array.isArray(req.listings)) listings = req.listings;
+      res = findCars(p, listings);
+    }
+    process.stdout.write(JSON.stringify(cfSummarize(res), null, 2) + '\n');
+    return;
+  }
 
   let out;
   if (req.sweep) {
@@ -103,7 +133,9 @@ try {
     out = runOnce(req.mode, p, req.series);
   }
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
-} catch (e) {
+}
+
+main().catch((e) => {
   process.stdout.write(JSON.stringify({ error: e.message }) + '\n');
   process.exit(1);
-}
+});

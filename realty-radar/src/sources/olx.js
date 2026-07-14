@@ -22,11 +22,38 @@ async function resolveParams(url, log) {
     });
     // очікуємо { data: { params: {..} } } або { params: [...] }
     const p = data?.data?.params || data?.params || data?.data || {};
-    return normalizeParams(p);
+    const out = normalizeParams(p);
+    if ([...out.keys()].length) return out;
   } catch (e) {
-    log.warn(`olx friendly-links: ${e.message} — пробую з голого URL`);
+    log.warn(`olx friendly-links: ${e.message} — пробую видобути параметри зі сторінки`);
+  }
+  return resolveParamsFromHtml(url, log);
+}
+
+// Фолбек: friendly-links OLX прибрав (404) — тягнемо саму сторінку пошуку й
+// видобуваємо category_id + region/city з пре-рендер стану. Якщо слаг міста
+// неоднозначний (напр. "nikolaev" — це Миколаїв Львівської обл.), краще задати
+// ідентифікатори явно у config: cities[].olx = [{category_id, region_id, city_id}].
+async function resolveParamsFromHtml(url, log) {
+  let html;
+  try {
+    html = await politeFetch(url, { expect: 'text', referer: HOST });
+  } catch (e) {
+    log.warn(`olx page ${url}: ${e.message}`);
     return null;
   }
+  const cat = html.match(/category_id=(\d+)/);
+  const city = html.match(/\\"city\\":\{\\"id\\":(\d+),\\"name\\":\\"([^"\\]+)/);
+  const region = html.match(/\\"region\\":\{\\"id\\":(\d+),\\"name\\":\\"([^"\\]+)/);
+  if (!cat) return null;
+  const out = new URLSearchParams();
+  out.set('category_id', cat[1]);
+  if (region) out.set('region_id', region[1]);
+  if (city) out.set('city_id', city[1]);
+  log.info(`olx: ${url} -> category_id=${cat[1]}` +
+    (region ? `, ${region[2]} (region_id=${region[1]})` : '') +
+    (city ? `, ${city[2]} (city_id=${city[1]})` : ''));
+  return out;
 }
 
 function normalizeParams(p) {
@@ -100,24 +127,48 @@ export function enabled(cfg) { return !!cfg.sources?.olx?.enabled; }
 
 export async function* collect(cfg, ctx) {
   const { city, log } = ctx;
-  const urls = city.olxSearchUrls || [];
   const maxPages = cfg.sources.olx.maxPagesPerUrl ?? 3;
   const maxPhotos = cfg.ai?.maxPhotosPerListing ?? 4;
   const limit = 40;
 
-  for (const url of urls) {
+  // Запити: явні ідентифікатори з config (cities[].olx) — надійно, або
+  // legacy-URL пошуку (cities[].olxSearchUrls) — резолвимо через API/HTML.
+  const queries = [];
+  for (const q of city.olx || []) {
+    if (!q.category_id) { log.warn('olx: запис у cities[].olx без category_id — пропускаю'); continue; }
+    const params = new URLSearchParams();
+    params.set('category_id', String(q.category_id));
+    if (q.region_id != null) params.set('region_id', String(q.region_id));
+    if (q.city_id != null) params.set('city_id', String(q.city_id));
+    queries.push({ params, referer: HOST, label: q.label || `category ${q.category_id}` });
+  }
+  for (const url of city.olxSearchUrls || []) {
     const params = await resolveParams(url, log);
+    // Без параметрів НЕ запитуємо: голий /offers/ повертає загальнонаціональну
+    // стрічку всіх категорій (меблі, вакансії…) — саме звідси брався мотлох.
+    if (!params) { log.warn(`olx: не зміг розпізнати параметри пошуку для ${url} — пропускаю (задай cities[].olx явно)`); continue; }
+    queries.push({ params, referer: url, label: url });
+  }
+
+  // Ціновий фільтр на боці OLX (менше сторінок — менше запитів)
+  const priceMax = city.priceUSD?.max ?? cfg.filters?.priceUSD?.max;
+  const priceMin = city.priceUSD?.min ?? cfg.filters?.priceUSD?.min;
+
+  for (const { params, referer, label } of queries) {
     for (let page = 0; page < maxPages; page++) {
-      const q = new URLSearchParams(params ? params.toString() : '');
+      const q = new URLSearchParams(params.toString());
+      if (priceMax != null) { q.set('currency', 'USD'); q.set('filter_float_price:to', String(priceMax)); }
+      if (priceMin != null) { q.set('currency', 'USD'); q.set('filter_float_price:from', String(priceMin)); }
+      q.set('sort_by', 'created_at:desc');
       q.set('offset', String(page * limit));
       q.set('limit', String(limit));
       let data;
       try {
-        data = await politeFetch(`${HOST}/api/v1/offers/?${q.toString()}`, { expect: 'json', referer: url });
-      } catch (e) { log.warn(`olx offers ${city.name} p=${page}: ${e.message}`); break; }
+        data = await politeFetch(`${HOST}/api/v1/offers/?${q.toString()}`, { expect: 'json', referer });
+      } catch (e) { log.warn(`olx offers ${city.name} (${label}) p=${page}: ${e.message}`); break; }
       const offers = data?.data || [];
       if (!offers.length) break;
-      log.debug(`olx ${city.name} p=${page}: ${offers.length} оголошень`);
+      log.debug(`olx ${city.name} (${label}) p=${page}: ${offers.length} оголошень`);
       for (const offer of offers) {
         try { yield normalizeOffer(offer, city, maxPhotos); }
         catch (e) { log.debug(`olx normalize: ${e.message}`); }

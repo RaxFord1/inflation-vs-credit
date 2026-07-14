@@ -1,0 +1,32 @@
+{
+  "_help": "Конфиг регулярного подбора авто. Меняйте здесь — код трогать не нужно. Каждый объект в searches — один поиск. rulesText в формате DSL (см. CARFINDER.md). region: any|UA|EU|US|OTHER. Запуск: node finder_watch.js listings.json [--search=<имя или индекс>]",
+  "searches": [
+    {
+      "name": "Tesla Model 3 — европейка, не битая / минимально битая",
+      "searchUrl": "https://auto.ria.com/uk/car/tesla/model-3/",
+      "make": "Tesla",
+      "model": "Model 3",
+      "priceMaxUSD": 30000,
+      "priceMinUSD": 0,
+      "yearMin": 2018,
+      "yearMax": 0,
+      "mileageMaxKm": 150000,
+      "region": "any",
+      "fuel": "any",
+      "gearbox": "any",
+      "allowDamaged": true,
+      "allowDamageTypes": "front,rear",
+      "useBuiltinRules": true,
+      "rulesText": "warn: damaged  # любое ДТП — проверить историю аукциона по VIN (Copart/IAAI/bidfax/autoastat), не выкидывать сразу\nwarn: region = US  # американка — проверь батарею SOH и растаможку\nwarn: region = UNKNOWN  # происхождение не подтверждено",
+      "weights": { "price": 30, "mileage": 20, "age": 15, "condition": 20, "history": 15 },
+      "_policy": "Полный отказ (встроено): утопленник/пожар/удар в батарею/силовые (пороги-стойки/шасі)/подушки. 'Нет фото ДО ремонта' — НЕ отказ: продавец показывает отремонтированную машину, а фото с аукциона ищутся по VIN (Copart/IAAI/bidfax/autoastat). Такие авто помечаются 'нужна проверка VIN', и ежедневная задача ищет историю аукциона по VIN, после чего лёгкий перёд/зад проходит, а силовые/подушки/залив — отказ."
+    }
+  ],
+  "notify": {
+    "minScore": 60,
+    "onlyStrictPass": false,
+    "topN": 5,
+    "channels": ["push", "email"]
+  },
+  "schedule": "каждый день ~09:00 Europe/Kiev"
+}
