@@ -1,8 +1,8 @@
 /*
- * Module: apartment — buy with a mortgage (0) vs buy with cash (1) vs
- * rent + invest (2).
+ * Module: apartment — mortgage (0), cash (1), rent (2),
+ * mortgage-to-let renting/own (3,4), cash-to-let renting/own (5,6).
  *
- * All three need housing. Each period everyone parts with the maximum
+ * All seven need housing. Each period everyone parts with the maximum
  * obligation across strategies and invests their own gap below it (engine
  * convention), so the wealth gaps come only from the strategies themselves.
  * Early on the mortgage costs more than rent and the renter invests the gap;
@@ -39,9 +39,13 @@ function homeRun(p) {
     p.h_ownRentUSD * Math.pow(1 + p.h_rentGrowthPct / 100, m * MONTH) * fx(m);
 
   const t = { interest: 0, insurance: 0, maintenance: 0, rent: 0 };
-  const t2 = { interest: 0, netRent: 0, ownRent: 0 }; // buy-to-let
+  const t2 = { interest: 0, netRent: 0, ownRent: 0 }; // mortgage-to-let (renting)
+  const t3 = { interest: 0, netRent: 0 };              // mortgage-to-let (own home)
+  const t4 = { netRent: 0, ownRent: 0 };               // cash-to-let (renting)
+  const t5 = { netRent: 0 };                            // cash-to-let (own home)
   let debt = principal;
   let debt2 = principal;
+  let debt3 = principal;
 
   const mortgage = {
     outlay0: dpAmount + commission + fees,
@@ -78,11 +82,8 @@ function homeRun(p) {
     net() { return 0; },
   };
 
-  // Buy-to-let: rent your own home, buy the same flat with a mortgage, let
-  // tenants service the loan. Rental income arrives net of vacancy and tax;
-  // the obligation can go negative once the flat cash-flows positive (the
-  // engine then invests the surplus).
-  const btl = {
+  // Mortgage-to-let (renting): buy with mortgage, rent it out, rent own home
+  const mtlRent = {
     outlay0: dpAmount + commission + fees,
     step(m) {
       const rentIn = rentUAH(m) * (1 - p.h_vacancyPct / 100) * (1 - p.h_rentTaxPct / 100);
@@ -103,10 +104,54 @@ function homeRun(p) {
     net(m) { return homeUAH(m) - debt2; },
   };
 
+  // Mortgage-to-let (own home): buy with mortgage, rent it out, live in own home for free
+  const mtlOwn = {
+    outlay0: dpAmount + commission + fees,
+    step(m) {
+      const rentIn = rentUAH(m) * (1 - p.h_vacancyPct / 100) * (1 - p.h_rentTaxPct / 100);
+      t3.netRent += rentIn;
+      let obl = maintMonthly(m) - rentIn;
+      if (m <= loanMonths && debt3 > 0.005) {
+        const ins = (p.h_insPct / 100) * homeUAH(m) / 12;
+        const interest = debt3 * im;
+        const pay = Math.min(annuity, debt3 + interest);
+        t3.interest += interest;
+        debt3 = debt3 + interest - pay;
+        obl += pay + ins;
+      }
+      return obl;
+    },
+    net(m) { return homeUAH(m) - debt3; },
+  };
+
+  // Cash-to-let (renting): buy with cash, rent it out, rent own home
+  const ctlRent = {
+    outlay0: priceUAH0 + fees,
+    step(m) {
+      const rentIn = rentUAH(m) * (1 - p.h_vacancyPct / 100) * (1 - p.h_rentTaxPct / 100);
+      t4.netRent += rentIn;
+      const own = ownRentUAH(m);
+      t4.ownRent += own;
+      return own + maintMonthly(m) - rentIn;
+    },
+    net(m) { return homeUAH(m); },
+  };
+
+  // Cash-to-let (own home): buy with cash, rent it out, live in own home for free
+  const ctlOwn = {
+    outlay0: priceUAH0 + fees,
+    step(m) {
+      const rentIn = rentUAH(m) * (1 - p.h_vacancyPct / 100) * (1 - p.h_rentTaxPct / 100);
+      t5.netRent += rentIn;
+      return maintMonthly(m) - rentIn;
+    },
+    net(m) { return homeUAH(m); },
+  };
+
   const r = runComparison({
     months, fx,
     instrument: instrumentOf(p),
-    strategies: [mortgage, cash, rent, btl],
+    strategies: [mortgage, cash, rent, mtlRent, mtlOwn, ctlRent, ctlOwn],
   });
 
   // buy-to-let monthly cash flow: net rent minus annuity+insurance (while the
@@ -114,30 +159,36 @@ function homeRun(p) {
   const insM = (m) => (p.h_insPct / 100) * homeUAH(m) / 12;
   const netRentM = (m) =>
     rentUAH(m) * (1 - p.h_vacancyPct / 100) * (1 - p.h_rentTaxPct / 100);
-  const btlFlowM = (m) => netRentM(m) - maintMonthly(m) -
+  const mtlFlowM = (m) => netRentM(m) - maintMonthly(m) -
     (m <= loanMonths ? annuity + insM(m) : 0);
+  const ctlFlowM = (m) => netRentM(m) - maintMonthly(m);
 
   return {
-    r, t, t2, months,
-    advMC: r.finals[0] - r.finals[1], // mortgage vs cash purchase
+    r, t, t2, t3, t4, t5, months,
+    advMC: r.finals[0] - r.finals[1],
     priceUAH0, fees, dpAmount, principal, commission, annuity,
     homeEndUAH: homeUAH(months), rentNowUAH: rentUAH(1),
     debtEnd: debt,
-    btlRentM1: netRentM(1), btlFlowM1: btlFlowM(1),
-    btlRentEnd: netRentM(months), btlFlowEnd: btlFlowM(months),
+    mtlRentM1: netRentM(1), mtlFlowM1: mtlFlowM(1),
+    mtlRentEnd: netRentM(months), mtlFlowEnd: mtlFlowM(months),
+    ctlFlowM1: ctlFlowM(1), ctlFlowEnd: ctlFlowM(months),
     loanDoneAtEnd: months > loanMonths,
   };
 }
 
-const HOME_NAMES = ['Buying with a mortgage', 'Buying with cash', 'Renting', 'Buy-to-let'];
+const HOME_NAMES = [
+  'Buying with a mortgage', 'Buying with cash', 'Renting',
+  'Mortgage-to-let (renting)', 'Mortgage-to-let (own home)',
+  'Cash-to-let (renting)', 'Cash-to-let (own home)',
+];
 
 function homeSim(p) {
   const s = homeRun(p);
   const { r, t } = s;
   const be = bisect((y) => homeRun({ ...p, invYieldPct: y }).advMC);
 
-  // verdict: winner vs runner-up among the four
-  const order = [0, 1, 2, 3].sort((i, j) => r.finals[j] - r.finals[i]);
+  // verdict: winner vs runner-up among all five
+  const order = [0, 1, 2, 3, 4, 5, 6].sort((i, j) => r.finals[j] - r.finals[i]);
   const winner = order[0], second = order[1];
   const adv = r.finals[winner] - r.finals[second];
 
@@ -163,7 +214,10 @@ function homeSim(p) {
       { short: 'Mortgage', legend: 'Buy with mortgage' },
       { short: 'Cash', legend: 'Buy with cash' },
       { short: 'Rent', legend: 'Rent + invest' },
-      { short: 'Buy-to-let', legend: 'Rent + buy-to-let' },
+      { short: 'MTL+rent', legend: 'Mortgage-to-let (renting)' },
+      { short: 'MTL+own', legend: 'Mortgage-to-let (own home)' },
+      { short: 'CTL+rent', legend: 'Cash-to-let (renting)' },
+      { short: 'CTL+own', legend: 'Cash-to-let (own home)' },
     ],
     adv,
     paid: r.paid, paidUSD: r.paidUSD,
@@ -196,20 +250,31 @@ function homeSim(p) {
       ['section', 'Renting'],
       ['Rent, first month', uah(s.rentNowUAH)],
       ['Rent paid over horizon, total', uah(t.rent)],
-      ['section', 'Buy-to-let'],
-      ['Net rent the flat brings in, month 1', `${uah(s.btlRentM1)}/mo (${usd(s.btlRentM1 / p.fx0)}) after ${p.h_vacancyPct}% vacancy and ${p.h_rentTaxPct}% tax`],
-      ['Cash flow after mortgage, insurance & maintenance, month 1', `${uahSigned(s.btlFlowM1)}/mo (${signed(s.btlFlowM1 / p.fx0, usd)})`],
-      ['Cash flow at the horizon', `${uahSigned(s.btlFlowEnd)}/mo (${signed(s.btlFlowEnd / r.fxEnd, usd)})` +
-        (s.loanDoneAtEnd ? ' — mortgage paid off, net rent is ' + uah(s.btlRentEnd) + '/mo' : ' — mortgage still running')],
-      ['Rental income collected, net of vacancy & tax', uah(s.t2.netRent)],
-      ['Own rent paid while letting', uah(s.t2.ownRent)],
-      ['Mortgage interest paid (buy-to-let)', uah(s.t2.interest)],
+      ['section', 'Mortgage-to-let'],
+      ['Net rent the flat brings in, month 1', `${uah(s.mtlRentM1)}/mo (${usd(s.mtlRentM1 / p.fx0)}) after ${p.h_vacancyPct}% vacancy and ${p.h_rentTaxPct}% tax`],
+      ['Cash flow after mortgage, ins & maint, month 1', `${uahSigned(s.mtlFlowM1)}/mo (${signed(s.mtlFlowM1 / p.fx0, usd)})`],
+      ['Cash flow at the horizon', `${uahSigned(s.mtlFlowEnd)}/mo (${signed(s.mtlFlowEnd / r.fxEnd, usd)})` +
+        (s.loanDoneAtEnd ? ' — mortgage paid off, net rent is ' + uah(s.mtlRentEnd) + '/mo' : ' — mortgage still running')],
+      ['Rental income (renting variant), net', uah(s.t2.netRent)],
+      ['Own rent paid (renting variant)', uah(s.t2.ownRent)],
+      ['Mortgage interest (renting variant)', uah(s.t2.interest)],
+      ['Rental income (own home variant), net', uah(s.t3.netRent)],
+      ['Mortgage interest (own home variant)', uah(s.t3.interest)],
+      ['section', 'Cash-to-let'],
+      ['Cash flow (net rent − maintenance), month 1', `${uahSigned(s.ctlFlowM1)}/mo (${signed(s.ctlFlowM1 / p.fx0, usd)})`],
+      ['Cash flow at the horizon', `${uahSigned(s.ctlFlowEnd)}/mo (${signed(s.ctlFlowEnd / r.fxEnd, usd)})`],
+      ['Rental income (renting variant), net', uah(s.t4.netRent)],
+      ['Own rent paid (renting variant)', uah(s.t4.ownRent)],
+      ['Rental income (own home variant), net', uah(s.t5.netRent)],
       ['section', 'Investments'],
       ['Kept invested by the mortgage buyer at day 0 (vs cash buy)', uah(cashVsMortgageLump(s))],
       ['Investment income — mortgage buyer', uah(r.incomes[0])],
       ['Investment income — cash buyer', uah(r.incomes[1])],
       ['Investment income — renter', uah(r.incomes[2])],
-      ['Investment income — buy-to-let', uah(r.incomes[3])],
+      ['Investment income — mortgage-to-let (renting)', uah(r.incomes[3])],
+      ['Investment income — mortgage-to-let (own home)', uah(r.incomes[4])],
+      ['Investment income — cash-to-let (renting)', uah(r.incomes[5])],
+      ['Investment income — cash-to-let (own home)', uah(r.incomes[6])],
       ['Yield at horizon (after drift)', pct(yieldEnd)],
       ['section', `Outcome after ${p.horizonYears} years`],
       ['Exchange rate at horizon', r.fxEnd.toFixed(1) + ' UAH/USD'],
@@ -217,7 +282,10 @@ function homeSim(p) {
       ['Net worth — buy with mortgage', uah(r.finals[0])],
       ['Net worth — buy with cash', uah(r.finals[1])],
       ['Net worth — rent + invest', uah(r.finals[2])],
-      ['Net worth — rent + buy-to-let', uah(r.finals[3])],
+      ['Net worth — mortgage-to-let (renting)', uah(r.finals[3])],
+      ['Net worth — mortgage-to-let (own home)', uah(r.finals[4])],
+      ['Net worth — cash-to-let (renting)', uah(r.finals[5])],
+      ['Net worth — cash-to-let (own home)', uah(r.finals[6])],
     ],
     ctx: { inflPct: p.inflPct, usdInflPct: p.usdInflPct, horizonYears: p.horizonYears, fxEnd: r.fxEnd },
   };

@@ -1,7 +1,7 @@
 // Telegram-нотифаєр через Bot API (fetch, без залежностей).
 // Надсилає гарні угоди з фото, оцінкою, вердиктом і порівнянням цін між сайтами.
 // Плюс легкий обробник команд (long polling): /stats /deals /pause /resume /help.
-import { listForNotify, markNotified, getDb } from '../db/db.js';
+import { listForNotify, markNotified, markGroupNotified, getDb } from '../db/db.js';
 import { cheapestInGroup } from '../util/dedup.js';
 import { stats } from '../db/queries.js';
 import log from '../logger.js';
@@ -77,7 +77,20 @@ export async function notifyPending(cfg) {
   if (inQuietHours(cfg)) { log.info('telegram: тихі години — відкладаю сповіщення'); return { sent: 0, quiet: true }; }
 
   const minScore = cfg.ai?.minAiScoreToNotify ?? 65;
-  const deals = listForNotify(minScore);
+  const allDeals = listForNotify(minScore);
+  if (!allDeals.length) return { sent: 0 };
+
+  // одна угода на групу дублів (найкраща за ai_score — allDeals вже ORDER BY ai_score DESC,
+  // тож перше входження групи — найкраще), інакше той самий об'єкт шле кілька повідомлень.
+  const seenGroups = new Set();
+  const deals = [];
+  for (const l of allDeals) {
+    if (l.groupId) {
+      if (seenGroups.has(l.groupId)) continue;
+      seenGroups.add(l.groupId);
+    }
+    deals.push(l);
+  }
   if (!deals.length) return { sent: 0 };
   log.info(`telegram: надсилаю ${deals.length} угод`);
 
@@ -98,7 +111,7 @@ export async function notifyPending(cfg) {
       } else {
         await tg(cfg, 'sendMessage', { chat_id: cfg.secrets.telegramChatId, text: caption, parse_mode: 'HTML', disable_web_page_preview: false });
       }
-      markNotified(l.uid);
+      if (l.groupId) markGroupNotified(l.groupId); else markNotified(l.uid);
       sent++;
       await new Promise((r) => setTimeout(r, 1200)); // ліміт 30 msg/sec, не поспішаємо
     } catch (e) { log.warn(`telegram send ${l.uid}: ${e.message}`); }

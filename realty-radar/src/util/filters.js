@@ -55,10 +55,14 @@ export function passesFilters(listing, cfg, cityOverride = null) {
     if (f.yearBuilt.max != null && listing.yearBuilt > f.yearBuilt.max) reasons.push(`рік ${listing.yearBuilt} > max`);
   }
 
-  // ключові слова
+  // ключові слова — не застосовуємо excludeKeywords до землі: "аварійний"/"під знос" описують
+  // стан ІСНУЮЧОЇ будівлі на ділянці, а не саму землю — для покупки під забудову (знесемо старий
+  // будинок) це не має значення й не повинно відсіювати цікаву ділянку.
   const blob = `${listing.title} ${listing.description}`.toLowerCase();
-  for (const kw of f.excludeKeywords || []) {
-    if (kw && blob.includes(kw.toLowerCase())) { reasons.push(`стоп-слово: "${kw}"`); break; }
+  if (listing.propertyType !== 'land') {
+    for (const kw of f.excludeKeywords || []) {
+      if (kw && blob.includes(kw.toLowerCase())) { reasons.push(`стоп-слово: "${kw}"`); break; }
+    }
   }
   for (const kw of f.requireKeywords || []) {
     if (kw && !blob.includes(kw.toLowerCase())) { reasons.push(`нема обовʼязкового слова: "${kw}"`); break; }

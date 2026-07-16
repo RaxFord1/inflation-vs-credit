@@ -18,30 +18,37 @@ function sameObject(a, b, cfg) {
   const d = cfg.dedup;
   if (a.propertyType !== b.propertyType) return false;
 
-  // геокоордината в межах 60м — майже напевно той самий об'єкт
-  if (haversine(a, b) < 60) return true;
-
-  // площа
+  // площа, ціна, кімнати — жорсткі "відсіювачі" перевіряємо ПЕРШИМИ, до геокоординати.
+  // OLX (і інші джерела) часто віддають лише наближену (районну/зонову) точку на мапі —
+  // сотні різних об'єктів в одному районі можуть мати ідентичний lat/lng з точністю до
+  // тисячних. Якщо довіряти такій "точній" геокоординаті без санітарної перевірки ціни/площі,
+  // вона склеює геть різні об'єкти (напр. квартиру за $45k і дачу за $5.5k в одному районі).
   if (a.areaSqm != null && b.areaSqm != null) {
     if (Math.abs(a.areaSqm - b.areaSqm) > (d.areaToleranceSqm ?? 3)) return false;
   }
-  // ціна близька
   if (a.priceUSD && b.priceUSD) {
     const diffPct = (Math.abs(a.priceUSD - b.priceUSD) / Math.max(a.priceUSD, b.priceUSD)) * 100;
     if (diffPct > (d.priceTolerancePct ?? 6) * 3) return false; // сильно різна ціна — навряд той самий
   }
-  // кімнати
   if (a.rooms != null && b.rooms != null && a.rooms !== b.rooms) return false;
 
-  // схожість адреси
-  const sim = tokenSimilarity(
-    addressTokens(a.city, a.district, a.street),
-    addressTokens(b.city, b.district, b.street)
-  );
-  if (sim >= (d.addressSimilarity ?? 0.82)) return true;
+  // геокоордината в межах 60м — сильний сигнал, але лише коли не суперечить площі/ціні/кімнатам вище
+  if (haversine(a, b) < 60) return true;
 
-  // якщо площа+кімнати+ціна близькі і місто збігається — вважаємо дублем навіть без точної адреси
-  if (a.city && a.city === b.city && a.areaSqm != null && b.areaSqm != null && a.priceUSD && b.priceUSD) {
+  // схожість адреси (без міста — воно й так однакове через фільтр кандидатів,
+  // а з ним пара "той самий район, різна вулиця" видає хибну sim=1.0, коли
+  // вулиця не вказана в жодному з двох оголошень)
+  const aTok = addressTokens(a.district, a.street);
+  const bTok = addressTokens(b.district, b.street);
+  const sim = tokenSimilarity(aTok, bTok);
+  // вимагаємо принаймні 2 токени з кожного боку — інакше збіг лише по району
+  // (1 токен) занадто слабкий доказ, щоб вважати об'єкти тим самим
+  if (aTok.length >= 2 && bTok.length >= 2 && sim >= (d.addressSimilarity ?? 0.82)) return true;
+
+  // площа+кімнати+ціна близькі, місто збігається, і є хоч якийсь збіг у адресі (район/вулиця) —
+  // без цього площа+ціна самі по собі не доводять, що це той самий об'єкт (у місті можуть бути
+  // десятки не пов'язаних квартир схожого метражу й ціни)
+  if (sim > 0 && a.city && a.city === b.city && a.areaSqm != null && b.areaSqm != null && a.priceUSD && b.priceUSD) {
     const diffPct = (Math.abs(a.priceUSD - b.priceUSD) / Math.max(a.priceUSD, b.priceUSD)) * 100;
     if (diffPct <= (d.priceTolerancePct ?? 6) && Math.abs(a.areaSqm - b.areaSqm) <= (d.areaToleranceSqm ?? 3)) return true;
   }
@@ -72,7 +79,11 @@ export function regroupAll(cfg) {
       // порівнюємо з рештою у цьому ж бакеті та у сусідніх бакетах того ж міста/типу
       const candidates = rows.filter((b) => !assigned.has(b.uid) && b.city === a.city && b.propertyType === a.propertyType);
       for (const b of candidates) {
-        if (group.some((g) => sameObject(g, b, cfg))) { group.push(b); assigned.add(b.uid); }
+        // повний зв'язок (complete-linkage): b приєднується лише якщо збігається з
+        // УСІМА поточними членами групи, а не лише з одним (single-linkage). Інакше
+        // довгий ланцюжок слабко схожих сусідніх пар "склеює" геть різні об'єкти
+        // (напр. квартиру за $45k із дачею за $5.5k через кілька проміжних оголошень).
+        if (group.every((g) => sameObject(g, b, cfg))) { group.push(b); assigned.add(b.uid); }
       }
       groups.push(group);
     }

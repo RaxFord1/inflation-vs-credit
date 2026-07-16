@@ -111,7 +111,14 @@ export function enrich(listing, usdToUah) {
   listing.priceUAH = listing.priceUAH ?? toUAH(listing.priceOrig, listing.currencyOrig, usdToUah);
   if (listing.priceUSD && listing.areaSqm) listing.pricePerSqmUSD = round(listing.priceUSD / listing.areaSqm);
   if (!listing.propertyType || listing.propertyType === 'unknown') {
-    listing.propertyType = inferPropertyType(`${listing.title} ${listing.description} ${listing.rawCategory || ''}`);
+    // спершу лише заголовок+категорія (надійні), і тільки якщо там немає чіткого
+    // збігу — підключаємо опис. Інакше випадкова згадка "ділянка"/"сотка" десь
+    // у тексті опису (реклама агентства, суміжна пропозиція) хибно перетворює
+    // квартиру/будинок на "земля".
+    const byTitle = inferPropertyType(`${listing.title} ${listing.rawCategory || ''}`);
+    listing.propertyType = byTitle !== 'unknown'
+      ? byTitle
+      : inferPropertyType(`${listing.title} ${listing.description} ${listing.rawCategory || ''}`);
   }
   if (!listing.purpose) listing.purpose = inferPurpose(listing.propertyType, `${listing.title} ${listing.description}`);
   if (listing.propertyType === 'land' && !listing.landUse) {

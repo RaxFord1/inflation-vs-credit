@@ -84,7 +84,7 @@ function buildPhotos(offer, max) {
   }).filter(Boolean);
 }
 
-function normalizeOffer(offer, city, maxPhotos) {
+function normalizeOffer(offer, city, maxPhotos, propertyTypeHint) {
   const priceP = paramVal(offer, ['price']);
   let priceOrig = null, currency = 'UAH';
   if (priceP?.value) {
@@ -106,7 +106,10 @@ function normalizeOffer(offer, city, maxPhotos) {
     priceOrig,
     currencyOrig: currency,
     areaSqm: areaP ? parseNumber(areaP.value?.key ?? areaP.value?.label) : null,
-    landSotka: /сотк|соток|ділянк/.test(title) ? parseNumber(paramVal(offer, ['plot_area'])?.value?.key) : null,
+    // якщо категорія запиту вже land (напр. "земельні ділянки") — довіряємо цьому явно,
+    // а не вгадуємо по словах у заголовку (які можуть бути відсутні, напр. "Ділянка, Янтарний 27")
+    landSotka: (propertyTypeHint === 'land' || /сотк|соток|ділянк/.test(title))
+      ? parseNumber(paramVal(offer, ['plot_area'])?.value?.key) : null,
     rooms: roomsP ? parseNumber(roomsP.value?.label ?? roomsP.value?.key) : null,
     floor: floorP ? parseNumber(floorP.value?.key ?? floorP.value?.label) : null,
     city: loc.city?.name || city.name,
@@ -117,6 +120,10 @@ function normalizeOffer(offer, city, maxPhotos) {
     photos: buildPhotos(offer, maxPhotos),
     publishedAt: offer.created_time || offer.last_refresh_time || null,
     rawCategory: offer.category?.type || '',
+    // якщо запит явно задав category_id зі знаним типом (config.cities[].olx[].propertyType) —
+    // довіряємо йому, а не регекс-евристиці по вільному тексту заголовка/опису (яка легко
+    // хибно спрацьовує, напр. на "будинку" у фразі "квартира на 1 поверсі будинку")
+    propertyType: propertyTypeHint || undefined,
     isAuction: false,
     raw: { id: offer.id },
   };
@@ -140,7 +147,7 @@ export async function* collect(cfg, ctx) {
     params.set('category_id', String(q.category_id));
     if (q.region_id != null) params.set('region_id', String(q.region_id));
     if (q.city_id != null) params.set('city_id', String(q.city_id));
-    queries.push({ params, referer: HOST, label: q.label || `category ${q.category_id}` });
+    queries.push({ params, referer: HOST, label: q.label || `category ${q.category_id}`, propertyType: q.propertyType || null });
   }
   for (const url of city.olxSearchUrls || []) {
     const params = await resolveParams(url, log);
@@ -154,7 +161,7 @@ export async function* collect(cfg, ctx) {
   const priceMax = city.priceUSD?.max ?? cfg.filters?.priceUSD?.max;
   const priceMin = city.priceUSD?.min ?? cfg.filters?.priceUSD?.min;
 
-  for (const { params, referer, label } of queries) {
+  for (const { params, referer, label, propertyType } of queries) {
     for (let page = 0; page < maxPages; page++) {
       const q = new URLSearchParams(params.toString());
       if (priceMax != null) { q.set('currency', 'USD'); q.set('filter_float_price:to', String(priceMax)); }
@@ -170,7 +177,7 @@ export async function* collect(cfg, ctx) {
       if (!offers.length) break;
       log.debug(`olx ${city.name} (${label}) p=${page}: ${offers.length} оголошень`);
       for (const offer of offers) {
-        try { yield normalizeOffer(offer, city, maxPhotos); }
+        try { yield normalizeOffer(offer, city, maxPhotos, propertyType); }
         catch (e) { log.debug(`olx normalize: ${e.message}`); }
       }
       if (offers.length < limit) break;

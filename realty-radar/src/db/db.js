@@ -129,12 +129,14 @@ export function upsertListing(l) {
   const priceDropped = oldPrice != null && row.price_usd != null && row.price_usd < oldPrice;
   const upd = {
     uid: row.uid, url: row.url, title: row.title, description: row.description,
+    property_type: row.property_type, purpose: row.purpose, land_use: row.land_use,
     price_orig: row.price_orig, currency_orig: row.currency_orig, price_usd: row.price_usd,
     price_uah: row.price_uah, price_per_sqm: row.price_per_sqm, photos_json: row.photos_json,
     auction_ends: row.auction_ends, pre_score: row.pre_score,
   };
   d.prepare(`UPDATE listings SET
-      url=@url, title=@title, description=@description, price_orig=@price_orig, currency_orig=@currency_orig,
+      url=@url, title=@title, description=@description, property_type=@property_type, purpose=@purpose, land_use=@land_use,
+      price_orig=@price_orig, currency_orig=@currency_orig,
       price_usd=@price_usd, price_uah=@price_uah, price_per_sqm=@price_per_sqm, photos_json=@photos_json,
       auction_ends=@auction_ends, pre_score=@pre_score, last_seen=datetime('now'), status='active'
       WHERE uid=@uid`).run(upd);
@@ -155,6 +157,12 @@ export function setAiResult(uid, { score, verdict, flags }) {
 
 export function markNotified(uid) {
   getDb().prepare('UPDATE listings SET notified=1 WHERE uid=?').run(uid);
+}
+
+/** Позначає сповіщеними усіх членів групи (щоб дублі/альтернативи не пішли окремим повідомленням пізніше) */
+export function markGroupNotified(groupId) {
+  if (!groupId) return;
+  getDb().prepare(`UPDATE listings SET notified=1 WHERE group_id=? AND status='active'`).run(groupId);
 }
 
 /** Кандидати для оцінки ШІ: не оцінені, pre_score >= поріг */
