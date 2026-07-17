@@ -41,19 +41,8 @@ function lifeActiveCatalog(p) {
 
 function lifeRun(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
-  const fx = (m) => p.fx0 * Math.pow(1 + p.devalPct / 100, m * MONTH);
-
-  const ctx = {
-    fx,
-    salaryUAH: (m) =>
-      p.salaryAmt * Math.pow(1 + p.salaryGrowthPct / 100, m * MONTH) *
-      (p.salaryCurrency === 'USD' ? fx(m) : 1),
-    // living expenses are entered in USD and held constant in real-USD terms
-    livExpUAH: (m) =>
-      p.l_livExpUSD * Math.pow(1 + p.usdInflPct / 100, m * MONTH) * fx(m),
-    curRentUAH: (m) =>
-      p.l_curRentUSD * Math.pow(1 + p.h_rentGrowthPct / 100, m * MONTH) * fx(m),
-  };
+  const fx = makeFx(p);
+  const ctx = makeCtx(p, fx);
 
   const catalog = lifeActiveCatalog(p);
   const strategies = catalog.map((d) => compileBlocks(d.build(p, ctx)));

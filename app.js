@@ -1,7 +1,6 @@
 /* UI wiring and hand-rolled SVG charts. Rendering is generic — each module
- * (car.js, home.js) returns a standardized result object. */
-
-const $ = (id) => document.getElementById(id);
+ * (car.js, home.js) returns a standardized result object.
+ * Low-level helpers ($, el, niceTicks, etc.) live in chart.js. */
 
 const MODULES = {
   car: { run: carSim },
@@ -299,28 +298,7 @@ function unitDef(unit, ctx) {
   }
 }
 
-/* ---------- scales ---------- */
-function niceTicks(min, max, count = 5) {
-  const span = max - min || 1;
-  const step0 = span / count;
-  const mag = Math.pow(10, Math.floor(Math.log10(step0)));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => span / s <= count) || 10 * mag;
-  const lo = Math.floor(min / step) * step;
-  const hi = Math.ceil(max / step) * step;
-  const ticks = [];
-  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(v);
-  return { lo, hi, ticks };
-}
-
-const SVG = 'http://www.w3.org/2000/svg';
-function el(name, attrs, parent) {
-  const n = document.createElementNS(SVG, name);
-  for (const k in attrs) n.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(n);
-  return n;
-}
-
-/* ---------- wealth line chart (2 series + crosshair tooltip) ---------- */
+/* ---------- wealth line chart (N series + crosshair tooltip) ---------- */
 function renderWealthChart(res, unit) {
   const host = $('chartWealth');
   host.innerHTML = '';
@@ -340,17 +318,9 @@ function renderWealthChart(res, unit) {
   const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Net worth over time: ' + defs.map((d) => d.legend).join(' vs ') }, host);
-
-  for (const t of ticks) {
-    el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }, svg);
-    el('text', { x: m.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = U.short(t);
-  }
+  drawGrid(svg, ticks, m, iw, y, U.short);
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
-  const years = res.months / 12;
-  const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-  for (let yr = 0; yr <= years; yr += yearStep) {
-    el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
-  }
+  drawYearLabels(svg, res.months, x, H);
 
   const css = getComputedStyle(document.body);
   const colors = defs.map((d, i) => css.getPropertyValue(`--series-${i + 1}`).trim());
@@ -359,61 +329,22 @@ function renderWealthChart(res, unit) {
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
 
-  // direct labels at line ends, pushed apart if they collide
   const lastPt = pts[pts.length - 1];
-  const labels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]) })).sort((a, b) => a.y - b.y);
-  for (let pass = 0; pass < 8; pass++) {
-    for (let k = 1; k < labels.length; k++) {
-      if (labels[k].y - labels[k - 1].y < 14) {
-        labels[k - 1].y -= 2;
-        labels[k].y += 2;
-      }
-    }
-  }
-  for (const L of labels) {
-    const tEl = el('text', { x: m.l + iw + 6, y: L.y + 4, 'font-weight': 600 }, svg);
-    tEl.style.fill = colors[L.i];
-    tEl.textContent = defs[L.i].short;
-  }
+  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short })), colors, m, iw);
 
-  // hover layer: crosshair + dots + tooltip
-  const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih, visibility: 'hidden' }, svg);
-  const dots = defs.map((d, i) =>
-    el('circle', { class: 'hoverdot', r: 4, fill: colors[i], visibility: 'hidden' }, svg));
-  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
-  const tip = $('tooltip');
-
-  hit.addEventListener('mousemove', (ev) => {
-    const box = svg.getBoundingClientRect();
-    const px = ((ev.clientX - box.left) / box.width) * W;
+  addChartHover({ svg, W, m, iw, ih, nDots: N, colors, onMove: (px) => {
     const mm = Math.max(0, Math.min(res.months, Math.round(((px - m.l) / iw) * res.months)));
     const s = pts[mm];
     const cx = x(mm);
-    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-    cross.setAttribute('visibility', 'visible');
-    dots.forEach((d, i) => {
-      d.setAttribute('cx', cx);
-      d.setAttribute('cy', y(s.v[i]));
-      d.setAttribute('visibility', 'visible');
-    });
     let rows = defs.map((d, i) =>
       `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${U.fmt(s.v[i])}</span></div>`
     ).join('');
     if (N === 2 && res.diffLabel) {
       rows += `<div class="t-row"><span>${res.diffLabel}</span><span class="v">${signed(s.v[1] - s.v[0], U.fmt)}</span></div>`;
     }
-    tip.innerHTML = `<div class="t-head">Year ${(mm / 12).toFixed(1)} · ${U.tag}</div>` + rows;
-    tip.hidden = false;
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let tx = ev.clientX + 14, ty = ev.clientY + 14;
-    if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-    if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-  });
-  hit.addEventListener('mouseleave', () => {
-    tip.hidden = true;
-    for (const n of [cross, ...dots]) n.setAttribute('visibility', 'hidden');
-  });
+    return { cx, dots: defs.map((d, i) => ({ cx, cy: y(s.v[i]) })),
+      html: `<div class="t-head">Year ${(mm / 12).toFixed(1)} · ${U.tag}</div>` + rows };
+  }});
 
   $('legendWealth').innerHTML = defs.map((d, i) =>
     `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${d.legend}</span>`
@@ -481,16 +412,9 @@ function renderMacroChart(p, months) {
   const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Assumed growth of the exchange rate and price levels, indexed to today' }, host);
-  for (const t of ticks) {
-    el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }, svg);
-    el('text', { x: m.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = mult(t);
-  }
+  drawGrid(svg, ticks, m, iw, y, mult);
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
-  const years = months / 12;
-  const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-  for (let yr = 0; yr <= years; yr += yearStep) {
-    el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
-  }
+  drawYearLabels(svg, months, x, H);
 
   const css = getComputedStyle(document.body);
   const colors = defs.map((d) => css.getPropertyValue(`--series-${d.slot}`).trim());
@@ -499,62 +423,25 @@ function renderMacroChart(p, months) {
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
 
-  // direct labels, pushed apart if they collide
   const lastPt = pts[pts.length - 1];
-  const labels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]) })).sort((a, b) => a.y - b.y);
-  for (let pass = 0; pass < 8; pass++) {
-    for (let k = 1; k < labels.length; k++) {
-      if (labels[k].y - labels[k - 1].y < 14) { labels[k - 1].y -= 2; labels[k].y += 2; }
-    }
-  }
-  for (const L of labels) {
-    const tEl = el('text', { x: m.l + iw + 6, y: L.y + 4, 'font-weight': 600 }, svg);
-    tEl.style.fill = colors[L.i];
-    tEl.textContent = defs[L.i].short;
-  }
+  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short })), colors, m, iw);
 
-  // hover layer
-  const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih, visibility: 'hidden' }, svg);
-  const dots = defs.map((d, i) =>
-    el('circle', { class: 'hoverdot', r: 4, fill: colors[i], visibility: 'hidden' }, svg));
-  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
-  const tip = $('tooltip');
-
-  hit.addEventListener('mousemove', (ev) => {
-    const box = svg.getBoundingClientRect();
-    const px = ((ev.clientX - box.left) / box.width) * W;
+  addChartHover({ svg, W, m, iw, ih, nDots: 3, colors, onMove: (px) => {
     const mm = Math.max(0, Math.min(months, Math.round(((px - m.l) / iw) * months)));
     const s = pts[mm];
     const cx = x(mm);
-    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-    cross.setAttribute('visibility', 'visible');
-    dots.forEach((d, i) => {
-      d.setAttribute('cx', cx);
-      d.setAttribute('cy', y(s.v[i]));
-      d.setAttribute('visibility', 'visible');
-    });
     const fxNow = p.fx0 * s.v[0];
     const detail = [
       `${fxNow.toFixed(1)} ₴/$ (${mult(s.v[0])})`,
       `₴100 today costs ${uah(100 * s.v[1])}`,
       `$100 today costs ${usd(100 * s.v[2])}`,
     ];
-    tip.innerHTML =
-      `<div class="t-head">Year ${(mm / 12).toFixed(1)}</div>` +
-      defs.map((d, i) =>
-        `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${detail[i]}</span></div>`
-      ).join('');
-    tip.hidden = false;
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let tx = ev.clientX + 14, ty = ev.clientY + 14;
-    if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-    if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-  });
-  hit.addEventListener('mouseleave', () => {
-    tip.hidden = true;
-    for (const n of [cross, ...dots]) n.setAttribute('visibility', 'hidden');
-  });
+    return { cx, dots: defs.map((d, i) => ({ cx, cy: y(s.v[i]) })),
+      html: `<div class="t-head">Year ${(mm / 12).toFixed(1)}</div>` +
+        defs.map((d, i) =>
+          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${detail[i]}</span></div>`
+        ).join('') };
+  }});
 
   $('legendMacro').innerHTML = defs.map((d, i) =>
     `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${d.short}</span>`
@@ -619,10 +506,7 @@ function renderSweepChart(res, p) {
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': base === null
     ? `Final net worth in today's dollars for each path as ${cfg.label} varies`
     : `Advantage over ${defs[base].legend} in today's dollars as ${cfg.label} varies` }, host);
-  for (const t of ticks) {
-    el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }, svg);
-    el('text', { x: m.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = moneyShort(t, '$');
-  }
+  drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
   if (base !== null && lo < 0 && hi > 0) {
     el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
@@ -642,64 +526,27 @@ function renderSweepChart(res, p) {
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
 
-  // direct labels at line ends, pushed apart if they collide
   const lastRun = runs[runs.length - 1];
-  const labels = lines.map((i) => ({ i, y: y(val(lastRun, i)) })).sort((a, b) => a.y - b.y);
-  for (let pass = 0; pass < 8; pass++) {
-    for (let k = 1; k < labels.length; k++) {
-      if (labels[k].y - labels[k - 1].y < 14) { labels[k - 1].y -= 2; labels[k].y += 2; }
-    }
-  }
-  for (const L of labels) {
-    const tEl = el('text', { x: m.l + iw + 6, y: L.y + 4, 'font-weight': 600 }, svg);
-    tEl.style.fill = colors[L.i];
-    tEl.textContent = defs[L.i].short;
-  }
+  drawEndLabels(svg, lines.map((i) => ({ i, y: y(val(lastRun, i)), text: defs[i].short })), colors, m, iw);
 
-  // hover: snap to the nearest swept value, show deltas vs the current setting
-  const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih, visibility: 'hidden' }, svg);
-  const dots = lines.map((i) =>
-    el('circle', { class: 'hoverdot', r: 4, fill: colors[i], visibility: 'hidden' }, svg));
-  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
-  const tip = $('tooltip');
-
-  hit.addEventListener('mousemove', (ev) => {
-    const box = svg.getBoundingClientRect();
-    const px = ((ev.clientX - box.left) / box.width) * W;
+  addChartHover({ svg, W, m, iw, ih, nDots: lines.length, colors: lines.map((i) => colors[i]), onMove: (px) => {
     let k = 0;
     for (let j = 1; j < runs.length; j++) {
       if (Math.abs(x(runs[j].v) - px) < Math.abs(x(runs[k].v) - px)) k = j;
     }
     const r = runs[k];
     const cx = x(r.v);
-    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-    cross.setAttribute('visibility', 'visible');
-    dots.forEach((d, di) => {
-      d.setAttribute('cx', cx);
-      d.setAttribute('cy', y(val(r, lines[di])));
-      d.setAttribute('visibility', 'visible');
-    });
-    tip.innerHTML =
-      `<div class="t-head">${cfg.label.split(',')[0]} ${xfmt(r.v)} · ` +
-      `${base === null ? 'today’s $' : 'vs ' + defs[base].short.toLowerCase() + ', today’s $'} (Δ vs now)</div>` +
-      lines.map((i) => {
-        const delta = val(r, i) - val(curRun, i);
-        const flag = r.flags && r.flags[i] ? ' ⚠' : '';
-        const shown = base === null ? usd(val(r, i)) : signed(val(r, i), usd);
-        return `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${defs[i].short}${flag}</span>` +
-          `<span class="v">${shown} (${r.v === cur ? 'now' : signed(delta, usd)})</span></div>`;
-      }).join('');
-    tip.hidden = false;
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let tx = ev.clientX + 14, ty = ev.clientY + 14;
-    if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-    if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-  });
-  hit.addEventListener('mouseleave', () => {
-    tip.hidden = true;
-    for (const n of [cross, ...dots]) n.setAttribute('visibility', 'hidden');
-  });
+    return { cx, dots: lines.map((i) => ({ cx, cy: y(val(r, i)) })),
+      html: `<div class="t-head">${cfg.label.split(',')[0]} ${xfmt(r.v)} · ` +
+        `${base === null ? "today’s $" : 'vs ' + defs[base].short.toLowerCase() + ", today’s $"} (Δ vs now)</div>` +
+        lines.map((i) => {
+          const delta = val(r, i) - val(curRun, i);
+          const flag = r.flags && r.flags[i] ? ' ⚠' : '';
+          const shown = base === null ? usd(val(r, i)) : signed(val(r, i), usd);
+          return `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${defs[i].short}${flag}</span>` +
+            `<span class="v">${shown} (${r.v === cur ? 'now' : signed(delta, usd)})</span></div>`;
+        }).join('') };
+  }});
 
   $('legendSweep').innerHTML =
     lines.map((i) =>
@@ -785,19 +632,12 @@ function renderMortCompare(res, p) {
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label':
     `Mortgage variants' lead over ${baseName} in today's dollars over time` }, host);
-  for (const t of ticks) {
-    el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }, svg);
-    el('text', { x: m.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = moneyShort(t, '$');
-  }
+  drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
   if (lo < 0 && hi > 0) {
     el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
   }
-  const years = months / 12;
-  const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-  for (let yr = 0; yr <= years; yr += yearStep) {
-    el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
-  }
+  drawYearLabels(svg, months, x, H);
 
   const css = getComputedStyle(document.body);
   const colors = runs.map((r) => css.getPropertyValue(`--series-${r.slot}`).trim());
@@ -806,55 +646,18 @@ function renderMortCompare(res, p) {
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
 
-  // direct labels at line ends, pushed apart if they collide
-  const labels = runs.map((r, i) => ({ i, y: y(r.diff[months]) })).sort((a, b) => a.y - b.y);
-  for (let pass = 0; pass < 8; pass++) {
-    for (let k = 1; k < labels.length; k++) {
-      if (labels[k].y - labels[k - 1].y < 14) { labels[k - 1].y -= 2; labels[k].y += 2; }
-    }
-  }
-  for (const L of labels) {
-    const tEl = el('text', { x: m.l + iw + 6, y: L.y + 4, 'font-weight': 600 }, svg);
-    tEl.style.fill = colors[L.i];
-    tEl.textContent = `${runs[L.i].dp}%/${runs[L.i].yrs}y`;
-  }
+  drawEndLabels(svg, runs.map((r, i) => ({ i, y: y(r.diff[months]), text: `${r.dp}%/${r.yrs}y` })), colors, m, iw);
 
-  // hover layer
-  const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih, visibility: 'hidden' }, svg);
-  const dots = runs.map((r, i) =>
-    el('circle', { class: 'hoverdot', r: 4, fill: colors[i], visibility: 'hidden' }, svg));
-  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
-  const tip = $('tooltip');
-
-  hit.addEventListener('mousemove', (ev) => {
-    const box = svg.getBoundingClientRect();
-    const px = ((ev.clientX - box.left) / box.width) * W;
+  addChartHover({ svg, W, m, iw, ih, nDots: runs.length, colors, onMove: (px) => {
     const mm = Math.max(0, Math.min(months, Math.round(((px - m.l) / iw) * months)));
     const cx = x(mm);
-    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-    cross.setAttribute('visibility', 'visible');
-    dots.forEach((d, i) => {
-      d.setAttribute('cx', cx);
-      d.setAttribute('cy', y(runs[i].diff[mm]));
-      d.setAttribute('visibility', 'visible');
-    });
-    tip.innerHTML =
-      `<div class="t-head">Year ${(mm / 12).toFixed(1)} · lead over ${baseName}, today's $</div>` +
-      runs.map((r, i) =>
-        `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${r.label}</span>` +
-        `<span class="v">${signed(r.diff[mm], usd)}</span></div>`
-      ).join('');
-    tip.hidden = false;
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let tx = ev.clientX + 14, ty = ev.clientY + 14;
-    if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-    if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-  });
-  hit.addEventListener('mouseleave', () => {
-    tip.hidden = true;
-    for (const n of [cross, ...dots]) n.setAttribute('visibility', 'hidden');
-  });
+    return { cx, dots: runs.map((r, i) => ({ cx, cy: y(r.diff[mm]) })),
+      html: `<div class="t-head">Year ${(mm / 12).toFixed(1)} · lead over ${baseName}, today's $</div>` +
+        runs.map((r, i) =>
+          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${r.label}</span>` +
+          `<span class="v">${signed(r.diff[mm], usd)}</span></div>`
+        ).join('') };
+  }});
 
   $('legendMort').innerHTML = runs.map((r, i) =>
     `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${r.label}</span>`
@@ -901,70 +704,30 @@ function renderMortCompare(res, p) {
 
     const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img',
       'aria-label': 'Remaining loan debt over time per variant' }, debtHost);
-    for (const t of ticks) {
-      el('line', { class: 'gridline', x1: m2.l, x2: m2.l + iw, y1: y(t), y2: y(t) }, svg);
-      el('text', { x: m2.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = moneyShort(t, sym);
-    }
+    drawGrid(svg, ticks, m2, iw, y, (v) => moneyShort(v, sym));
     el('line', { class: 'axisline', x1: m2.l, x2: m2.l + iw, y1: m2.t + ih, y2: m2.t + ih }, svg);
-    const years = months / 12;
-    const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-    for (let yr = 0; yr <= years; yr += yearStep) {
-      el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
-    }
+    drawYearLabels(svg, months, x, H);
     runs.forEach((r, i) => {
       const path = r.debtHist.map((v, mm) =>
         (mm ? 'L' : 'M') + x(mm).toFixed(1) + ' ' + y(debtVal(r, mm)).toFixed(1)).join('');
       el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
     });
 
-    // direct labels at line ends (most are 0 — collapse them onto the axis)
-    const labels = runs.map((r, i) => ({ i, y: y(debtVal(r, months)) })).sort((a, b) => a.y - b.y);
-    for (let pass = 0; pass < 8; pass++) {
-      for (let k = 1; k < labels.length; k++) {
-        if (labels[k].y - labels[k - 1].y < 14) { labels[k - 1].y -= 2; labels[k].y += 2; }
-      }
-    }
-    for (const L of labels) {
-      if (runs[L.i].debtHist[months] < 0.5) continue; // paid off — skip label
-      const tEl = el('text', { x: m2.l + iw + 6, y: L.y + 4, 'font-weight': 600 }, svg);
-      tEl.style.fill = colors[L.i];
-      tEl.textContent = `${runs[L.i].dp}%/${runs[L.i].yrs}y`;
-    }
+    drawEndLabels(svg,
+      runs.map((r, i) => ({ i, y: y(debtVal(r, months)), text: `${r.dp}%/${r.yrs}y` }))
+        .filter((_, i) => runs[i].debtHist[months] >= 0.5),
+      colors, m2, iw);
 
-    const cross = el('line', { class: 'crosshair', y1: m2.t, y2: m2.t + ih, visibility: 'hidden' }, svg);
-    const dots = runs.map((r, i) =>
-      el('circle', { class: 'hoverdot', r: 4, fill: colors[i], visibility: 'hidden' }, svg));
-    const hit = el('rect', { x: m2.l, y: m2.t, width: iw, height: ih, fill: 'transparent' }, svg);
-    const tip = $('tooltip');
-    hit.addEventListener('mousemove', (ev) => {
-      const box = svg.getBoundingClientRect();
-      const px = ((ev.clientX - box.left) / box.width) * W;
+    addChartHover({ svg, W, m: m2, iw, ih, nDots: runs.length, colors, onMove: (px) => {
       const mm = Math.max(0, Math.min(months, Math.round(((px - m2.l) / iw) * months)));
       const cx = x(mm);
-      cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-      cross.setAttribute('visibility', 'visible');
-      dots.forEach((d, i) => {
-        d.setAttribute('cx', cx);
-        d.setAttribute('cy', y(debtVal(runs[i], mm)));
-        d.setAttribute('visibility', 'visible');
-      });
-      tip.innerHTML =
-        `<div class="t-head">Year ${(mm / 12).toFixed(1)} · debt left · rate ${res.series[mm].fx.toFixed(1)} ₴/$</div>` +
-        runs.map((r, i) =>
-          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${r.label}</span>` +
-          `<span class="v">${r.debtHist[mm] < 0.5 ? 'paid off' : fmt(debtVal(r, mm))}</span></div>`
-        ).join('');
-      tip.hidden = false;
-      const tw = tip.offsetWidth, th = tip.offsetHeight;
-      let tx = ev.clientX + 14, ty = ev.clientY + 14;
-      if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-      if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-      tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-    });
-    hit.addEventListener('mouseleave', () => {
-      tip.hidden = true;
-      for (const n of [cross, ...dots]) n.setAttribute('visibility', 'hidden');
-    });
+      return { cx, dots: runs.map((r) => ({ cx, cy: y(debtVal(r, mm)) })),
+        html: `<div class="t-head">Year ${(mm / 12).toFixed(1)} · debt left · rate ${res.series[mm].fx.toFixed(1)} ₴/$</div>` +
+          runs.map((r, i) =>
+            `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${r.label}</span>` +
+            `<span class="v">${r.debtHist[mm] < 0.5 ? 'paid off' : fmt(debtVal(r, mm))}</span></div>`
+          ).join('') };
+    }});
 
     $('legendDebt').innerHTML = runs.map((r, i) =>
       `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${r.label}</span>`
@@ -1049,56 +812,25 @@ function renderScenarioCompare(p) {
 
     const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label':
       `Scenario ${s.tag}: lead over renting, nominal vs today's dollars` }, host);
-    for (const t of ticks) {
-      el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }, svg);
-      el('text', { x: m.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = moneyShort(t, '$');
-    }
+    drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
     el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
     if (lo < 0 && hi > 0) {
       el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
     }
-    const years = s.months / 12;
-    const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-    for (let yr = 0; yr <= years; yr += yearStep) {
-      el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
-    }
+    drawYearLabels(svg, s.months, x, H);
     [[s.nom, cNom], [s.real, cReal]].forEach(([data, color]) => {
       const path = data.map((v, mm) => (mm ? 'L' : 'M') + x(mm).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
       el('path', { class: 'series', d: path, stroke: color }, svg);
     });
 
-    // hover
-    const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih, visibility: 'hidden' }, svg);
-    const dots = [cNom, cReal].map((c) =>
-      el('circle', { class: 'hoverdot', r: 4, fill: c, visibility: 'hidden' }, svg));
-    const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
-    hit.addEventListener('mousemove', (ev) => {
-      const box = svg.getBoundingClientRect();
-      const px = ((ev.clientX - box.left) / box.width) * W;
+    addChartHover({ svg, W, m, iw, ih, nDots: 2, colors: [cNom, cReal], onMove: (px) => {
       const mm = Math.max(0, Math.min(s.months, Math.round(((px - m.l) / iw) * s.months)));
       const cx = x(mm);
-      cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-      cross.setAttribute('visibility', 'visible');
-      [s.nom[mm], s.real[mm]].forEach((v, i) => {
-        dots[i].setAttribute('cx', cx);
-        dots[i].setAttribute('cy', y(v));
-        dots[i].setAttribute('visibility', 'visible');
-      });
-      tip.innerHTML =
-        `<div class="t-head">Scenario ${s.tag} · Year ${(mm / 12).toFixed(1)} · lead over renting</div>` +
-        `<div class="t-row"><span><span class="swatch" style="background:${cNom}"></span> Nominal $</span><span class="v">${signed(s.nom[mm], usd)}</span></div>` +
-        `<div class="t-row"><span><span class="swatch" style="background:${cReal}"></span> Today's $</span><span class="v">${signed(s.real[mm], usd)}</span></div>`;
-      tip.hidden = false;
-      const tw = tip.offsetWidth, th = tip.offsetHeight;
-      let tx = ev.clientX + 14, ty = ev.clientY + 14;
-      if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-      if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-      tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-    });
-    hit.addEventListener('mouseleave', () => {
-      tip.hidden = true;
-      for (const el2 of [cross, ...dots]) el2.setAttribute('visibility', 'hidden');
-    });
+      return { cx, dots: [{ cx, cy: y(s.nom[mm]) }, { cx, cy: y(s.real[mm]) }],
+        html: `<div class="t-head">Scenario ${s.tag} · Year ${(mm / 12).toFixed(1)} · lead over renting</div>` +
+          `<div class="t-row"><span><span class="swatch" style="background:${cNom}"></span> Nominal $</span><span class="v">${signed(s.nom[mm], usd)}</span></div>` +
+          `<div class="t-row"><span><span class="swatch" style="background:${cReal}"></span> Today's $</span><span class="v">${signed(s.real[mm], usd)}</span></div>` };
+    }});
 
     $(`legendSc${n + 1}`).innerHTML =
       `<span class="key"><strong>${s.tag} — ${s.dp}% down / ${s.yrs}y term / ${s.hor}y horizon</strong></span>` +
@@ -1186,16 +918,11 @@ function renderBurdenChart(res, p) {
   const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Required payments as percent of salary over time' }, host);
-  for (const t of ticks) {
-    el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }, svg);
-    el('text', { x: m.l - 6, y: y(t) + 3, 'text-anchor': 'end' }, svg).textContent = Math.round(t) + '%';
-  }
+  drawGrid(svg, ticks, m, iw, y, (v) => Math.round(v) + '%');
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(Math.max(lo, 0)), y2: y(Math.max(lo, 0)) }, svg);
   const years = res.months / 12;
   const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-  for (let yr = yearStep; yr <= years; yr += yearStep) {
-    el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
-  }
+  drawYearLabels(svg, res.months, x, H, yearStep);
 
   const css = getComputedStyle(document.body);
   const colors = defs.map((d, i) => css.getPropertyValue(`--series-${i + 1}`).trim());
@@ -1204,58 +931,21 @@ function renderBurdenChart(res, p) {
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
 
-  // direct labels
   const lastPt = pts[pts.length - 1];
-  const labels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]) })).sort((a, b) => a.y - b.y);
-  for (let pass = 0; pass < 8; pass++) {
-    for (let k = 1; k < labels.length; k++) {
-      if (labels[k].y - labels[k - 1].y < 14) { labels[k - 1].y -= 2; labels[k].y += 2; }
-    }
-  }
-  for (const L of labels) {
-    const tEl = el('text', { x: m.l + iw + 6, y: L.y + 4, 'font-weight': 600 }, svg);
-    tEl.style.fill = colors[L.i];
-    tEl.textContent = defs[L.i].short;
-  }
+  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short })), colors, m, iw);
 
-  // hover
-  const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih, visibility: 'hidden' }, svg);
-  const dots = defs.map((d, i) =>
-    el('circle', { class: 'hoverdot', r: 4, fill: colors[i], visibility: 'hidden' }, svg));
-  const hit = el('rect', { x: m.l, y: m.t, width: iw, height: ih, fill: 'transparent' }, svg);
-  const tip = $('tooltip');
-
-  hit.addEventListener('mousemove', (ev) => {
-    const box = svg.getBoundingClientRect();
-    const px = ((ev.clientX - box.left) / box.width) * W;
+  addChartHover({ svg, W, m, iw, ih, nDots: defs.length, colors, onMove: (px) => {
     const k = Math.max(0, Math.min(pts.length - 1,
       Math.round(((px - m.l) / iw) * (pts.length - 1))));
     const s = pts[k];
     const cx = x(s.m);
-    cross.setAttribute('x1', cx); cross.setAttribute('x2', cx);
-    cross.setAttribute('visibility', 'visible');
-    dots.forEach((d, i) => {
-      d.setAttribute('cx', cx);
-      d.setAttribute('cy', y(s.v[i]));
-      d.setAttribute('visibility', 'visible');
-    });
     const pay = (o) => salUSD ? usd(o / s.fx) : uah(o);
-    tip.innerHTML =
-      `<div class="t-head">Year ${(s.m / 12).toFixed(1)} · salary ${salUSD ? usd(p.salaryAmt * Math.pow(1 + p.salaryGrowthPct / 100, s.m / 12)) : uah(salaryUAH(s.m, s.fx))}/mo</div>` +
-      defs.map((d, i) =>
-        `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${s.v[i].toFixed(0)}% · ${pay(s.obl[i])}</span></div>`
-      ).join('');
-    tip.hidden = false;
-    const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let tx = ev.clientX + 14, ty = ev.clientY + 14;
-    if (tx + tw > window.innerWidth - 8) tx = ev.clientX - tw - 14;
-    if (ty + th > window.innerHeight - 8) ty = ev.clientY - th - 14;
-    tip.style.left = tx + 'px'; tip.style.top = ty + 'px';
-  });
-  hit.addEventListener('mouseleave', () => {
-    tip.hidden = true;
-    for (const n of [cross, ...dots]) n.setAttribute('visibility', 'hidden');
-  });
+    return { cx, dots: defs.map((d, i) => ({ cx, cy: y(s.v[i]) })),
+      html: `<div class="t-head">Year ${(s.m / 12).toFixed(1)} · salary ${salUSD ? usd(p.salaryAmt * Math.pow(1 + p.salaryGrowthPct / 100, s.m / 12)) : uah(salaryUAH(s.m, s.fx))}/mo</div>` +
+        defs.map((d, i) =>
+          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${s.v[i].toFixed(0)}% · ${pay(s.obl[i])}</span></div>`
+        ).join('') };
+  }});
 
   $('legendBurden').innerHTML = defs.map((d, i) =>
     `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${d.legend}</span>`
@@ -1708,8 +1398,8 @@ for (const id of LIFE_DEC_IDS) {
     }
   });
 }
-document.getElementById('inputs').addEventListener('input', render);
-$('scCard').addEventListener('input', render);
+document.getElementById('inputs').addEventListener('input', rafDebounce(render));
+$('scCard').addEventListener('input', rafDebounce(render));
 
 /* finder results: column sort, row expand, and in-table filters — these only
  * re-render the table body, so the filter inputs keep focus while typing. */

@@ -24,8 +24,7 @@ function mortVariants(p) {
 
 function mortRun(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
-  const MONTH = 1 / 12;
-  const fx = (m) => p.fx0 * Math.pow(1 + p.devalPct / 100, m * MONTH);
+  const fx = makeFx(p);
   const priceUAH0 = p.h_price * p.fx0;
   const homeUAH = (m) =>
     p.h_price * Math.pow(1 + p.h_apprPct / 100, m * MONTH) * fx(m);
@@ -47,10 +46,7 @@ function mortRun(p) {
     const dpAmount = priceUAH0 * (v.dp / 100);
     const principal = priceUAH0 - dpAmount;
     const commission = principal * (p.h_commPct / 100);
-    const annuity =
-      principal <= 0 ? 0
-        : im === 0 ? principal / loanMonths
-        : (principal * im) / (1 - Math.pow(1 + im, -loanMonths));
+    const annuity = calcAnnuity(principal, p.h_ratePct, loanMonths);
     const t = { interest: 0, insurance: 0 };
     let debt = principal;
     const debtHist = [principal]; // remaining debt after each month's payment

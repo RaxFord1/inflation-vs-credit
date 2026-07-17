@@ -193,6 +193,33 @@ function pppDevaluation(inflPct, usdInflPct, realDriftPct = 0) {
   );
 }
 
+/** FX rate function from params — UAH/USD at month m. */
+function makeFx(p) {
+  return (m) => p.fx0 * Math.pow(1 + p.devalPct / 100, m * MONTH);
+}
+
+/** Annuity payment for a loan with the given annual rate and term. */
+function calcAnnuity(principal, ratePct, months) {
+  const im = ratePct / 100 / 12;
+  return principal <= 0 ? 0
+    : im === 0 ? principal / months
+    : (principal * im) / (1 - Math.pow(1 + im, -months));
+}
+
+/** Common budget context: salary, living expenses, current rent — all in UAH. */
+function makeCtx(p, fx) {
+  return {
+    fx,
+    salaryUAH: (m) =>
+      p.salaryAmt * Math.pow(1 + p.salaryGrowthPct / 100, m * MONTH) *
+      (p.salaryCurrency === 'USD' ? fx(m) : 1),
+    livExpUAH: (m) =>
+      p.l_livExpUSD * Math.pow(1 + p.usdInflPct / 100, m * MONTH) * fx(m),
+    curRentUAH: (m) =>
+      p.l_curRentUSD * Math.pow(1 + p.h_rentGrowthPct / 100, m * MONTH) * fx(m),
+  };
+}
+
 /* ---------- shared formatting (UI helpers used by modules and app) ---------- */
 const fmtUAH0 = new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 });
 const fmtUSD0 = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
@@ -212,5 +239,6 @@ function moneyShort(v, symbol) {
 const uahShort = (v) => moneyShort(v, '₴');
 
 if (typeof module !== 'undefined') {
-  module.exports = { monthlyRate, makeAccount, runComparison, bisect, pppDevaluation };
+  module.exports = { monthlyRate, makeAccount, runComparison, bisect, pppDevaluation,
+    makeFx, calcAnnuity, makeCtx };
 }

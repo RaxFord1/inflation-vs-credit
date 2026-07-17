@@ -8,13 +8,11 @@
 function carRun(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
   const loanMonths = Math.max(1, Math.round(p.loanYears * 12));
-  const MONTH = 1 / 12;
 
-  const fx = (m) => p.fx0 * Math.pow(1 + p.devalPct / 100, m * MONTH);
+  const fx = makeFx(p);
   const priceUAH0 = p.priceCurrency === 'USD' ? p.price * p.fx0 : p.price;
   const priceUSD0 = priceUAH0 / p.fx0;
 
-  // Used cars in Ukraine hold value in USD terms; UAH value floats with FX.
   const carUAH = (m) =>
     priceUSD0 * Math.pow(1 - p.carDepPct / 100, m * MONTH) * fx(m);
 
@@ -24,11 +22,8 @@ function carRun(p) {
   const dpAmount = priceUAH0 * (p.dpPct / 100);
   const principal = priceUAH0 - dpAmount;
   const commission = principal * (p.commissionPct / 100);
-  const im = p.loanRatePct / 100 / 12; // banks quote nominal annual, /12
-  const annuity =
-    im === 0
-      ? principal / loanMonths
-      : (principal * im) / (1 - Math.pow(1 + im, -loanMonths));
+  const im = p.loanRatePct / 100 / 12;
+  const annuity = calcAnnuity(principal, p.loanRatePct, loanMonths);
 
   const kaskoMonthly = (m) => (p.kaskoPct / 100) * carUAH(m) / 12;
 
