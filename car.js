@@ -30,7 +30,7 @@ function carRun(p) {
       ? principal / loanMonths
       : (principal * im) / (1 - Math.pow(1 + im, -loanMonths));
 
-  const kaskoMonthly = (m) => (p.kaskoPct / 100) * carUAH(m) / 12;
+  const kaskoMonthly = () => (p.kaskoPct / 100) * priceUAH0 / 12;
 
   const t = { interest: 0, kaskoCredit: 0, kaskoCash: 0, monthlyFees: 0, lifeIns: 0 };
   let debt = principal;
@@ -38,7 +38,8 @@ function carRun(p) {
   const A = { // cash buyer
     outlay0: priceUAH0 - cashDiscount + stateFees,
     step(m) {
-      const k = p.kaskoCash ? kaskoMonthly(m) : 0; // optional, whole horizon
+      const k = p.kaskoCash ? kaskoMonthly() : 0;
+
       t.kaskoCash += k;
       return k;
     },
@@ -50,8 +51,8 @@ function carRun(p) {
     step(m) {
       let obl = 0;
       if (m <= loanMonths) { // KASKO mandatory while the loan lives
-        obl += kaskoMonthly(m);
-        t.kaskoCredit += kaskoMonthly(m);
+        obl += kaskoMonthly();
+        t.kaskoCredit += kaskoMonthly();
       }
       if (m <= loanMonths && debt > 0.005) {
         const lifeIns = debt * (p.lifeInsPct / 100) / 12;
@@ -80,7 +81,7 @@ function carRun(p) {
     priceUAH0, priceUSD0, stateFees, cashDiscount, dpAmount, principal,
     commission, annuity, lump0: A.outlay0 - B.outlay0,
     firstMonthPayment:
-      annuity + p.monthlyFeeUAH + kaskoMonthly(1) + principal * (p.lifeInsPct / 100) / 12,
+      annuity + p.monthlyFeeUAH + kaskoMonthly() + principal * (p.lifeInsPct / 100) / 12,
     carEndUAH: carUAH(months),
     debtEnd: Math.max(0, debt),
   };
