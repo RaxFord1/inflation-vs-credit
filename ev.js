@@ -50,7 +50,7 @@ function evRun(p) {
   const kaskoB = (m) => (p.kaskoPct / 100) * newCarB(m) / 12;
 
   const t = {
-    oldFuel: 0, oldMaint: 0,
+    oldFuel: 0, oldMaint: 0, transport: 0,
     fuelA: 0, maintA: 0, intA: 0, kaskoA: 0, feeA: 0, lifeInsA: 0,
     fuelB: 0, maintB: 0, intB: 0, kaskoB: 0, feeB: 0, lifeInsB: 0,
   };
@@ -118,10 +118,20 @@ function evRun(p) {
     net(m) { return newCarB(m) - debtB; },
   };
 
+  const S3 = {
+    outlay0: -oldValueUAH0,
+    step(m) {
+      const tr = maintUAH(p.ev_transportUSD, m);
+      t.transport += tr;
+      return tr;
+    },
+    net(m) { return 0; },
+  };
+
   const r = runComparison({
     months, fx,
     instrument: instrumentOf(p),
-    strategies: [S0, S1, S2],
+    strategies: [S0, S1, S2, S3],
   });
 
   let paybackA = null, paybackB = null;
@@ -134,6 +144,7 @@ function evRun(p) {
     r, t, months,
     advA: r.finals[1] - r.finals[0],
     advB: r.finals[2] - r.finals[0],
+    advSell: r.finals[3] - r.finals[0],
     paybackA, paybackB,
     oldValueUAH0, priceA0, priceB0, feesA, feesB, sellOld,
     dpA, prinA, commA, annA,
@@ -161,13 +172,17 @@ function evSim(p) {
   const nameA = p.ea_label || 'Car A';
   const nameB = p.eb_label || 'Car B';
 
+  const transport1 = p.ev_transportUSD * p.fx0;
+
   const fmtPB = (m) => m === null ? 'not within ' + p.horizonYears + 'y'
     : m === 0 ? 'from day 1'
     : 'year ' + (m / 12).toFixed(1) + ' (month ' + m + ')';
 
-  const bestAdv = Math.max(s.advA, s.advB);
-  const winner = s.advA >= s.advB ? nameA : nameB;
-  const loser = s.advA >= s.advB ? nameB : nameA;
+  const allAdvs = [s.advA, s.advB, s.advSell];
+  const allNames = [nameA, nameB, 'Sell + no car'];
+  const bestIdx = allAdvs.indexOf(Math.max(...allAdvs));
+  const bestAdv = allAdvs[bestIdx];
+  const winner = bestAdv >= 0 ? allNames[bestIdx] : null;
 
   const whyRowsA = [
     { label: 'Fuel savings (' + nameA + ' vs old)', v: t.oldFuel - t.fuelA },
@@ -194,21 +209,23 @@ function evSim(p) {
       { short: 'Keep old', legend: 'Keep current car' },
       { short: nameA, legend: nameA + ' (credit)' },
       { short: nameB, legend: nameB + ' (credit)' },
+      { short: 'Sell', legend: 'Sell old + taxi/transit' },
     ],
     diffLabel: null,
     adv: bestAdv,
     paid: r.paid, paidUSD: r.paidUSD,
     baselineIndex: 0,
-    posName: winner, negName: 'Keeping old car',
-    whyPos: winner + ' beats keeping your old car over ' + p.horizonYears + ' years: fuel and maintenance savings outweigh purchase costs.',
+    posName: winner || 'Keep old', negName: 'Keeping old car',
+    whyPos: (winner || 'Keep old') + ' beats keeping your old car over ' + p.horizonYears + ' years: fuel and maintenance savings outweigh purchase costs.',
     whyNeg: 'Keeping your old car is cheaper over ' + p.horizonYears + ' years — the purchase costs, depreciation and loan interest outweigh fuel savings.',
     kpis: [
       { label: 'Monthly fuel — old car', value: uah(oldFuel1), delta: p.eo_consumption + ' L/100km × ' + p.ev_monthlyKm + ' km' },
       { label: 'Monthly fuel — ' + nameA, value: uah(fuelA1), delta: savingA1 > 0 ? 'saves ' + uah(savingA1) + '/mo' : 'costs ' + uah(-savingA1) + '/mo more' },
       { label: 'Monthly fuel — ' + nameB, value: uah(fuelB1), delta: savingB1 > 0 ? 'saves ' + uah(savingB1) + '/mo' : 'costs ' + uah(-savingB1) + '/mo more' },
+      { label: 'Monthly transport (no car)', value: uah(transport1), delta: usd(p.ev_transportUSD) + '/mo taxi+transit' },
       { label: nameA + ' payback', value: fmtPB(s.paybackA), cls: s.paybackA !== null ? 'good' : 'bad' },
       { label: nameB + ' payback', value: fmtPB(s.paybackB), cls: s.paybackB !== null ? 'good' : 'bad' },
-      { label: 'Best option at ' + p.horizonYears + 'y', value: bestAdv >= 0 ? winner : 'Keep old', cls: bestAdv >= 0 ? 'good' : 'bad',
+      { label: 'Best option at ' + p.horizonYears + 'y', value: winner || 'Keep old', cls: bestAdv >= 0 ? 'good' : 'bad',
         delta: signed(bestAdv / fxEnd / Math.pow(1 + p.usdInflPct / 100, p.horizonYears), usd) + " in today's $" },
     ],
     whyTitle: 'Why: cost breakdown of ' + nameA + ' vs keeping old car',
@@ -253,6 +270,12 @@ function evSim(p) {
       ['Total fuel over ' + p.horizonYears + 'y', uah(t.fuelB)],
       ['Payback vs keeping old', fmtPB(s.paybackB)],
 
+      ['section', 'Sell old + taxi/transit'],
+      ['Old car sale proceeds', usd(p.eo_valueUSD)],
+      ['Monthly transport cost', uah(transport1) + ' (' + usd(p.ev_transportUSD) + ')'],
+      ['Total transport over ' + p.horizonYears + 'y', uah(t.transport)],
+      ['Advantage vs keeping old', uahSigned(s.advSell)],
+
       ['section', 'Savings comparison'],
       ['Old car sold for', p.ev_sellOld ? usd(p.eo_valueUSD) : 'not sold'],
       ['Fuel saved — ' + nameA, uah(t.oldFuel - t.fuelA) + ' (' + usd((t.oldFuel - t.fuelA) / fxEnd) + ')'],
@@ -266,6 +289,7 @@ function evSim(p) {
       ['Net worth — keep old car', uah(r.finals[0])],
       ['Net worth — ' + nameA, uah(r.finals[1])],
       ['Net worth — ' + nameB, uah(r.finals[2])],
+      ['Net worth — sell + no car', uah(r.finals[3])],
     ],
     ctx: { inflPct: p.inflPct, usdInflPct: p.usdInflPct, horizonYears: p.horizonYears, fxEnd },
   };

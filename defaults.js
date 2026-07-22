@@ -179,6 +179,7 @@ const PARAM_DEFAULTS = {
   ev_elecUAH: 4.32,        // electricity price per kWh, UAH
   ev_elecGrowPct: 5,       // electricity price growth, %/yr
   ev_sellOld: true,         // sell old car when buying new
+  ev_transportUSD: 200,     // monthly taxi/transit cost if no car, USD
   ev_dpPct: 30,             // EV down payment, %
   ev_loanYears: 5,          // EV loan term
   ev_loanRatePct: 16,       // EV loan rate, %/yr
