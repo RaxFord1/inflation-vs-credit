@@ -75,6 +75,7 @@ const NUM_IDS = [
   'ea_priceUSD', 'ea_depPct', 'ea_kwh', 'ea_phevGas', 'ea_phevElecPct', 'ea_maintUSD',
   'eb_priceUSD', 'eb_depPct', 'eb_kwh', 'eb_phevGas', 'eb_phevElecPct', 'eb_maintUSD',
   'ev_monthlyKm', 'ev_fuelUAH', 'ev_fuelGrowPct', 'ev_elecUAH', 'ev_elecGrowPct',
+  'ev_transportUSD',
   'ev_dpPct', 'ev_loanYears', 'ev_loanRatePct', 'ev_commissionPct', 'ev_kaskoPct',
   'ev_pensionPct', 'ev_regFeeUAH',
   // shared
