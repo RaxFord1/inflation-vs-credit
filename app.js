@@ -1359,6 +1359,7 @@ function syncURL() {
 }
 
 function render() {
+  syncCarFields();
   if (mode === 'find') { renderFinder(); syncURL(); return; }
   $('results').classList.remove('finder-only');
   $('finderCard').hidden = true;
@@ -1493,16 +1494,22 @@ for (const id of LIFE_DEC_IDS) {
 }
 function syncCarFields() {
   for (const s of EV_SLOTS) {
+    const on = $('e' + s + '_on').checked;
     const type = $('e' + s + '_type').value;
     const section = $('e' + s + '_type').closest('section');
-    section.querySelectorAll('label[data-show-for]').forEach(lbl => {
-      lbl.hidden = !lbl.dataset.showFor.split(' ').includes(type);
-    });
+    for (const lbl of section.querySelectorAll(':scope > label')) {
+      if (lbl.dataset.showFor) {
+        lbl.hidden = !on || !lbl.dataset.showFor.split(' ').includes(type);
+      } else {
+        lbl.hidden = !on;
+      }
+    }
   }
 }
 document.getElementById('inputs').addEventListener('input', rafDebounce(render));
 document.getElementById('inputs').addEventListener('change', (e) => {
   if (e.target.tagName === 'SELECT' && /_type$/.test(e.target.id)) syncCarFields();
+  if (e.target.type === 'checkbox' && /_on$/.test(e.target.id)) syncCarFields();
 });
 $('scCard').addEventListener('input', rafDebounce(render));
 

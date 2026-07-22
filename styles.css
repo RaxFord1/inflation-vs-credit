@@ -130,6 +130,7 @@ body {
   color: var(--text-secondary);
 }
 .panel label { display: block; margin-bottom: 12px; font-weight: 500; }
+.panel label[hidden] { display: none; }
 .panel label small {
   display: block;
   font-weight: 400;
