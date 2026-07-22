@@ -8,6 +8,7 @@ const MODULES = {
   mort: { run: mortSim },
   life: { run: lifeSim },
   biz: { run: bizSim },
+  ev: { run: evSim },
 };
 let mode = 'car';
 
@@ -31,6 +32,9 @@ const INTROS = {
     'and operating bills (electricity, rent, staff). Choose who runs each idea: quit and run it yourself (the ' +
     'comparison charges the salary you give up), or hire staff to replace you and collect salary and profit together. ' +
     'Use the “Reality check” inputs — and sweep them in “What if…” — to see which idea survives revenue coming in below plan.',
+  ev: 'Is it worth switching from your gas/diesel car to an EV or plug-in hybrid? ' +
+    "Enter your current car's fuel consumption and monthly mileage, pick two new cars to compare (e.g. Tesla Model 3 vs RAV4 PHEV), " +
+    'and see how quickly fuel savings pay off the purchase — factoring in depreciation, loan costs, maintenance, and investment returns.',
   find: 'Підбір авто в Україні та Європі за співвідношенням ціна/якість. Задайте фільтри зліва, ' +
     'опишіть свою логіку правилами текстом (напр. «Tesla — тільки європейка»), і кожне оголошення пройде ' +
     'фільтри → правила → перевірки (VIN/реєстр, історія ДТП і пробігу, тип пошкоджень, AI-аналіз відповідності) → ' +
@@ -66,6 +70,13 @@ const NUM_IDS = [
   'w_wealth', 'w_robust', 'w_stress', 'w_liq', 'w_qol',
   'qol_nothing', 'qol_carCash', 'qol_carCredit', 'qol_flatLive', 'qol_flatBtl',
   'qol_edu', 'qol_job', 'qol_migrate', 'qol_biz', 'qol_combo',
+  // ev switch
+  'eo_valueUSD', 'eo_depPct', 'eo_consumption', 'eo_maintUSD',
+  'ea_priceUSD', 'ea_depPct', 'ea_kwh', 'ea_phevGas', 'ea_phevElecPct', 'ea_maintUSD',
+  'eb_priceUSD', 'eb_depPct', 'eb_kwh', 'eb_phevGas', 'eb_phevElecPct', 'eb_maintUSD',
+  'ev_monthlyKm', 'ev_fuelUAH', 'ev_fuelGrowPct', 'ev_elecUAH', 'ev_elecGrowPct',
+  'ev_dpPct', 'ev_loanYears', 'ev_loanRatePct', 'ev_commissionPct', 'ev_kaskoPct',
+  'ev_pensionPct', 'ev_regFeeUAH',
   // shared
   'salaryAmt', 'salaryGrowthPct',
   'invYieldPct', 'invTaxPct', 'yieldDriftPp',
@@ -131,6 +142,32 @@ for (const sel of ['bizPreset', 'bz1Preset', 'bz2Preset', 'bz3Preset', 'bz4Prese
       if (life && (f === 'staffUSD' || f === 'hoursWk')) continue; // no staff/time inputs on the life tab
       SCENARIO_PRESETS[sel][kind][prefix + f] = BIZ_PRESET_VALUES[kind][f];
     }
+  }
+}
+
+/* EV presets: old car types and new EV/PHEV models, mid-2026 estimates. */
+const EV_OLD_PRESETS = {
+  sedan:     { eo_valueUSD: 4000,  eo_depPct: 6, eo_consumption: 8,  eo_maintUSD: 80,  ev_fuelUAH: 57 },
+  crossover: { eo_valueUSD: 12000, eo_depPct: 8, eo_consumption: 10, eo_maintUSD: 100, ev_fuelUAH: 57 },
+  diesel:    { eo_valueUSD: 15000, eo_depPct: 8, eo_consumption: 7,  eo_maintUSD: 110, ev_fuelUAH: 55 },
+  old_suv:   { eo_valueUSD: 8000,  eo_depPct: 7, eo_consumption: 12, eo_maintUSD: 120, ev_fuelUAH: 57 },
+};
+const EV_NEW_PRESETS = {
+  model3:   { _priceUSD: 40000, _depPct: 12, _type: 'ev',   _kwh: 15, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 35, _label: 'Tesla Model 3' },
+  modely:   { _priceUSD: 48000, _depPct: 12, _type: 'ev',   _kwh: 17, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 35, _label: 'Tesla Model Y' },
+  rav4phev: { _priceUSD: 52000, _depPct: 11, _type: 'phev', _kwh: 18, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 55, _label: 'RAV4 PHEV' },
+  seal:     { _priceUSD: 34000, _depPct: 15, _type: 'ev',   _kwh: 14, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 40, _label: 'BYD Seal' },
+  ioniq5:   { _priceUSD: 44000, _depPct: 13, _type: 'ev',   _kwh: 17, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 40, _label: 'Ioniq 5' },
+};
+SCENARIO_PRESETS.oldCarPreset = {};
+for (const k in EV_OLD_PRESETS) SCENARIO_PRESETS.oldCarPreset[k] = EV_OLD_PRESETS[k];
+for (const sel of ['eaPreset', 'ebPreset']) {
+  const prefix = sel === 'eaPreset' ? 'ea' : 'eb';
+  SCENARIO_PRESETS[sel] = {};
+  for (const k in EV_NEW_PRESETS) {
+    const p = EV_NEW_PRESETS[k];
+    SCENARIO_PRESETS[sel][k] = {};
+    for (const f in p) SCENARIO_PRESETS[sel][k][prefix + f] = p[f];
   }
 }
 
@@ -206,6 +243,18 @@ const SWEEPS = {
     { id: 'devalPct', label: 'UAH devaluation, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 25] },
     INFL_SWEEP,
   ],
+  ev: [
+    { id: 'ev_monthlyKm', label: 'Monthly mileage, km', unit: 'km', values: [500, 1000, 1500, 2000, 3000, 4000, 5000] },
+    { id: 'ev_fuelUAH', label: 'Fuel price, UAH/L', unit: '₴', values: [40, 45, 50, 55, 57, 60, 65, 70] },
+    { id: 'ev_elecUAH', label: 'Electricity price, UAH/kWh', unit: '₴', values: [2, 3, 4, 4.32, 5, 6, 8] },
+    { id: 'ea_priceUSD', label: 'Car A price, $', unit: 'money', values: [15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000] },
+    { id: 'eb_priceUSD', label: 'Car B price, $', unit: 'money', values: [15000, 25000, 35000, 45000, 52000, 60000, 70000] },
+    { id: 'ev_dpPct', label: 'Down payment, %', unit: '%', values: [0, 10, 20, 30, 40, 50, 70, 100] },
+    { id: 'ev_loanRatePct', label: 'Loan rate, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 24] },
+    { id: 'horizonYears', label: 'Horizon, years', unit: 'y', values: [3, 5, 7, 10, 12, 15] },
+    { id: 'devalPct', label: 'UAH devaluation, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 25] },
+    INFL_SWEEP,
+  ],
 };
 const sweepChoice = {}; // per mode, which input is being swept
 
@@ -237,6 +286,11 @@ const QUICKBAR = {
     { sel: 'savePreset', title: 'Savings', labels: { zero: '$0', s10k: '$10k', s80k: '$80k' } },
     { sel: 'bz1Preset', title: 'Idea 1', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store', vending: 'Vending' } },
     { sel: 'bz2Preset', title: 'Idea 2', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store', vending: 'Vending' } },
+  ],
+  ev: [
+    { sel: 'oldCarPreset', title: 'Your car', labels: { sedan: 'Sedan 9L', crossover: 'Crossover 11L', diesel: 'Diesel 7L', old_suv: 'Old SUV 14L' } },
+    { sel: 'eaPreset', title: 'Car A', labels: { model3: 'Tesla Model 3', modely: 'Tesla Model Y', ioniq5: 'Ioniq 5' } },
+    { sel: 'ebPreset', title: 'Car B', labels: { rav4phev: 'RAV4 PHEV', seal: 'BYD Seal' } },
   ],
 };
 
@@ -271,6 +325,20 @@ function readParams() {
   p.kaskoCash = $('kaskoCash').checked;
   p.investOff = $('investOff').checked;
   p.bz_scaleOn = $('bz_scaleOn').checked;
+  p.ev_sellOld = $('ev_sellOld').checked;
+  p.ea_type = $('ea_type').value;
+  p.eb_type = $('eb_type').value;
+  p.ea_label = $('ea_label').value || 'Car A';
+  p.eb_label = $('eb_label').value || 'Car B';
+  if (mode === 'ev') {
+    p.dpPct = p.ev_dpPct;
+    p.loanYears = p.ev_loanYears;
+    p.loanRatePct = p.ev_loanRatePct;
+    p.commissionPct = p.ev_commissionPct;
+    p.kaskoPct = p.ev_kaskoPct;
+    p.pensionPct = p.ev_pensionPct;
+    p.regFeeUAH = p.ev_regFeeUAH;
+  }
   p.lifeActive = LIFE_DEC_IDS.filter((id) => $('d_' + id).checked);
   for (let i = 1; i <= 10; i++) p[`mv${i}_on`] = $(`mv${i}_on`).checked;
   for (let i = 1; i <= 4; i++) {

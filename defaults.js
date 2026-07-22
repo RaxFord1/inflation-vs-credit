@@ -149,6 +149,44 @@ const PARAM_DEFAULTS = {
   bz4_costsUSD: 3300, bz4_taxPct: 6, bz4_growthPct: 15,
   bz4_residualPct: 10, bz4_staffUSD: 700, bz4_hoursWk: 45,
 
+  /* --- EV switch tab: old gas car vs EV/PHEV --- */
+  eo_valueUSD: 6000,       // current car market value
+  eo_depPct: 8,            // current car depreciation, %/yr
+  eo_consumption: 9,       // current car fuel consumption, L/100km
+  eo_maintUSD: 90,         // current car maintenance, $/month
+
+  ea_priceUSD: 40000,      // car A purchase price
+  ea_depPct: 12,           // car A depreciation, %/yr
+  ea_type: 'ev',           // 'ev' | 'phev'
+  ea_kwh: 15,              // car A electric consumption, kWh/100km
+  ea_phevGas: 5.5,         // car A PHEV gas consumption, L/100km
+  ea_phevElecPct: 65,      // car A PHEV share of electric driving, %
+  ea_maintUSD: 35,         // car A maintenance, $/month
+  ea_label: 'Tesla Model 3',
+
+  eb_priceUSD: 52000,      // car B purchase price
+  eb_depPct: 11,           // car B depreciation, %/yr
+  eb_type: 'phev',         // 'ev' | 'phev'
+  eb_kwh: 18,              // car B electric consumption, kWh/100km
+  eb_phevGas: 5.5,         // car B PHEV gas consumption, L/100km
+  eb_phevElecPct: 65,      // car B PHEV share of electric driving, %
+  eb_maintUSD: 55,         // car B maintenance, $/month
+  eb_label: 'RAV4 PHEV',
+
+  ev_monthlyKm: 2000,      // monthly mileage, km
+  ev_fuelUAH: 57,          // fuel price per liter, UAH (A-95)
+  ev_fuelGrowPct: 8,       // fuel price growth, %/yr
+  ev_elecUAH: 4.32,        // electricity price per kWh, UAH
+  ev_elecGrowPct: 5,       // electricity price growth, %/yr
+  ev_sellOld: true,         // sell old car when buying new
+  ev_dpPct: 30,             // EV down payment, %
+  ev_loanYears: 5,          // EV loan term
+  ev_loanRatePct: 16,       // EV loan rate, %/yr
+  ev_commissionPct: 1.5,    // EV loan one-time commission, %
+  ev_kaskoPct: 5.5,         // EV KASKO, %/yr of car value
+  ev_pensionPct: 3,         // EV pension fund fee, % of price
+  ev_regFeeUAH: 1500,       // EV registration fee, UAH
+
   /* --- find tab: car finder & vetting (Ukraine / Europe) ---
    * Filters are hard cut-offs; '', 0 or 'any' means "don't filter on this".
    * cf_rulesText holds user rules in the text DSL (see carfinder.js); the
