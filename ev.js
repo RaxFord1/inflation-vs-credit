@@ -45,9 +45,11 @@ function evRun(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
   const loanMonths = Math.max(1, Math.round(p.loanYears * 12));
   const fx = makeFx(p);
+  const ctx = makeCtx(p, fx);
   const im = p.loanRatePct / 100 / 12;
   const ug = (m) => Math.pow(1 + p.usdInflPct / 100, m * MONTH);
   const maintUAH = (usd, m) => usd * ug(m) * fx(m);
+  const savings0 = p.savings * (p.savingsCurrency === 'USD' ? p.fx0 : 1);
 
   const oldValueUAH0 = p.eo_valueUSD * p.fx0;
   const oldCarUAH = (m) => p.eo_valueUSD * Math.pow(1 - p.eo_depPct / 100, m * MONTH) * fx(m);
@@ -151,9 +153,11 @@ function evRun(p) {
 
   const strategies = [S0, ...carStrategies, Ssell];
 
-  const r = runComparison({
+  const r = runBudget({
     months, fx,
     instrument: instrumentOf(p),
+    savings0,
+    income: (m) => ctx.salaryUAH(m) - ctx.livExpUAH(m) - ctx.curRentUAH(m),
     strategies,
   });
 
