@@ -72,9 +72,13 @@ const NUM_IDS = [
   'qol_edu', 'qol_job', 'qol_migrate', 'qol_biz', 'qol_combo',
   // ev switch
   'eo_valueUSD', 'eo_depPct', 'eo_consumption', 'eo_maintUSD',
-  'ea_priceUSD', 'ea_depPct', 'ea_kwh', 'ea_phevGas', 'ea_phevElecPct', 'ea_maintUSD',
-  'eb_priceUSD', 'eb_depPct', 'eb_kwh', 'eb_phevGas', 'eb_phevElecPct', 'eb_maintUSD',
-  'ev_monthlyKm', 'ev_fuelUAH', 'ev_fuelGrowPct', 'ev_elecUAH', 'ev_elecGrowPct',
+  'ea_priceUSD', 'ea_depPct', 'ea_kwh', 'ea_phevGas', 'ea_phevElecPct', 'ea_publicPct', 'ea_maintUSD',
+  'eb_priceUSD', 'eb_depPct', 'eb_kwh', 'eb_phevGas', 'eb_phevElecPct', 'eb_publicPct', 'eb_maintUSD',
+  'ec_priceUSD', 'ec_depPct', 'ec_kwh', 'ec_phevGas', 'ec_phevElecPct', 'ec_publicPct', 'ec_maintUSD',
+  'ed_priceUSD', 'ed_depPct', 'ed_kwh', 'ed_phevGas', 'ed_phevElecPct', 'ed_publicPct', 'ed_maintUSD',
+  'ee_priceUSD', 'ee_depPct', 'ee_kwh', 'ee_phevGas', 'ee_phevElecPct', 'ee_publicPct', 'ee_maintUSD',
+  'ev_monthlyKm', 'ev_fuelUAH', 'ev_dieselUAH', 'ev_lpgUAH', 'ev_fuelGrowPct',
+  'ev_elecUAH', 'ev_publicUAH', 'ev_elecGrowPct',
   'ev_transportUSD',
   'ev_dpPct', 'ev_loanYears', 'ev_loanRatePct', 'ev_commissionPct', 'ev_kaskoPct',
   'ev_pensionPct', 'ev_regFeeUAH',
@@ -148,22 +152,25 @@ for (const sel of ['bizPreset', 'bz1Preset', 'bz2Preset', 'bz3Preset', 'bz4Prese
 
 /* EV presets: old car types and new EV/PHEV models, mid-2026 estimates. */
 const EV_OLD_PRESETS = {
-  sedan:     { eo_valueUSD: 4000,  eo_depPct: 6, eo_consumption: 8,  eo_maintUSD: 80,  ev_fuelUAH: 57 },
-  crossover: { eo_valueUSD: 12000, eo_depPct: 8, eo_consumption: 10, eo_maintUSD: 100, ev_fuelUAH: 57 },
-  diesel:    { eo_valueUSD: 15000, eo_depPct: 8, eo_consumption: 7,  eo_maintUSD: 110, ev_fuelUAH: 55 },
-  old_suv:   { eo_valueUSD: 8000,  eo_depPct: 7, eo_consumption: 12, eo_maintUSD: 120, ev_fuelUAH: 57 },
+  sedan:     { eo_valueUSD: 4000,  eo_depPct: 6, eo_consumption: 8,  eo_maintUSD: 80,  eo_fuelType: 'petrol', ev_fuelUAH: 57 },
+  crossover: { eo_valueUSD: 12000, eo_depPct: 8, eo_consumption: 10, eo_maintUSD: 100, eo_fuelType: 'petrol', ev_fuelUAH: 57 },
+  diesel:    { eo_valueUSD: 15000, eo_depPct: 8, eo_consumption: 7,  eo_maintUSD: 110, eo_fuelType: 'diesel', ev_fuelUAH: 55 },
+  old_suv:   { eo_valueUSD: 8000,  eo_depPct: 7, eo_consumption: 12, eo_maintUSD: 120, eo_fuelType: 'petrol', ev_fuelUAH: 57 },
 };
 const EV_NEW_PRESETS = {
-  model3:   { _priceUSD: 40000, _depPct: 12, _type: 'ev',   _kwh: 15, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 35, _label: 'Tesla Model 3' },
-  modely:   { _priceUSD: 48000, _depPct: 12, _type: 'ev',   _kwh: 17, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 35, _label: 'Tesla Model Y' },
-  rav4phev: { _priceUSD: 52000, _depPct: 11, _type: 'phev', _kwh: 18, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 55, _label: 'RAV4 PHEV' },
-  seal:     { _priceUSD: 34000, _depPct: 15, _type: 'ev',   _kwh: 14, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 40, _label: 'BYD Seal' },
-  ioniq5:   { _priceUSD: 44000, _depPct: 13, _type: 'ev',   _kwh: 17, _phevGas: 5.5, _phevElecPct: 65, _maintUSD: 40, _label: 'Ioniq 5' },
+  model3:        { _priceUSD: 40000, _depPct: 12, _type: 'ev',      _kwh: 15, _phevGas: 5.5, _phevElecPct: 65, _publicPct: 20, _maintUSD: 35, _label: 'Tesla Model 3' },
+  modely:        { _priceUSD: 48000, _depPct: 12, _type: 'ev',      _kwh: 17, _phevGas: 5.5, _phevElecPct: 65, _publicPct: 20, _maintUSD: 35, _label: 'Tesla Model Y' },
+  rav4phev:      { _priceUSD: 52000, _depPct: 11, _type: 'phev',    _kwh: 18, _phevGas: 5.5, _phevElecPct: 65, _publicPct: 15, _maintUSD: 55, _label: 'RAV4 PHEV' },
+  seal:          { _priceUSD: 34000, _depPct: 15, _type: 'ev',      _kwh: 14, _phevGas: 5.5, _phevElecPct: 65, _publicPct: 20, _maintUSD: 40, _label: 'BYD Seal' },
+  ioniq5:        { _priceUSD: 44000, _depPct: 13, _type: 'ev',      _kwh: 17, _phevGas: 5.5, _phevElecPct: 65, _publicPct: 20, _maintUSD: 40, _label: 'Ioniq 5' },
+  camryhev:      { _priceUSD: 28000, _depPct: 10, _type: 'hev',     _kwh: 0,  _phevGas: 5,   _phevElecPct: 0,  _publicPct: 0,  _maintUSD: 45, _label: 'Camry Hybrid' },
+  tiguandiesel:  { _priceUSD: 22000, _depPct: 9,  _type: 'diesel',  _kwh: 0,  _phevGas: 6,   _phevElecPct: 0,  _publicPct: 0,  _maintUSD: 60, _label: 'Tiguan Diesel' },
+  corollapetrol: { _priceUSD: 25000, _depPct: 8,  _type: 'petrol',  _kwh: 0,  _phevGas: 7,   _phevElecPct: 0,  _publicPct: 0,  _maintUSD: 50, _label: 'Corolla Petrol' },
 };
 SCENARIO_PRESETS.oldCarPreset = {};
 for (const k in EV_OLD_PRESETS) SCENARIO_PRESETS.oldCarPreset[k] = EV_OLD_PRESETS[k];
-for (const sel of ['eaPreset', 'ebPreset']) {
-  const prefix = sel === 'eaPreset' ? 'ea' : 'eb';
+for (const sel of ['eaPreset', 'ebPreset', 'ecPreset', 'edPreset', 'eePreset']) {
+  const prefix = sel.replace('Preset', '');
   SCENARIO_PRESETS[sel] = {};
   for (const k in EV_NEW_PRESETS) {
     const p = EV_NEW_PRESETS[k];
@@ -290,8 +297,8 @@ const QUICKBAR = {
   ],
   ev: [
     { sel: 'oldCarPreset', title: 'Your car', labels: { sedan: 'Sedan 9L', crossover: 'Crossover 11L', diesel: 'Diesel 7L', old_suv: 'Old SUV 14L' } },
-    { sel: 'eaPreset', title: 'Car A', labels: { model3: 'Tesla Model 3', modely: 'Tesla Model Y', ioniq5: 'Ioniq 5' } },
-    { sel: 'ebPreset', title: 'Car B', labels: { rav4phev: 'RAV4 PHEV', seal: 'BYD Seal' } },
+    { sel: 'eaPreset', title: 'Car A', labels: { model3: 'Tesla 3', modely: 'Tesla Y', ioniq5: 'Ioniq 5', camryhev: 'Camry HEV' } },
+    { sel: 'ebPreset', title: 'Car B', labels: { rav4phev: 'RAV4 PHEV', seal: 'BYD Seal', tiguandiesel: 'Tiguan D' } },
   ],
 };
 
@@ -327,10 +334,12 @@ function readParams() {
   p.investOff = $('investOff').checked;
   p.bz_scaleOn = $('bz_scaleOn').checked;
   p.ev_sellOld = $('ev_sellOld').checked;
-  p.ea_type = $('ea_type').value;
-  p.eb_type = $('eb_type').value;
-  p.ea_label = $('ea_label').value || 'Car A';
-  p.eb_label = $('eb_label').value || 'Car B';
+  p.eo_fuelType = $('eo_fuelType').value;
+  for (const s of EV_SLOTS) {
+    p['e' + s + '_on'] = $('e' + s + '_on').checked;
+    p['e' + s + '_type'] = $('e' + s + '_type').value;
+    p['e' + s + '_label'] = $('e' + s + '_label').value || ('Car ' + s.toUpperCase());
+  }
   if (mode === 'ev') {
     p.dpPct = p.ev_dpPct;
     p.loanYears = p.ev_loanYears;

@@ -154,29 +154,49 @@ const PARAM_DEFAULTS = {
   eo_depPct: 8,            // current car depreciation, %/yr
   eo_consumption: 9,       // current car fuel consumption, L/100km
   eo_maintUSD: 90,         // current car maintenance, $/month
+  eo_fuelType: 'petrol',   // 'petrol' | 'diesel' | 'lpg'
 
+  ea_on: true,
   ea_priceUSD: 40000,      // car A purchase price
   ea_depPct: 12,           // car A depreciation, %/yr
-  ea_type: 'ev',           // 'ev' | 'phev'
+  ea_type: 'ev',           // 'ev' | 'phev' | 'hev' | 'petrol' | 'diesel'
   ea_kwh: 15,              // car A electric consumption, kWh/100km
   ea_phevGas: 5.5,         // car A PHEV gas consumption, L/100km
   ea_phevElecPct: 65,      // car A PHEV share of electric driving, %
+  ea_publicPct: 20,        // car A % of charging at public stations
   ea_maintUSD: 35,         // car A maintenance, $/month
   ea_label: 'Tesla Model 3',
 
+  eb_on: true,
   eb_priceUSD: 52000,      // car B purchase price
   eb_depPct: 11,           // car B depreciation, %/yr
-  eb_type: 'phev',         // 'ev' | 'phev'
+  eb_type: 'phev',         // 'ev' | 'phev' | 'hev' | 'petrol' | 'diesel'
   eb_kwh: 18,              // car B electric consumption, kWh/100km
   eb_phevGas: 5.5,         // car B PHEV gas consumption, L/100km
   eb_phevElecPct: 65,      // car B PHEV share of electric driving, %
+  eb_publicPct: 20,        // car B % of charging at public stations
   eb_maintUSD: 55,         // car B maintenance, $/month
   eb_label: 'RAV4 PHEV',
 
+  ec_on: false, ec_priceUSD: 28000, ec_depPct: 10, ec_type: 'hev',
+  ec_kwh: 0, ec_phevGas: 5, ec_phevElecPct: 0, ec_publicPct: 0,
+  ec_maintUSD: 45, ec_label: 'Camry Hybrid',
+
+  ed_on: false, ed_priceUSD: 22000, ed_depPct: 9, ed_type: 'diesel',
+  ed_kwh: 0, ed_phevGas: 6, ed_phevElecPct: 0, ed_publicPct: 0,
+  ed_maintUSD: 60, ed_label: 'Tiguan Diesel',
+
+  ee_on: false, ee_priceUSD: 15000, ee_depPct: 14, ee_type: 'petrol',
+  ee_kwh: 0, ee_phevGas: 8, ee_phevElecPct: 0, ee_publicPct: 0,
+  ee_maintUSD: 50, ee_label: 'Budget Petrol',
+
   ev_monthlyKm: 2000,      // monthly mileage, km
   ev_fuelUAH: 57,          // fuel price per liter, UAH (A-95)
+  ev_dieselUAH: 55,        // diesel fuel price per liter, UAH
+  ev_lpgUAH: 25,           // LPG price per liter, UAH
   ev_fuelGrowPct: 8,       // fuel price growth, %/yr
   ev_elecUAH: 4.32,        // electricity price per kWh, UAH
+  ev_publicUAH: 12,        // public charger price per kWh, UAH
   ev_elecGrowPct: 5,       // electricity price growth, %/yr
   ev_sellOld: true,         // sell old car when buying new
   ev_transportUSD: 200,     // monthly taxi/transit cost if no car, USD

@@ -395,6 +395,13 @@
     <label>Fuel consumption, L/100km
       <input type="number" id="eo_consumption" value="9" min="1" max="30" step="0.5">
     </label>
+    <label>Fuel type
+      <select id="eo_fuelType">
+        <option value="petrol" selected>Petrol (A-95)</option>
+        <option value="diesel">Diesel</option>
+        <option value="lpg">LPG</option>
+      </select>
+    </label>
     <label>Maintenance, USD/month
       <input type="number" id="eo_maintUSD" value="90" min="0" step="10">
       <small>Oil, filters, brakes, repairs — typical running costs.</small>
@@ -402,7 +409,7 @@
   </section>
 
   <section data-mode="ev">
-    <h2>Car A — new EV/PHEV</h2>
+    <h2><label class="check"><input type="checkbox" id="ea_on" checked> Car A</label></h2>
     <label>Typical new car
       <select id="eaPreset" data-preset>
         <option value="custom">Custom</option>
@@ -411,6 +418,9 @@
         <option value="rav4phev">RAV4 PHEV ~$52k</option>
         <option value="seal">BYD Seal ~$34k</option>
         <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+        <option value="camryhev">Camry Hybrid ~$28k</option>
+        <option value="tiguandiesel">Tiguan Diesel ~$22k</option>
+        <option value="corollapetrol">Corolla Petrol ~$25k</option>
       </select>
     </label>
     <label>Name / label
@@ -426,18 +436,25 @@
       <select id="ea_type">
         <option value="ev" selected>Electric (EV)</option>
         <option value="phev">Plug-in Hybrid (PHEV)</option>
+        <option value="hev">Hybrid (HEV, non-plug-in)</option>
+        <option value="petrol">Petrol</option>
+        <option value="diesel">Diesel</option>
       </select>
     </label>
     <label>Electric consumption, kWh/100km
-      <input type="number" id="ea_kwh" value="15" min="1" max="50" step="0.5">
+      <input type="number" id="ea_kwh" value="15" min="0" max="50" step="0.5">
     </label>
-    <label>PHEV: gas consumption, L/100km
+    <label>Gas/diesel consumption, L/100km
       <input type="number" id="ea_phevGas" value="5.5" min="0" max="20" step="0.5">
-      <small>Fuel use when the battery is flat / on long trips. EV: ignored.</small>
+      <small>PHEV: fuel when battery is flat. HEV/petrol/diesel: main consumption. EV: ignored.</small>
     </label>
     <label>PHEV: share of driving on electric, %
       <input type="number" id="ea_phevElecPct" value="65" min="0" max="100" step="5">
-      <small>60–80% for short commutes with home charging. EV: ignored.</small>
+      <small>60–80% for short commutes with home charging. Only for PHEV.</small>
+    </label>
+    <label>% charging at public stations
+      <input type="number" id="ea_publicPct" value="20" min="0" max="100" step="5">
+      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
     </label>
     <label>Maintenance, USD/month
       <input type="number" id="ea_maintUSD" value="35" min="0" step="5">
@@ -446,7 +463,7 @@
   </section>
 
   <section data-mode="ev">
-    <h2>Car B — new EV/PHEV</h2>
+    <h2><label class="check"><input type="checkbox" id="eb_on" checked> Car B</label></h2>
     <label>Typical new car
       <select id="ebPreset" data-preset>
         <option value="custom">Custom</option>
@@ -455,6 +472,9 @@
         <option value="rav4phev" selected>RAV4 PHEV ~$52k</option>
         <option value="seal">BYD Seal ~$34k</option>
         <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+        <option value="camryhev">Camry Hybrid ~$28k</option>
+        <option value="tiguandiesel">Tiguan Diesel ~$22k</option>
+        <option value="corollapetrol">Corolla Petrol ~$25k</option>
       </select>
     </label>
     <label>Name / label
@@ -470,19 +490,179 @@
       <select id="eb_type">
         <option value="ev">Electric (EV)</option>
         <option value="phev" selected>Plug-in Hybrid (PHEV)</option>
+        <option value="hev">Hybrid (HEV, non-plug-in)</option>
+        <option value="petrol">Petrol</option>
+        <option value="diesel">Diesel</option>
       </select>
     </label>
     <label>Electric consumption, kWh/100km
-      <input type="number" id="eb_kwh" value="18" min="1" max="50" step="0.5">
+      <input type="number" id="eb_kwh" value="18" min="0" max="50" step="0.5">
     </label>
-    <label>PHEV: gas consumption, L/100km
+    <label>Gas/diesel consumption, L/100km
       <input type="number" id="eb_phevGas" value="5.5" min="0" max="20" step="0.5">
     </label>
     <label>PHEV: share of driving on electric, %
       <input type="number" id="eb_phevElecPct" value="65" min="0" max="100" step="5">
     </label>
+    <label>% charging at public stations
+      <input type="number" id="eb_publicPct" value="20" min="0" max="100" step="5">
+      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
+    </label>
     <label>Maintenance, USD/month
       <input type="number" id="eb_maintUSD" value="55" min="0" step="5">
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2><label class="check"><input type="checkbox" id="ec_on"> Car C</label></h2>
+    <label>Typical new car
+      <select id="ecPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="model3">Tesla Model 3 ~$40k</option>
+        <option value="modely">Tesla Model Y ~$48k</option>
+        <option value="rav4phev">RAV4 PHEV ~$52k</option>
+        <option value="seal">BYD Seal ~$34k</option>
+        <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+        <option value="camryhev" selected>Camry Hybrid ~$28k</option>
+        <option value="tiguandiesel">Tiguan Diesel ~$22k</option>
+        <option value="corollapetrol">Corolla Petrol ~$25k</option>
+      </select>
+    </label>
+    <label>Name / label
+      <input type="text" id="ec_label" value="Camry Hybrid">
+    </label>
+    <label>Price, USD
+      <input type="number" id="ec_priceUSD" value="28000" min="0" step="500">
+    </label>
+    <label>Depreciation, %/yr
+      <input type="number" id="ec_depPct" value="10" min="0" max="40" step="0.5">
+    </label>
+    <label>Powertrain
+      <select id="ec_type">
+        <option value="ev">Electric (EV)</option>
+        <option value="phev">Plug-in Hybrid (PHEV)</option>
+        <option value="hev" selected>Hybrid (HEV, non-plug-in)</option>
+        <option value="petrol">Petrol</option>
+        <option value="diesel">Diesel</option>
+      </select>
+    </label>
+    <label>Electric consumption, kWh/100km
+      <input type="number" id="ec_kwh" value="0" min="0" max="50" step="0.5">
+    </label>
+    <label>Gas/diesel consumption, L/100km
+      <input type="number" id="ec_phevGas" value="5" min="0" max="20" step="0.5">
+    </label>
+    <label>PHEV: share of driving on electric, %
+      <input type="number" id="ec_phevElecPct" value="0" min="0" max="100" step="5">
+    </label>
+    <label>% charging at public stations
+      <input type="number" id="ec_publicPct" value="0" min="0" max="100" step="5">
+      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
+    </label>
+    <label>Maintenance, USD/month
+      <input type="number" id="ec_maintUSD" value="45" min="0" step="5">
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2><label class="check"><input type="checkbox" id="ed_on"> Car D</label></h2>
+    <label>Typical new car
+      <select id="edPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="model3">Tesla Model 3 ~$40k</option>
+        <option value="modely">Tesla Model Y ~$48k</option>
+        <option value="rav4phev">RAV4 PHEV ~$52k</option>
+        <option value="seal">BYD Seal ~$34k</option>
+        <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+        <option value="camryhev">Camry Hybrid ~$28k</option>
+        <option value="tiguandiesel" selected>Tiguan Diesel ~$22k</option>
+        <option value="corollapetrol">Corolla Petrol ~$25k</option>
+      </select>
+    </label>
+    <label>Name / label
+      <input type="text" id="ed_label" value="Tiguan Diesel">
+    </label>
+    <label>Price, USD
+      <input type="number" id="ed_priceUSD" value="22000" min="0" step="500">
+    </label>
+    <label>Depreciation, %/yr
+      <input type="number" id="ed_depPct" value="9" min="0" max="40" step="0.5">
+    </label>
+    <label>Powertrain
+      <select id="ed_type">
+        <option value="ev">Electric (EV)</option>
+        <option value="phev">Plug-in Hybrid (PHEV)</option>
+        <option value="hev">Hybrid (HEV, non-plug-in)</option>
+        <option value="petrol">Petrol</option>
+        <option value="diesel" selected>Diesel</option>
+      </select>
+    </label>
+    <label>Electric consumption, kWh/100km
+      <input type="number" id="ed_kwh" value="0" min="0" max="50" step="0.5">
+    </label>
+    <label>Gas/diesel consumption, L/100km
+      <input type="number" id="ed_phevGas" value="6" min="0" max="20" step="0.5">
+    </label>
+    <label>PHEV: share of driving on electric, %
+      <input type="number" id="ed_phevElecPct" value="0" min="0" max="100" step="5">
+    </label>
+    <label>% charging at public stations
+      <input type="number" id="ed_publicPct" value="0" min="0" max="100" step="5">
+      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
+    </label>
+    <label>Maintenance, USD/month
+      <input type="number" id="ed_maintUSD" value="60" min="0" step="5">
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2><label class="check"><input type="checkbox" id="ee_on"> Car E</label></h2>
+    <label>Typical new car
+      <select id="eePreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="model3">Tesla Model 3 ~$40k</option>
+        <option value="modely">Tesla Model Y ~$48k</option>
+        <option value="rav4phev">RAV4 PHEV ~$52k</option>
+        <option value="seal">BYD Seal ~$34k</option>
+        <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+        <option value="camryhev">Camry Hybrid ~$28k</option>
+        <option value="tiguandiesel">Tiguan Diesel ~$22k</option>
+        <option value="corollapetrol">Corolla Petrol ~$25k</option>
+      </select>
+    </label>
+    <label>Name / label
+      <input type="text" id="ee_label" value="Budget Petrol">
+    </label>
+    <label>Price, USD
+      <input type="number" id="ee_priceUSD" value="15000" min="0" step="500">
+    </label>
+    <label>Depreciation, %/yr
+      <input type="number" id="ee_depPct" value="14" min="0" max="40" step="0.5">
+    </label>
+    <label>Powertrain
+      <select id="ee_type">
+        <option value="ev">Electric (EV)</option>
+        <option value="phev">Plug-in Hybrid (PHEV)</option>
+        <option value="hev">Hybrid (HEV, non-plug-in)</option>
+        <option value="petrol" selected>Petrol</option>
+        <option value="diesel">Diesel</option>
+      </select>
+    </label>
+    <label>Electric consumption, kWh/100km
+      <input type="number" id="ee_kwh" value="0" min="0" max="50" step="0.5">
+    </label>
+    <label>Gas/diesel consumption, L/100km
+      <input type="number" id="ee_phevGas" value="8" min="0" max="20" step="0.5">
+    </label>
+    <label>PHEV: share of driving on electric, %
+      <input type="number" id="ee_phevElecPct" value="0" min="0" max="100" step="5">
+    </label>
+    <label>% charging at public stations
+      <input type="number" id="ee_publicPct" value="0" min="0" max="100" step="5">
+      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
+    </label>
+    <label>Maintenance, USD/month
+      <input type="number" id="ee_maintUSD" value="50" min="0" step="5">
     </label>
   </section>
 
@@ -492,16 +672,26 @@
       <input type="number" id="ev_monthlyKm" value="2000" min="100" step="100">
       <small>Average: 1,500–2,500 km/month. More mileage = faster payback for EV.</small>
     </label>
-    <label>Fuel price (petrol/diesel), UAH/L
+    <label>Petrol price (A-95), UAH/L
       <input type="number" id="ev_fuelUAH" value="57" min="1" step="1">
-      <small>Mid-2026: A-95 ~57 ₴/L, diesel ~55 ₴/L, LPG ~29 ₴/L.</small>
+      <small>Mid-2026: A-95 ~57 ₴/L.</small>
+    </label>
+    <label>Diesel price, UAH/L
+      <input type="number" id="ev_dieselUAH" value="55" min="1" step="1">
+    </label>
+    <label>LPG price, UAH/L
+      <input type="number" id="ev_lpgUAH" value="25" min="1" step="1">
     </label>
     <label>Fuel price growth, %/yr
       <input type="number" id="ev_fuelGrowPct" value="8" min="0" max="40" step="1">
     </label>
-    <label>Electricity price, UAH/kWh
+    <label>Electricity price (home), UAH/kWh
       <input type="number" id="ev_elecUAH" value="4.32" min="0.5" step="0.5">
-      <small>Home charging ~4 ₴/kWh, public stations ~8–12 ₴/kWh.</small>
+      <small>Home charging ~4 ₴/kWh.</small>
+    </label>
+    <label>Public charger price, UAH/kWh
+      <input type="number" id="ev_publicUAH" value="12" min="1" step="0.5">
+      <small>Supercharger / public stations: 8–15 ₴/kWh.</small>
     </label>
     <label>Electricity price growth, %/yr
       <input type="number" id="ev_elecGrowPct" value="5" min="0" max="40" step="1">
