@@ -70,17 +70,8 @@ function bizHours(cfg, unitCount) {
 
 function bizSim(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
-  const fx = (m) => p.fx0 * Math.pow(1 + p.devalPct / 100, m * MONTH);
-  const ctx = {
-    fx,
-    salaryUAH: (m) =>
-      p.salaryAmt * Math.pow(1 + p.salaryGrowthPct / 100, m * MONTH) *
-      (p.salaryCurrency === 'USD' ? fx(m) : 1),
-    livExpUAH: (m) =>
-      p.l_livExpUSD * Math.pow(1 + p.usdInflPct / 100, m * MONTH) * fx(m),
-    curRentUAH: (m) =>
-      p.l_curRentUSD * Math.pow(1 + p.h_rentGrowthPct / 100, m * MONTH) * fx(m),
-  };
+  const fx = makeFx(p);
+  const ctx = makeCtx(p, fx);
 
   const slots = [1, 2, 3, 4].filter((i) => p[`bz${i}_on`]);
   const cfgs = slots.map((i) => bizIdeaCfg(p, i));

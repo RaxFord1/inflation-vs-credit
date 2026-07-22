@@ -25,9 +25,7 @@ function compileBlocks(blocks) {
     else if (b.kind === 'asset') assets.push(b);
     else if (b.kind === 'loan') {
       const im = b.ratePct / 100 / 12;
-      const annuity = b.principal <= 0 ? 0
-        : im === 0 ? b.principal / b.months
-        : (b.principal * im) / (1 - Math.pow(1 + im, -b.months));
+      const annuity = calcAnnuity(b.principal, b.ratePct, b.months);
       loans.push({ ...b, im, annuity, debt: b.principal, start: b.start || 0 });
     }
   }

@@ -17,6 +17,7 @@
     <button class="tab" data-mode="mort">Mortgage variants: down payment &amp; term</button>
     <button class="tab" data-mode="life">Life decisions: what's my best move?</button>
     <button class="tab" data-mode="biz">Business ideas: which one to build?</button>
+    <button class="tab" data-mode="ev">EV switch: fuel savings &amp; payback</button>
     <button class="tab" data-mode="find">Пошук авто: підбір і перевірка</button>
   </nav>
   <div class="quickbar" id="quickbar"></div>
@@ -53,7 +54,7 @@
     </label>
   </section>
 
-  <section data-mode="car home mort life biz">
+  <section data-mode="car home mort life biz ev">
     <h2>Your job &amp; income</h2>
     <label>Salary, per month
       <span class="row">
@@ -372,6 +373,172 @@
       <input type="number" id="bz4_hoursWk" value="45" min="0" max="100" step="1"></label>
   </section>
 
+  <section data-mode="ev">
+    <h2>Your current car</h2>
+    <label>Typical current car
+      <select id="oldCarPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="sedan">Sedan gas (~$4k, 8 L/100km)</option>
+        <option value="crossover" selected>Crossover gas (~$12k, 10 L/100km)</option>
+        <option value="diesel">Diesel crossover (~$15k, 7 L/100km)</option>
+        <option value="old_suv">Old SUV gas (~$8k, 12 L/100km)</option>
+      </select>
+      <small>Sets price, consumption and maintenance below. Edit anything to go custom.</small>
+    </label>
+    <label>Current car value, USD
+      <input type="number" id="eo_valueUSD" value="6000" min="0" step="500">
+      <small>What you'd get if you sold the car today.</small>
+    </label>
+    <label>Depreciation, %/yr
+      <input type="number" id="eo_depPct" value="8" min="0" max="40" step="0.5">
+    </label>
+    <label>Fuel consumption, L/100km
+      <input type="number" id="eo_consumption" value="9" min="1" max="30" step="0.5">
+    </label>
+    <label>Maintenance, USD/month
+      <input type="number" id="eo_maintUSD" value="90" min="0" step="10">
+      <small>Oil, filters, brakes, repairs — typical running costs.</small>
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2>Car A — new EV/PHEV</h2>
+    <label>Typical new car
+      <select id="eaPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="model3" selected>Tesla Model 3 ~$40k</option>
+        <option value="modely">Tesla Model Y ~$48k</option>
+        <option value="rav4phev">RAV4 PHEV ~$52k</option>
+        <option value="seal">BYD Seal ~$34k</option>
+        <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+      </select>
+    </label>
+    <label>Name / label
+      <input type="text" id="ea_label" value="Tesla Model 3">
+    </label>
+    <label>Price, USD
+      <input type="number" id="ea_priceUSD" value="40000" min="0" step="500">
+    </label>
+    <label>Depreciation, %/yr
+      <input type="number" id="ea_depPct" value="12" min="0" max="40" step="0.5">
+    </label>
+    <label>Powertrain
+      <select id="ea_type">
+        <option value="ev" selected>Electric (EV)</option>
+        <option value="phev">Plug-in Hybrid (PHEV)</option>
+      </select>
+    </label>
+    <label>Electric consumption, kWh/100km
+      <input type="number" id="ea_kwh" value="15" min="1" max="50" step="0.5">
+    </label>
+    <label>PHEV: gas consumption, L/100km
+      <input type="number" id="ea_phevGas" value="5.5" min="0" max="20" step="0.5">
+      <small>Fuel use when the battery is flat / on long trips. EV: ignored.</small>
+    </label>
+    <label>PHEV: share of driving on electric, %
+      <input type="number" id="ea_phevElecPct" value="65" min="0" max="100" step="5">
+      <small>60–80% for short commutes with home charging. EV: ignored.</small>
+    </label>
+    <label>Maintenance, USD/month
+      <input type="number" id="ea_maintUSD" value="35" min="0" step="5">
+      <small>EVs have fewer moving parts — typically 30–50% cheaper to maintain.</small>
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2>Car B — new EV/PHEV</h2>
+    <label>Typical new car
+      <select id="ebPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="model3">Tesla Model 3 ~$40k</option>
+        <option value="modely">Tesla Model Y ~$48k</option>
+        <option value="rav4phev" selected>RAV4 PHEV ~$52k</option>
+        <option value="seal">BYD Seal ~$34k</option>
+        <option value="ioniq5">Hyundai Ioniq 5 ~$44k</option>
+      </select>
+    </label>
+    <label>Name / label
+      <input type="text" id="eb_label" value="RAV4 PHEV">
+    </label>
+    <label>Price, USD
+      <input type="number" id="eb_priceUSD" value="52000" min="0" step="500">
+    </label>
+    <label>Depreciation, %/yr
+      <input type="number" id="eb_depPct" value="11" min="0" max="40" step="0.5">
+    </label>
+    <label>Powertrain
+      <select id="eb_type">
+        <option value="ev">Electric (EV)</option>
+        <option value="phev" selected>Plug-in Hybrid (PHEV)</option>
+      </select>
+    </label>
+    <label>Electric consumption, kWh/100km
+      <input type="number" id="eb_kwh" value="18" min="1" max="50" step="0.5">
+    </label>
+    <label>PHEV: gas consumption, L/100km
+      <input type="number" id="eb_phevGas" value="5.5" min="0" max="20" step="0.5">
+    </label>
+    <label>PHEV: share of driving on electric, %
+      <input type="number" id="eb_phevElecPct" value="65" min="0" max="100" step="5">
+    </label>
+    <label>Maintenance, USD/month
+      <input type="number" id="eb_maintUSD" value="55" min="0" step="5">
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2>Usage &amp; fuel prices</h2>
+    <label>Monthly mileage, km
+      <input type="number" id="ev_monthlyKm" value="2000" min="100" step="100">
+      <small>Average: 1,500–2,500 km/month. More mileage = faster payback for EV.</small>
+    </label>
+    <label>Fuel price (petrol/diesel), UAH/L
+      <input type="number" id="ev_fuelUAH" value="57" min="1" step="1">
+      <small>Mid-2026: A-95 ~57 ₴/L, diesel ~55 ₴/L, LPG ~29 ₴/L.</small>
+    </label>
+    <label>Fuel price growth, %/yr
+      <input type="number" id="ev_fuelGrowPct" value="8" min="0" max="40" step="1">
+    </label>
+    <label>Electricity price, UAH/kWh
+      <input type="number" id="ev_elecUAH" value="4.32" min="0.5" step="0.5">
+      <small>Home charging ~4 ₴/kWh, public stations ~8–12 ₴/kWh.</small>
+    </label>
+    <label>Electricity price growth, %/yr
+      <input type="number" id="ev_elecGrowPct" value="5" min="0" max="40" step="1">
+    </label>
+    <label class="check"><input type="checkbox" id="ev_sellOld" checked>
+      Sell old car when buying new
+      <small>Proceeds reduce the upfront cost of the new car.</small>
+    </label>
+  </section>
+
+  <section data-mode="ev">
+    <h2>Loan for new car</h2>
+    <label>Down payment, %
+      <input type="number" id="ev_dpPct" value="30" min="0" max="95" step="5">
+    </label>
+    <label>Loan term, years
+      <input type="number" id="ev_loanYears" value="5" min="0.5" max="8" step="0.5">
+    </label>
+    <label>Interest rate, % nominal/yr
+      <input type="number" id="ev_loanRatePct" value="16" min="0" max="60" step="0.5">
+    </label>
+    <label>One-time commission, % of loan
+      <input type="number" id="ev_commissionPct" value="1.5" min="0" max="10" step="0.25">
+    </label>
+    <label>KASKO insurance, % of car value/yr
+      <input type="number" id="ev_kaskoPct" value="5.5" min="0" max="15" step="0.25">
+      <small>Mandatory while the loan lives.</small>
+    </label>
+    <label>Pension fund fee, % of price
+      <input type="number" id="ev_pensionPct" value="3" min="0" max="10" step="0.5">
+    </label>
+    <label>Registration &amp; plates, UAH
+      <input type="number" id="ev_regFeeUAH" value="1500" min="0" step="100">
+    </label>
+    <small>Both Car A and Car B use these same loan terms. To compare cash purchase, set down payment to 100%.</small>
+  </section>
+
   <section data-mode="find">
     <h2>Що шукаємо</h2>
     <label>Джерело оголошень
@@ -684,7 +851,7 @@
     </label>
   </section>
 
-  <section data-mode="car home mort life biz">
+  <section data-mode="car home mort life biz ev">
     <h2>Investment of the freed-up money</h2>
     <label class="check"><input type="checkbox" id="investOff">
       Don't invest the difference — clean price comparison
@@ -914,7 +1081,9 @@
 <script src="decisions.js"></script>
 <script src="life.js"></script>
 <script src="business.js"></script>
+<script src="ev.js"></script>
 <script src="carfinder.js"></script>
+<script src="chart.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

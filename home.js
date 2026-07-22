@@ -15,24 +15,20 @@
 function homeRun(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
   const loanMonths = Math.max(1, Math.round(p.h_loanYears * 12));
-  const MONTH = 1 / 12;
 
-  const fx = (m) => p.fx0 * Math.pow(1 + p.devalPct / 100, m * MONTH);
+  const fx = makeFx(p);
   const priceUAH0 = p.h_price * p.fx0;
   const homeUAH = (m) =>
     p.h_price * Math.pow(1 + p.h_apprPct / 100, m * MONTH) * fx(m);
   const rentUAH = (m) =>
     p.h_rentUSD * Math.pow(1 + p.h_rentGrowthPct / 100, m * MONTH) * fx(m);
 
-  const fees = priceUAH0 * (p.h_feesPct / 100); // duty, pension fund, notary…
+  const fees = priceUAH0 * (p.h_feesPct / 100);
   const dpAmount = priceUAH0 * (p.h_dpPct / 100);
   const principal = priceUAH0 - dpAmount;
   const commission = principal * (p.h_commPct / 100);
   const im = p.h_ratePct / 100 / 12;
-  const annuity =
-    principal <= 0 ? 0
-      : im === 0 ? principal / loanMonths
-      : (principal * im) / (1 - Math.pow(1 + im, -loanMonths));
+  const annuity = calcAnnuity(principal, p.h_ratePct, loanMonths);
 
   const maintMonthly = (m) => (p.h_maintPct / 100) * homeUAH(m) / 12;
   const ownRentUAH = (m) =>
