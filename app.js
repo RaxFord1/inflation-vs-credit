@@ -307,6 +307,7 @@ function applyScenarioPreset(selId, val) {
   if (!pre) return;
   $(selId).value = val;
   for (const fieldId in pre) $(fieldId).value = pre[fieldId];
+  if (/^e[a-e]Preset$/.test(selId)) syncCarFields();
 }
 
 function renderQuickbar() {
@@ -1490,7 +1491,19 @@ for (const id of LIFE_DEC_IDS) {
     }
   });
 }
+function syncCarFields() {
+  for (const s of EV_SLOTS) {
+    const type = $('e' + s + '_type').value;
+    const section = $('e' + s + '_type').closest('section');
+    section.querySelectorAll('label[data-show-for]').forEach(lbl => {
+      lbl.hidden = !lbl.dataset.showFor.split(' ').includes(type);
+    });
+  }
+}
 document.getElementById('inputs').addEventListener('input', rafDebounce(render));
+document.getElementById('inputs').addEventListener('change', (e) => {
+  if (e.target.tagName === 'SELECT' && /_type$/.test(e.target.id)) syncCarFields();
+});
 $('scCard').addEventListener('input', rafDebounce(render));
 
 /* finder results: column sort, row expand, and in-table filters — these only
@@ -1572,4 +1585,5 @@ window.LDM = {
   },
 };
 
+syncCarFields();
 setMode(urlMode && ALL_MODES[urlMode] ? urlMode : 'car');

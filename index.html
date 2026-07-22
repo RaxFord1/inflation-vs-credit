@@ -441,20 +441,19 @@
         <option value="diesel">Diesel</option>
       </select>
     </label>
-    <label>Electric consumption, kWh/100km
+    <label data-show-for="ev phev">Electric consumption, kWh/100km
       <input type="number" id="ea_kwh" value="15" min="0" max="50" step="0.5">
     </label>
-    <label>Gas/diesel consumption, L/100km
+    <label data-show-for="phev hev petrol diesel">Fuel consumption, L/100km
       <input type="number" id="ea_phevGas" value="5.5" min="0" max="20" step="0.5">
-      <small>PHEV: fuel when battery is flat. HEV/petrol/diesel: main consumption. EV: ignored.</small>
     </label>
-    <label>PHEV: share of driving on electric, %
+    <label data-show-for="phev">Share of driving on electric, %
       <input type="number" id="ea_phevElecPct" value="65" min="0" max="100" step="5">
-      <small>60–80% for short commutes with home charging. Only for PHEV.</small>
+      <small>60–80% for short commutes with home charging.</small>
     </label>
-    <label>% charging at public stations
+    <label data-show-for="ev phev">% charging at public stations
       <input type="number" id="ea_publicPct" value="20" min="0" max="100" step="5">
-      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
+      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh.</small>
     </label>
     <label>Maintenance, USD/month
       <input type="number" id="ea_maintUSD" value="35" min="0" step="5">
@@ -495,18 +494,17 @@
         <option value="diesel">Diesel</option>
       </select>
     </label>
-    <label>Electric consumption, kWh/100km
+    <label data-show-for="ev phev">Electric consumption, kWh/100km
       <input type="number" id="eb_kwh" value="18" min="0" max="50" step="0.5">
     </label>
-    <label>Gas/diesel consumption, L/100km
+    <label data-show-for="phev hev petrol diesel">Fuel consumption, L/100km
       <input type="number" id="eb_phevGas" value="5.5" min="0" max="20" step="0.5">
     </label>
-    <label>PHEV: share of driving on electric, %
+    <label data-show-for="phev">Share of driving on electric, %
       <input type="number" id="eb_phevElecPct" value="65" min="0" max="100" step="5">
     </label>
-    <label>% charging at public stations
+    <label data-show-for="ev phev">% charging at public stations
       <input type="number" id="eb_publicPct" value="20" min="0" max="100" step="5">
-      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
     </label>
     <label>Maintenance, USD/month
       <input type="number" id="eb_maintUSD" value="55" min="0" step="5">
@@ -546,18 +544,17 @@
         <option value="diesel">Diesel</option>
       </select>
     </label>
-    <label>Electric consumption, kWh/100km
+    <label data-show-for="ev phev">Electric consumption, kWh/100km
       <input type="number" id="ec_kwh" value="0" min="0" max="50" step="0.5">
     </label>
-    <label>Gas/diesel consumption, L/100km
+    <label data-show-for="phev hev petrol diesel">Fuel consumption, L/100km
       <input type="number" id="ec_phevGas" value="5" min="0" max="20" step="0.5">
     </label>
-    <label>PHEV: share of driving on electric, %
+    <label data-show-for="phev">Share of driving on electric, %
       <input type="number" id="ec_phevElecPct" value="0" min="0" max="100" step="5">
     </label>
-    <label>% charging at public stations
+    <label data-show-for="ev phev">% charging at public stations
       <input type="number" id="ec_publicPct" value="0" min="0" max="100" step="5">
-      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
     </label>
     <label>Maintenance, USD/month
       <input type="number" id="ec_maintUSD" value="45" min="0" step="5">
@@ -597,18 +594,17 @@
         <option value="diesel" selected>Diesel</option>
       </select>
     </label>
-    <label>Electric consumption, kWh/100km
+    <label data-show-for="ev phev">Electric consumption, kWh/100km
       <input type="number" id="ed_kwh" value="0" min="0" max="50" step="0.5">
     </label>
-    <label>Gas/diesel consumption, L/100km
+    <label data-show-for="phev hev petrol diesel">Fuel consumption, L/100km
       <input type="number" id="ed_phevGas" value="6" min="0" max="20" step="0.5">
     </label>
-    <label>PHEV: share of driving on electric, %
+    <label data-show-for="phev">Share of driving on electric, %
       <input type="number" id="ed_phevElecPct" value="0" min="0" max="100" step="5">
     </label>
-    <label>% charging at public stations
+    <label data-show-for="ev phev">% charging at public stations
       <input type="number" id="ed_publicPct" value="0" min="0" max="100" step="5">
-      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
     </label>
     <label>Maintenance, USD/month
       <input type="number" id="ed_maintUSD" value="60" min="0" step="5">
@@ -648,18 +644,17 @@
         <option value="diesel">Diesel</option>
       </select>
     </label>
-    <label>Electric consumption, kWh/100km
+    <label data-show-for="ev phev">Electric consumption, kWh/100km
       <input type="number" id="ee_kwh" value="0" min="0" max="50" step="0.5">
     </label>
-    <label>Gas/diesel consumption, L/100km
+    <label data-show-for="phev hev petrol diesel">Fuel consumption, L/100km
       <input type="number" id="ee_phevGas" value="8" min="0" max="20" step="0.5">
     </label>
-    <label>PHEV: share of driving on electric, %
+    <label data-show-for="phev">Share of driving on electric, %
       <input type="number" id="ee_phevElecPct" value="0" min="0" max="100" step="5">
     </label>
-    <label>% charging at public stations
+    <label data-show-for="ev phev">% charging at public stations
       <input type="number" id="ee_publicPct" value="0" min="0" max="100" step="5">
-      <small>Home ~4 ₴/kWh vs public ~12 ₴/kWh. Only for EV/PHEV.</small>
     </label>
     <label>Maintenance, USD/month
       <input type="number" id="ee_maintUSD" value="50" min="0" step="5">
