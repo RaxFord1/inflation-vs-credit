@@ -1335,8 +1335,21 @@ function cfChecksHTML(e) {
     `<details class="cf-ai"><summary>AI-промпт для перевірки відповідності</summary><pre>${esc(e.aiPrompt)}</pre></details>`;
 }
 
+function syncURL() {
+  const p = readParams();
+  const qs = new URLSearchParams();
+  qs.set('mode', mode);
+  for (const k in PARAM_DEFAULTS) {
+    const v = p[k];
+    if (v === undefined || v === null) continue;
+    if (Array.isArray(v)) qs.set(k, v.join(','));
+    else qs.set(k, String(v));
+  }
+  history.replaceState(null, '', '?' + qs.toString());
+}
+
 function render() {
-  if (mode === 'find') { renderFinder(); return; }
+  if (mode === 'find') { renderFinder(); syncURL(); return; }
   $('results').classList.remove('finder-only');
   $('finderCard').hidden = true;
   // PPP link: devaluation follows the inflation differential when checked
@@ -1411,6 +1424,7 @@ function render() {
       ? `<tr class="section"><td colspan="2">${r[1]}</td></tr>`
       : `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`)
     .join('');
+  syncURL();
 }
 
 /* ---------- tabs ---------- */
