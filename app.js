@@ -9,6 +9,7 @@ const MODULES = {
   life: { run: lifeSim },
   biz: { run: bizSim },
   ev: { run: evSim },
+  solar: { run: solarSim },
 };
 let mode = 'car';
 
@@ -35,6 +36,10 @@ const INTROS = {
   ev: 'Is it worth switching from your gas/diesel car to an EV or plug-in hybrid? ' +
     "Enter your current car's fuel consumption and monthly mileage, pick two new cars to compare (e.g. Tesla Model 3 vs RAV4 PHEV), " +
     'and see how quickly fuel savings pay off the purchase — factoring in depreciation, loan costs, maintenance, and investment returns.',
+  solar: 'Should you install solar panels and battery storage on your property — or just invest the money? ' +
+    'Enter your system size, electricity consumption, and tariffs; the model runs month by month with seasonal ' +
+    'generation, self-consumption with battery buffering, tenant and grid sales, maintenance and inverter ' +
+    'replacement. Results include payback period, net worth comparison, and sensitivity to tariff growth and devaluation.',
   find: 'Підбір авто в Україні та Європі за співвідношенням ціна/якість. Задайте фільтри зліва, ' +
     'опишіть свою логіку правилами текстом (напр. «Tesla — тільки європейка»), і кожне оголошення пройде ' +
     'фільтри → правила → перевірки (VIN/реєстр, історія ДТП і пробігу, тип пошкоджень, AI-аналіз відповідності) → ' +
@@ -82,6 +87,12 @@ const NUM_IDS = [
   'ev_transportUSD',
   'ev_dpPct', 'ev_loanYears', 'ev_loanRatePct', 'ev_commissionPct', 'ev_kaskoPct',
   'ev_pensionPct', 'ev_regFeeUAH',
+  // solar
+  'sol_capacityKW', 'sol_panelCostPerKW', 'sol_batteryKWh', 'sol_batteryCostPerKWh',
+  'sol_installUSD', 'sol_consumptionKWh', 'sol_tariffUAH', 'sol_tariffGrowPct',
+  'sol_feedInUAH', 'sol_feedInGrowPct', 'sol_tenantUAH', 'sol_tenantSharePct',
+  'sol_degradePct', 'sol_battDegradePct', 'sol_selfConsumePct',
+  'sol_maintPct', 'sol_equipDepPct', 'sol_inverterReplaceYr', 'sol_inverterCostPct',
   // shared
   'salaryAmt', 'salaryGrowthPct',
   'invYieldPct', 'invTaxPct', 'yieldDriftPp',
@@ -149,6 +160,13 @@ for (const sel of ['bizPreset', 'bz1Preset', 'bz2Preset', 'bz3Preset', 'bz4Prese
     }
   }
 }
+
+/* Solar system presets. */
+SCENARIO_PRESETS.solarPreset = {
+  small:  { sol_capacityKW: 10, sol_batteryKWh: 0,  sol_installUSD: 1500, sol_consumptionKWh: 1000 },
+  medium: { sol_capacityKW: 30, sol_batteryKWh: 20, sol_installUSD: 3000, sol_consumptionKWh: 3000 },
+  large:  { sol_capacityKW: 100, sol_batteryKWh: 50, sol_installUSD: 5000, sol_consumptionKWh: 8000 },
+};
 
 /* EV presets: old car types and new EV/PHEV models, mid-2026 estimates. */
 const EV_OLD_PRESETS = {
@@ -251,6 +269,19 @@ const SWEEPS = {
     { id: 'devalPct', label: 'UAH devaluation, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 25] },
     INFL_SWEEP,
   ],
+  solar: [
+    { id: 'sol_tariffUAH', label: 'Electricity tariff, UAH/kWh', unit: '₴', values: [2, 3, 4, 4.32, 5, 6, 8, 10] },
+    { id: 'sol_tariffGrowPct', label: 'Tariff growth, %/yr', unit: '%', values: [0, 5, 8, 10, 15, 20, 25] },
+    { id: 'sol_capacityKW', label: 'Solar capacity, kW', unit: 'kW', values: [5, 10, 20, 30, 50, 75, 100] },
+    { id: 'sol_batteryKWh', label: 'Battery capacity, kWh', unit: 'kWh', values: [0, 5, 10, 20, 30, 50, 80] },
+    { id: 'sol_consumptionKWh', label: 'Monthly consumption, kWh', unit: 'kWh', values: [500, 1000, 2000, 3000, 5000, 8000] },
+    { id: 'sol_panelCostPerKW', label: 'Panel cost, $/kW', unit: '$', values: [400, 500, 600, 650, 750, 850, 1000] },
+    { id: 'sol_tenantSharePct', label: 'Share sold to tenants, %', unit: '%', values: [0, 20, 40, 50, 60, 80, 100] },
+    { id: 'horizonYears', label: 'Horizon, years', unit: 'y', values: [5, 7, 10, 15, 20, 25] },
+    { id: 'invYieldPct', label: 'Investment yield, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 24, 28] },
+    { id: 'devalPct', label: 'UAH devaluation, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 25] },
+    INFL_SWEEP,
+  ],
   ev: [
     { id: 'ev_monthlyKm', label: 'Monthly mileage, km', unit: 'km', values: [500, 1000, 1500, 2000, 3000, 4000, 5000] },
     { id: 'ev_fuelUAH', label: 'Fuel price, UAH/L', unit: '₴', values: [40, 45, 50, 55, 57, 60, 65, 70] },
@@ -295,6 +326,10 @@ const QUICKBAR = {
     { sel: 'bz1Preset', title: 'Idea 1', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store', vending: 'Vending' } },
     { sel: 'bz2Preset', title: 'Idea 2', labels: { carwash: 'Car wash', coffee: 'Coffee', barber: 'Barbershop', shop: 'Online store', vending: 'Vending' } },
   ],
+  solar: [
+    { sel: 'solarPreset', title: 'System', labels: { small: 'Small 10kW', medium: 'Medium 30kW', large: 'Large 100kW' } },
+    { sel: 'savePreset', title: 'Savings', labels: { zero: '$0', s10k: '$10k', s80k: '$80k' } },
+  ],
   ev: [
     { sel: 'oldCarPreset', title: 'Your car', labels: { sedan: 'Sedan 9L', crossover: 'Crossover 11L', diesel: 'Diesel 7L', old_suv: 'Old SUV 14L' } },
     { sel: 'eaPreset', title: 'Car A', labels: { model3: 'Tesla 3', modely: 'Tesla Y', ioniq5: 'Ioniq 5', camryhev: 'Camry HEV' } },
@@ -335,6 +370,7 @@ function readParams() {
   p.investOff = $('investOff').checked;
   p.bz_scaleOn = $('bz_scaleOn').checked;
   p.ev_sellOld = $('ev_sellOld').checked;
+  p.sol_region = $('sol_region').value;
   p.eo_fuelType = $('eo_fuelType').value;
   for (const s of EV_SLOTS) {
     p['e' + s + '_on'] = $('e' + s + '_on').checked;
