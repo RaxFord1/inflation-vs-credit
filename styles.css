@@ -518,3 +518,58 @@ label.check small { flex-basis: 100%; }
 .cf-down { color: var(--div-neg); margin-bottom: 3px; }
 .cf-adj { color: var(--text-secondary); margin-bottom: 3px; }
 .cf-formula { color: var(--muted); font-size: 11.5px; margin-top: 4px; }
+
+/* ============================================================
+   Mobile version — narrow-screen refinements
+   Additive only: touch targets, no page-wide horizontal scroll,
+   swipeable tab strip, stacked controls. Desktop layout untouched.
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Tighter page chrome to reclaim horizontal space */
+  .topbar { padding: 14px 14px 6px; }
+  .topbar h1 { font-size: 17px; }
+  .layout { padding: 12px 14px 32px; gap: 14px; }
+  .chart-card { padding: 12px 12px 8px; }
+
+  /* Tabs: horizontal swipe strip instead of cramming 8 buttons */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 12px -14px 0;
+    padding: 2px 14px 4px;
+    scroll-snap-type: x proximity;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto;
+    padding: 8px 14px;           /* taller tap target */
+    scroll-snap-align: start;
+  }
+  .chip { padding: 6px 12px; }   /* roomier chips for touch */
+
+  /* KPI cards: two per row on phones */
+  .kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi .value { font-size: 19px; }
+
+  /* Wide numeric tables scroll inside their card, not the page */
+  #mortTable { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .details { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Outcome rows: let long labels breathe, delta drops to its own line */
+  .o-row { grid-template-columns: 1fr auto; }
+  .o-delta { grid-column: 1 / -1; text-align: left; min-width: 0; }
+
+  /* Finder controls stack full-width */
+  .cf-controls .cf-q { flex-basis: 100%; }
+  .cf-count { margin-left: 0; }
+
+  /* Keep the fixed tooltip within the viewport */
+  .tooltip { max-width: calc(100vw - 24px); }
+}
+
+/* Very small phones: one KPI per row */
+@media (max-width: 380px) {
+  .kpis { grid-template-columns: 1fr; }
+}
