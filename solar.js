@@ -74,9 +74,10 @@ function solarSim(p) {
   const profile     = SOLAR_PROFILES[p.sol_region] || SOLAR_PROFILES.central;
   const demCoef     = (DEMAND_PATTERNS[p.sol_demandPattern] || DEMAND_PATTERNS.flat).coef;
   const annualYield = profile.reduce((s, v) => s + v, 0);
-  const totalCostUSD = p.sol_capacityKW * p.sol_panelCostPerKW +
-    p.sol_batteryKWh * p.sol_batteryCostPerKWh + p.sol_installUSD;
-  const totalCostUAH = totalCostUSD * p.fx0;
+  const panelCostUSD  = p.sol_capacityKW * p.sol_panelCostPerKW + p.sol_installUSD;
+  const battCostUSD   = p.sol_batteryKWh * p.sol_batteryCostPerKWh;
+  const totalCostUSD  = panelCostUSD + battCostUSD;
+  const totalCostUAH  = totalCostUSD * p.fx0;
   const inverterMonth = Math.round(p.sol_inverterReplaceYr * 12);
   const markupFrac = p.sol_markupPct / 100;
 
@@ -120,9 +121,9 @@ function solarSim(p) {
           const selfSave   = bal.selfUse * gridBuy;
           const extraProfit = solarRev - lostMargin + feedInRev + selfSave;
 
-          const maintUAH = totalCostUSD * (p.sol_maintPct / 100) / 12 * fx(m);
+          const maintUAH = panelCostUSD * (p.sol_maintPct / 100) / 12 * fx(m);
           const invRepl  = (m === inverterMonth && m <= months)
-            ? totalCostUSD * (p.sol_inverterCostPct / 100) * fx(m) : 0;
+            ? panelCostUSD * (p.sol_inverterCostPct / 100) * fx(m) : 0;
 
           if (m <= 12) {
             yr1SolarRev += solarRev; yr1LostMargin += lostMargin;
@@ -273,7 +274,7 @@ function solarSim(p) {
     ['Solar capacity', `${p.sol_capacityKW} kW`],
     ['Battery capacity', `${p.sol_batteryKWh} kWh`],
     ['Region / annual yield', `${SOLAR_PROFILE_LABELS[p.sol_region] || p.sol_region} — ${annualYield} kWh per kW`],
-    ['Total investment', `${usd(totalCostUSD)} (${uah(totalCostUAH)})`],
+    ['Total investment', `${usd(totalCostUSD)} (${uah(totalCostUAH)}) — panels+install ${usd(panelCostUSD)}, battery ${usd(battCostUSD)}`],
 
     ['section', 'Pricing'],
     ['Grid buy price', `${p.sol_gridBuyUAH} UAH/kWh, growing ${p.sol_gridBuyGrowPct}%/yr`],
@@ -299,7 +300,7 @@ function solarSim(p) {
     ['Lost grid markup', `−${uah(yr1LostMargin)}/yr — those kWh would earn ${(p.sol_gridBuyUAH * markupFrac).toFixed(2)} UAH margin each`],
     ['Feed-in revenue', `${uah(yr1FeedIn)}/yr — ${Math.round(avgToGrid)} kWh/mo excess × ${p.sol_feedInUAH} UAH`],
     ['Self-use savings', yr1SelfSave > 0 ? `${uah(yr1SelfSave)}/yr` : 'off (sol_selfUseKWh = 0)'],
-    ['Maintenance', `−${uah(yr1Maint)}/yr`],
+    ['Maintenance', `−${uah(yr1Maint)}/yr (${p.sol_maintPct}% of panels+install ${usd(panelCostUSD)})`],
     ['Year-1 net extra profit', `${uahSigned(yr1Extra)}/yr (${uahSigned(Math.round(yr1Extra / 12))}/mo)`],
 
     ['section', `Totals over ${yrs} years`],
