@@ -757,6 +757,16 @@
     <label>Inverter + wiring + permits, $
       <input type="number" id="sol_installUSD" value="3000" min="0" step="250">
     </label>
+    <label>Down payment, %
+      <input type="number" id="sol_dpPct" value="100" min="0" max="100" step="5">
+      <small>100% = cash (no loan). Lower = finance the rest with a loan.</small>
+    </label>
+    <label>Loan term, years
+      <input type="number" id="sol_loanYears" value="5" min="1" max="20" step="1">
+    </label>
+    <label>Loan rate, %/yr
+      <input type="number" id="sol_loanRatePct" value="16" min="0" max="50" step="0.5">
+    </label>
   </section>
 
   <section data-mode="solar">

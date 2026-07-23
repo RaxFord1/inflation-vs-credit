@@ -95,18 +95,32 @@ function solarSim(p) {
     p.sol_feedInUAH * Math.pow(1 + p.sol_feedInGrowPct / 100, m * MONTH);
 
   /* Strategy 0: do nothing — no extra costs, no extra income.
-   * Strategy 1: solar — upfront cost, monthly extra profit, equipment asset. */
+   * Strategy 1: solar — upfront or loan, monthly extra profit, equipment asset. */
+  const isCash   = p.sol_dpPct >= 100;
+  const dpUAH    = isCash ? totalCostUAH : totalCostUAH * (p.sol_dpPct / 100);
+  const loanPrin = isCash ? 0 : totalCostUAH - dpUAH;
+  const loanMo   = isCash ? 0 : Math.max(1, Math.round(p.sol_loanYears * 12));
+
+  const solarBlocks = [
+    curRentBlock(ctx),
+    { kind: 'upfront', uah: dpUAH },
+    {
+      kind: 'asset',
+      valueUAH: (m) =>
+        totalCostUSD * Math.pow(1 - p.sol_equipDepPct / 100, m / 12) * fx(m),
+    },
+  ];
+  if (!isCash) {
+    solarBlocks.push({
+      kind: 'loan', principal: loanPrin,
+      ratePct: p.sol_loanRatePct, months: loanMo,
+    });
+  }
+
   const strategies = [
     compileBlocks([ curRentBlock(ctx) ]),
 
-    compileBlocks([
-      curRentBlock(ctx),
-      { kind: 'upfront', uah: totalCostUAH },
-      {
-        kind: 'asset',
-        valueUAH: (m) =>
-          totalCostUSD * Math.pow(1 - p.sol_equipDepPct / 100, m / 12) * fx(m),
-      },
+    compileBlocks(solarBlocks.concat([
       {
         kind: 'stream',
         uah: (m) => {
@@ -142,7 +156,7 @@ function solarSim(p) {
           return -(extraProfit) + maintUAH + invRepl;
         },
       },
-    ]),
+    ])),
   ];
 
   const savings0 = p.savings * (p.savingsCurrency === 'USD' ? p.fx0 : 1);
@@ -275,6 +289,10 @@ function solarSim(p) {
     ['Battery capacity', `${p.sol_batteryKWh} kWh`],
     ['Region / annual yield', `${SOLAR_PROFILE_LABELS[p.sol_region] || p.sol_region} — ${annualYield} kWh per kW`],
     ['Total investment', `${usd(totalCostUSD)} (${uah(totalCostUAH)}) — panels+install ${usd(panelCostUSD)}, battery ${usd(battCostUSD)}`],
+    ...(isCash ? [['Financing', 'Cash (100% upfront)']] : [
+      ['Down payment', `${p.sol_dpPct}% = ${uah(dpUAH)} (${usd(dpUAH / p.fx0)})`],
+      ['Loan', `${uah(loanPrin)} at ${p.sol_loanRatePct}% for ${p.sol_loanYears} years (${uah(calcAnnuity(loanPrin, p.sol_loanRatePct, loanMo))}/mo)`],
+    ]),
 
     ['section', 'Pricing'],
     ['Grid buy price', `${p.sol_gridBuyUAH} UAH/kWh, growing ${p.sol_gridBuyGrowPct}%/yr`],
