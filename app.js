@@ -436,8 +436,11 @@ function renderWealthChart(res, unit) {
     m: s.m,
     v: s.v.map((val) => U.conv(val, s.m, s.fx)),
   }));
-  const vals = pts.flatMap((s) => s.v);
-  const { lo, hi, ticks } = niceTicks(Math.min(...vals), Math.max(...vals));
+  const oDefs = res.overlayDefs || [];
+  const hasOverlay = oDefs.length > 0 && res.series[0].overlay;
+  const oPts = hasOverlay ? res.series.map((s) => s.overlay.map((val) => U.conv(val, s.m, s.fx))) : [];
+  const allVals = pts.flatMap((s) => s.v).concat(oPts.flat());
+  const { lo, hi, ticks } = niceTicks(Math.min(...allVals), Math.max(...allVals));
   const x = (mm) => m.l + (mm / res.months) * iw;
   const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
 
@@ -453,10 +456,27 @@ function renderWealthChart(res, unit) {
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
 
-  const lastPt = pts[pts.length - 1];
-  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short })), colors, m, iw);
+  const oColors = oDefs.map((d) => css.getPropertyValue(`--series-${d.slot}`).trim());
+  oDefs.forEach((d, i) => {
+    const path = oPts.map((ov, k) => (k ? 'L' : 'M') + x(k).toFixed(1) + ' ' + y(ov[i]).toFixed(1)).join('');
+    el('path', { class: 'series', d: path, stroke: oColors[i], 'stroke-dasharray': '6 3' }, svg);
+  });
 
-  addChartHover({ svg, W, m, iw, ih, nDots: N, colors, onMove: (px) => {
+  const lastPt = pts[pts.length - 1];
+  const endLabels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short }));
+  const allColors = colors.slice();
+  if (hasOverlay) {
+    const lastO = oPts[oPts.length - 1];
+    oDefs.forEach((d, i) => {
+      endLabels.push({ i: N + i, y: y(lastO[i]), text: d.short });
+      allColors.push(oColors[i]);
+    });
+  }
+  drawEndLabels(svg, endLabels, allColors, m, iw);
+
+  const totalDots = N + oDefs.length;
+  const allDotColors = allColors;
+  addChartHover({ svg, W, m, iw, ih, nDots: totalDots, colors: allDotColors, onMove: (px) => {
     const mm = Math.max(0, Math.min(res.months, Math.round(((px - m.l) / iw) * res.months)));
     const s = pts[mm];
     const cx = x(mm);
@@ -466,13 +486,25 @@ function renderWealthChart(res, unit) {
     if (N === 2 && res.diffLabel) {
       rows += `<div class="t-row"><span>${res.diffLabel}</span><span class="v">${signed(s.v[1] - s.v[0], U.fmt)}</span></div>`;
     }
-    return { cx, dots: defs.map((d, i) => ({ cx, cy: y(s.v[i]) })),
+    const dots = defs.map((d, i) => ({ cx, cy: y(s.v[i]) }));
+    if (hasOverlay) {
+      const ov = oPts[mm];
+      oDefs.forEach((d, i) => {
+        rows += `<div class="t-row"><span><span class="swatch" style="background:${oColors[i]}"></span> ${d.short}</span><span class="v">${U.fmt(ov[i])}</span></div>`;
+        dots.push({ cx, cy: y(ov[i]) });
+      });
+    }
+    return { cx, dots,
       html: `<div class="t-head">Year ${(mm / 12).toFixed(1)} · ${U.tag}</div>` + rows };
   }});
 
-  $('legendWealth').innerHTML = defs.map((d, i) =>
+  const legendHtml = defs.map((d, i) =>
     `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${d.legend}</span>`
-  ).join('');
+  );
+  oDefs.forEach((d, i) => {
+    legendHtml.push(`<span class="key"><span class="swatch" style="background:${oColors[i]};opacity:.7"></span>${d.legend}</span>`);
+  });
+  $('legendWealth').innerHTML = legendHtml.join('');
 }
 
 /* ---------- diverging bars: components of the final advantage ---------- */

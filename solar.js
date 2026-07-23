@@ -153,6 +153,20 @@ function solarSim(p) {
     strategies,
   });
 
+  let cumSolarIncome = 0, cumGridMargin = 0;
+  r.series.forEach((s) => {
+    if (s.m > 0) {
+      const bal       = solarBalance(p, s.m);
+      const gridBuy   = gridBuyGrow(s.m);
+      const solarSell = solarSellGrow(s.m);
+      const feedIn    = feedInGrow(s.m);
+      cumSolarIncome += bal.solarToConsumers * solarSell + bal.excessToGrid * feedIn
+        + bal.selfUse * gridBuy;
+      cumGridMargin  += bal.demand * gridBuy * markupFrac;
+    }
+    s.overlay = [cumSolarIncome, cumGridMargin];
+  });
+
   const yrs      = p.horizonYears;
   const fxEnd    = r.fxEnd;
   const todayUSD = (v) => v / fxEnd / Math.pow(1 + p.usdInflPct / 100, yrs);
@@ -305,6 +319,10 @@ function solarSim(p) {
     seriesDefs: [
       { short: 'No solar', legend: 'Invest savings (no solar)' },
       { short: 'Solar', legend: `Solar ${p.sol_capacityKW} kW + ${p.sol_batteryKWh} kWh battery` },
+    ],
+    overlayDefs: [
+      { short: 'Solar rev', legend: 'Cumul. solar revenue (sales + feed-in + self-use)', slot: 3 },
+      { short: 'Grid margin', legend: 'Cumul. grid resale margin (without solar)', slot: 4 },
     ],
     diffLabel: 'Solar advantage',
     adv,
