@@ -81,10 +81,12 @@ function solarSim(p) {
   const inverterMonth = Math.round(p.sol_inverterReplaceYr * 12);
   const markupFrac = p.sol_markupPct / 100;
 
+  const taxFrac = p.sol_taxPct / 100;
+
   let yr1Extra = 0, yr1SolarRev = 0, yr1LostMargin = 0, yr1FeedIn = 0,
-      yr1SelfSave = 0, yr1Maint = 0;
+      yr1SelfSave = 0, yr1Maint = 0, yr1Tax = 0;
   let totSolarRev = 0, totLostMargin = 0, totFeedIn = 0,
-      totSelfSave = 0, totMaint = 0, totInvRepl = 0;
+      totSelfSave = 0, totMaint = 0, totInvRepl = 0, totTax = 0;
   let cumExtraProfitUSD = 0, breakEvenMonth = null;
 
   const gridBuyGrow   = (m) =>
@@ -133,7 +135,9 @@ function solarSim(p) {
           const lostMargin = bal.solarToConsumers * gridBuy * markupFrac;
           const feedInRev  = bal.excessToGrid * feedIn;
           const selfSave   = bal.selfUse * gridBuy;
-          const extraProfit = solarRev - lostMargin + feedInRev + selfSave;
+          const bizIncome = solarRev - lostMargin + feedInRev;
+          const tax = bizIncome > 0 ? bizIncome * taxFrac : 0;
+          const extraProfit = bizIncome - tax + selfSave;
 
           const maintUAH = panelCostUSD * (p.sol_maintPct / 100) / 12 * fx(m);
           const invRepl  = (m === inverterMonth && m <= months)
@@ -142,12 +146,12 @@ function solarSim(p) {
           if (m <= 12) {
             yr1SolarRev += solarRev; yr1LostMargin += lostMargin;
             yr1FeedIn += feedInRev; yr1SelfSave += selfSave;
-            yr1Maint += maintUAH;
+            yr1Maint += maintUAH; yr1Tax += tax;
             yr1Extra += extraProfit - maintUAH - invRepl;
           }
           totSolarRev += solarRev; totLostMargin += lostMargin;
           totFeedIn += feedInRev; totSelfSave += selfSave;
-          totMaint += maintUAH; totInvRepl += invRepl;
+          totMaint += maintUAH; totInvRepl += invRepl; totTax += tax;
 
           cumExtraProfitUSD += (extraProfit - maintUAH - invRepl) / fx(m);
           if (breakEvenMonth === null && cumExtraProfitUSD >= totalCostUSD)
@@ -258,7 +262,7 @@ function solarSim(p) {
       cls: yr1Extra >= 0 ? 'good' : 'bad',
       delta: `solar rev ${uah(Math.round(yr1SolarRev / 12))} + feed-in ${uah(Math.round(yr1FeedIn / 12))}` +
         (yr1SelfSave > 0 ? ` + self-save ${uah(Math.round(yr1SelfSave / 12))}` : '') +
-        ` − lost markup ${uah(Math.round(yr1LostMargin / 12))} − maint ${uah(Math.round(yr1Maint / 12))}`,
+        ` − lost markup ${uah(Math.round(yr1LostMargin / 12))} − tax ${uah(Math.round(yr1Tax / 12))} − maint ${uah(Math.round(yr1Maint / 12))}`,
     },
     {
       label: `Net worth at ${yrs}y`,
@@ -273,6 +277,7 @@ function solarSim(p) {
     { label: 'Feed-in revenue (grid)', v: totFeedIn },
     { label: 'Self-use savings', v: totSelfSave },
     { label: 'Lost grid markup', v: -totLostMargin },
+    { label: `Tax on solar income (${p.sol_taxPct}%)`, v: -totTax },
     { label: 'Maintenance', v: -totMaint },
     { label: 'Inverter replacement', v: -totInvRepl },
     { label: 'Equipment residual value', v: residualUSD * fxEnd },
@@ -318,6 +323,7 @@ function solarSim(p) {
     ['Lost grid markup', `−${uah(yr1LostMargin)}/yr — those kWh would earn ${(p.sol_gridBuyUAH * markupFrac).toFixed(2)} UAH margin each`],
     ['Feed-in revenue', `${uah(yr1FeedIn)}/yr — ${Math.round(avgToGrid)} kWh/mo excess × ${p.sol_feedInUAH} UAH`],
     ['Self-use savings', yr1SelfSave > 0 ? `${uah(yr1SelfSave)}/yr` : 'off (sol_selfUseKWh = 0)'],
+    ['Tax on solar income', `−${uah(yr1Tax)}/yr (${p.sol_taxPct}% of business revenue)`],
     ['Maintenance', `−${uah(yr1Maint)}/yr (${p.sol_maintPct}% of panels+install ${usd(panelCostUSD)})`],
     ['Year-1 net extra profit', `${uahSigned(yr1Extra)}/yr (${uahSigned(Math.round(yr1Extra / 12))}/mo)`],
 
@@ -326,6 +332,7 @@ function solarSim(p) {
     ['Total lost grid markup', `−${uah(totLostMargin)}`],
     ['Total feed-in revenue', uah(totFeedIn)],
     ['Total self-use savings', totSelfSave > 0 ? uah(totSelfSave) : 'n/a'],
+    ['Total tax on solar income', `−${uah(totTax)} (${p.sol_taxPct}%)`],
     ['Total maintenance', `−${uah(totMaint)}`],
     ['Inverter replacement', totInvRepl > 0 ? `−${uah(totInvRepl)} at year ${p.sol_inverterReplaceYr}` : 'not within horizon'],
     ['Equipment residual value', `${usd(residualUSD)} (${uah(residualUSD * fxEnd)})`],

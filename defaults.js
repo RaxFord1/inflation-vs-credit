@@ -248,6 +248,7 @@ const PARAM_DEFAULTS = {
   sol_dpPct: 100,              // down payment, % (100 = cash, <100 = loan)
   sol_loanYears: 5,            // loan term, years
   sol_loanRatePct: 16,         // loan annual interest rate, %
+  sol_taxPct: 5,               // tax on solar income (ФОП group 3 = 5% of revenue)
   sol_demandKWh: 5000,         // consumer demand, kWh/month
   sol_gridBuyUAH: 4.32,        // grid purchase price, UAH/kWh
   sol_gridBuyGrowPct: 10,      // grid price growth, %/yr

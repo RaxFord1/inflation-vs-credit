@@ -816,6 +816,10 @@
       <input type="number" id="sol_overlapPct" value="50" min="10" max="90" step="5">
       <small>How much of solar generation directly matches consumer demand timing. Battery covers the rest.</small>
     </label>
+    <label>Tax on solar income, %
+      <input type="number" id="sol_taxPct" value="5" min="0" max="50" step="0.5">
+      <small>FOP group 3: 5% single tax (+ 1% military levy if applicable). Applied to business revenue (sales + feed-in − lost markup), not to self-use savings.</small>
+    </label>
   </section>
 
   <section data-mode="solar">

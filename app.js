@@ -92,7 +92,7 @@ const NUM_IDS = [
   'sol_installUSD', 'sol_dpPct', 'sol_loanYears', 'sol_loanRatePct',
   'sol_demandKWh', 'sol_gridBuyUAH', 'sol_gridBuyGrowPct',
   'sol_markupPct', 'sol_solarSellUAH', 'sol_solarSellGrowPct',
-  'sol_feedInUAH', 'sol_feedInGrowPct', 'sol_selfUseKWh', 'sol_overlapPct',
+  'sol_feedInUAH', 'sol_feedInGrowPct', 'sol_selfUseKWh', 'sol_overlapPct', 'sol_taxPct',
   'sol_degradePct', 'sol_battDegradePct',
   'sol_maintPct', 'sol_equipDepPct', 'sol_inverterReplaceYr', 'sol_inverterCostPct',
   // shared
@@ -285,6 +285,7 @@ const SWEEPS = {
     { id: 'sol_batteryKWh', label: 'Battery capacity, kWh', unit: 'kWh', values: [0, 5, 10, 20, 30, 50, 80] },
     { id: 'sol_demandKWh', label: 'Consumer demand, kWh/mo', unit: 'kWh', values: [1000, 2000, 3000, 5000, 8000, 15000] },
     { id: 'sol_panelCostPerKW', label: 'Panel cost, $/kW', unit: '$', values: [400, 500, 600, 650, 750, 850, 1000] },
+    { id: 'sol_taxPct', label: 'Tax on solar income, %', unit: '%', values: [0, 2, 5, 6, 10, 15, 23] },
     { id: 'sol_dpPct', label: 'Down payment, %', unit: '%', values: [0, 10, 20, 30, 50, 70, 100] },
     { id: 'sol_loanRatePct', label: 'Loan rate, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 24, 28] },
     { id: 'sol_loanYears', label: 'Loan term, years', unit: 'y', values: [1, 2, 3, 5, 7, 10] },
