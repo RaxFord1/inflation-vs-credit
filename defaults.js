@@ -255,6 +255,7 @@ const PARAM_DEFAULTS = {
   sol_feedInGrowPct: 5,        // feed-in tariff growth, %/yr
   sol_selfUseKWh: 0,           // own consumption from solar, kWh/month
   sol_overlapPct: 50,          // direct daytime overlap with consumer demand, %
+  sol_demandPattern: 'flat',   // 'flat' | 'seasonal' (monthly demand profile)
   sol_region: 'central',       // 'central' | 'south' | 'west'
   sol_degradePct: 0.5,         // panel degradation, %/yr
   sol_battDegradePct: 2,       // battery capacity loss, %/yr

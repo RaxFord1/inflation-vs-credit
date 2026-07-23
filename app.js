@@ -379,6 +379,7 @@ function readParams() {
   p.bz_scaleOn = $('bz_scaleOn').checked;
   p.ev_sellOld = $('ev_sellOld').checked;
   p.sol_region = $('sol_region').value;
+  p.sol_demandPattern = $('sol_demandPattern').value;
   p.eo_fuelType = $('eo_fuelType').value;
   for (const s of EV_SLOTS) {
     p['e' + s + '_on'] = $('e' + s + '_on').checked;
