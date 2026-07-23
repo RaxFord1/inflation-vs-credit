@@ -238,6 +238,28 @@ const PARAM_DEFAULTS = {
   cf_w_age: 15,
   cf_w_condition: 20,
   cf_w_history: 15,
+
+  /* --- solar station tab --- */
+  sol_capacityKW: 30,          // solar panel capacity, kW
+  sol_panelCostPerKW: 650,     // panel + mounting, $/kW installed
+  sol_batteryKWh: 20,          // battery storage capacity, kWh
+  sol_batteryCostPerKWh: 400,  // battery cost, $/kWh
+  sol_installUSD: 3000,        // inverter + wiring + permits, $
+  sol_consumptionKWh: 3000,    // monthly electricity consumption, kWh
+  sol_tariffUAH: 4.32,         // business electricity tariff, UAH/kWh
+  sol_tariffGrowPct: 10,       // tariff growth, %/yr
+  sol_feedInUAH: 2.5,          // feed-in tariff (sell to grid), UAH/kWh
+  sol_feedInGrowPct: 5,        // feed-in tariff growth, %/yr
+  sol_tenantUAH: 3.5,          // sale price to tenants, UAH/kWh
+  sol_tenantSharePct: 50,      // share of excess sold to tenants (rest → grid), %
+  sol_region: 'central',       // 'central' | 'south' | 'west'
+  sol_degradePct: 0.5,         // panel degradation, %/yr
+  sol_battDegradePct: 2,       // battery capacity loss, %/yr
+  sol_selfConsumePct: 50,      // base self-consumption without battery, %
+  sol_maintPct: 1.5,           // maintenance, % of system cost/yr
+  sol_equipDepPct: 7,          // equipment depreciation (residual), %/yr
+  sol_inverterReplaceYr: 12,   // inverter replacement, year
+  sol_inverterCostPct: 15,     // inverter cost, % of total system
 };
 
 /* Machine-readable summary of a module result — everything an LLM needs

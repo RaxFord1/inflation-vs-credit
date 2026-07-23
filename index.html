@@ -18,6 +18,7 @@
     <button class="tab" data-mode="life">Life decisions: what's my best move?</button>
     <button class="tab" data-mode="biz">Business ideas: which one to build?</button>
     <button class="tab" data-mode="ev">EV switch: fuel savings &amp; payback</button>
+    <button class="tab" data-mode="solar">Solar station: payback &amp; ROI</button>
     <button class="tab" data-mode="find">Пошук авто: підбір і перевірка</button>
   </nav>
   <div class="quickbar" id="quickbar"></div>
@@ -27,7 +28,7 @@
 
 <aside class="panel" id="inputs">
 
-  <section data-mode="life biz">
+  <section data-mode="life biz solar">
     <h2>You today</h2>
     <label>Starting point
       <select id="savePreset" data-preset>
@@ -54,7 +55,7 @@
     </label>
   </section>
 
-  <section data-mode="car home mort life biz ev">
+  <section data-mode="car home mort life biz ev solar">
     <h2>Your job &amp; income</h2>
     <label>Salary, per month
       <span class="row">
@@ -728,6 +729,111 @@
     <small>Both Car A and Car B use these same loan terms. To compare cash purchase, set down payment to 100%.</small>
   </section>
 
+  <section data-mode="solar">
+    <h2>Solar system</h2>
+    <label>System size
+      <select id="solarPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="small">Small rooftop — 10 kW, no battery</option>
+        <option value="medium" selected>Medium commercial — 30 kW + 20 kWh</option>
+        <option value="large">Large commercial — 100 kW + 50 kWh</option>
+      </select>
+      <small>Sets capacity, battery, installation cost and consumption below. Edit anything to go custom.</small>
+    </label>
+    <label>Solar panel capacity, kW
+      <input type="number" id="sol_capacityKW" value="30" min="1" max="500" step="1">
+      <small>Peak kilowatts installed. A 30 kW system covers ~200 m² of roof.</small>
+    </label>
+    <label>Panel cost (incl. mounting), $/kW
+      <input type="number" id="sol_panelCostPerKW" value="650" min="100" max="2000" step="25">
+    </label>
+    <label>Battery storage, kWh
+      <input type="number" id="sol_batteryKWh" value="20" min="0" max="500" step="5">
+      <small>0 means no battery — excess is sold immediately. Battery shifts excess solar to evening/night hours, increasing self-consumption.</small>
+    </label>
+    <label>Battery cost, $/kWh
+      <input type="number" id="sol_batteryCostPerKWh" value="400" min="50" max="1500" step="25">
+    </label>
+    <label>Inverter + wiring + permits, $
+      <input type="number" id="sol_installUSD" value="3000" min="0" step="250">
+    </label>
+  </section>
+
+  <section data-mode="solar">
+    <h2>Your electricity</h2>
+    <label>Monthly consumption, kWh
+      <input type="number" id="sol_consumptionKWh" value="3000" min="100" max="50000" step="100">
+      <small>Total electricity your property uses per month, averaged. Check your utility bills.</small>
+    </label>
+    <label>Business electricity tariff, UAH/kWh
+      <input type="number" id="sol_tariffUAH" value="4.32" min="0.5" max="20" step="0.1">
+      <small>What you pay the grid today. Business tariffs in Ukraine: 4.32 UAH/kWh (2nd class, 2026).</small>
+    </label>
+    <label>Tariff growth, %/yr
+      <input type="number" id="sol_tariffGrowPct" value="10" min="0" max="50" step="1">
+      <small>How fast electricity gets more expensive. 10% = tariff doubles in ~7 years. Higher growth makes solar more attractive — this is the single biggest lever.</small>
+    </label>
+    <label>Self-consumption ratio (without battery), %
+      <input type="number" id="sol_selfConsumePct" value="50" min="10" max="90" step="5">
+      <small>Share of solar generation consumed directly during daylight. 40–60% is typical for business with daytime load. The battery adds on top of this.</small>
+    </label>
+  </section>
+
+  <section data-mode="solar">
+    <h2>Selling excess power</h2>
+    <label>Feed-in tariff (sell to grid), UAH/kWh
+      <input type="number" id="sol_feedInUAH" value="2.5" min="0" max="15" step="0.1">
+      <small>What the grid operator pays you for excess. Usually below retail — in Ukraine ~2–3 UAH/kWh under the net metering / feed-in rules.</small>
+    </label>
+    <label>Feed-in tariff growth, %/yr
+      <input type="number" id="sol_feedInGrowPct" value="5" min="0" max="30" step="1">
+      <small>How fast the feed-in rate grows. Often slower than the retail tariff.</small>
+    </label>
+    <label>Sale price to tenants, UAH/kWh
+      <input type="number" id="sol_tenantUAH" value="3.5" min="0" max="15" step="0.1">
+      <small>Price at which you sell power to tenants or neighbours — below grid tariff, above feed-in, both sides win.</small>
+    </label>
+    <label>Share of excess sold to tenants, %
+      <input type="number" id="sol_tenantSharePct" value="50" min="0" max="100" step="5">
+      <small>What % of your excess goes to tenants vs the grid. 0 = sell everything to the grid. 100 = all to tenants.</small>
+    </label>
+  </section>
+
+  <section data-mode="solar">
+    <h2>Region &amp; performance</h2>
+    <label>Region (solar irradiance)
+      <select id="sol_region">
+        <option value="central" selected>Central Ukraine (Kyiv) ~970 kWh/kW/yr</option>
+        <option value="south">Southern Ukraine (Odesa) ~1170 kWh/kW/yr</option>
+        <option value="west">Western Ukraine (Lviv) ~880 kWh/kW/yr</option>
+      </select>
+      <small>Sets the monthly solar generation profile. Southern regions get ~20% more sun.</small>
+    </label>
+    <label>Panel degradation, %/yr
+      <input type="number" id="sol_degradePct" value="0.5" min="0" max="3" step="0.1">
+      <small>Panels lose ~0.5% output per year. After 25 years they still produce ~88%.</small>
+    </label>
+    <label>Battery capacity loss, %/yr
+      <input type="number" id="sol_battDegradePct" value="2" min="0" max="5" step="0.5">
+      <small>Battery capacity shrinks over time — LFP batteries typically lose ~2% per year.</small>
+    </label>
+    <label>Maintenance, % of system cost/yr
+      <input type="number" id="sol_maintPct" value="1.5" min="0" max="5" step="0.25">
+      <small>Cleaning, monitoring, minor repairs. 1–2% of system cost per year is typical.</small>
+    </label>
+    <label>Equipment depreciation (residual), %/yr
+      <input type="number" id="sol_equipDepPct" value="7" min="0" max="20" step="1">
+      <small>How fast the resale value drops. At 7%/yr the system is worth ~50% after 10 years.</small>
+    </label>
+    <label>Inverter replacement, year
+      <input type="number" id="sol_inverterReplaceYr" value="12" min="5" max="25" step="1">
+      <small>String inverters last 10–15 years. One replacement during a 25-year panel life.</small>
+    </label>
+    <label>Inverter cost, % of total system
+      <input type="number" id="sol_inverterCostPct" value="15" min="5" max="40" step="1">
+    </label>
+  </section>
+
   <section data-mode="find">
     <h2>Що шукаємо</h2>
     <label>Джерело оголошень
@@ -1040,7 +1146,7 @@
     </label>
   </section>
 
-  <section data-mode="car home mort life biz ev">
+  <section data-mode="car home mort life biz ev solar">
     <h2>Investment of the freed-up money</h2>
     <label class="check"><input type="checkbox" id="investOff">
       Don't invest the difference — clean price comparison
@@ -1271,6 +1377,7 @@
 <script src="life.js"></script>
 <script src="business.js"></script>
 <script src="ev.js"></script>
+<script src="solar.js"></script>
 <script src="carfinder.js"></script>
 <script src="chart.js"></script>
 <script src="app.js"></script>
