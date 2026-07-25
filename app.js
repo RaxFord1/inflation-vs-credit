@@ -432,7 +432,7 @@ function renderWealthChart(res, unit) {
   const host = $('chartWealth');
   host.innerHTML = '';
   const U = unitDef(unit, res.ctx);
-  const W = 720, H = 300, m = { t: 12, r: 60, b: 28, l: 56 };
+  const W = 720, H = 326, m = { t: 26, r: 60, b: 40, l: 56 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
 
   const defs = res.seriesDefs;
@@ -452,7 +452,11 @@ function renderWealthChart(res, unit) {
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Net worth over time: ' + defs.map((d) => d.legend).join(' vs ') }, host);
   drawGrid(svg, ticks, m, iw, y, U.short);
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
-  drawYearLabels(svg, res.months, x, H);
+  if (lo < 0 && hi > 0) {
+    el('line', { class: 'zeroline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
+  }
+  drawYearLabels(svg, res.months, x, H, 0, m.t + ih + 16);
+  axisTitles(svg, W, H, m, 'Years from today', `Net worth (assets − debt), ${U.tag}`);
 
   const css = getComputedStyle(document.body);
   const colors = defs.map((d, i) => css.getPropertyValue(`--series-${i + 1}`).trim());
@@ -466,6 +470,20 @@ function renderWealthChart(res, unit) {
     const path = oPts.map((ov, k) => (k ? 'L' : 'M') + x(k).toFixed(1) + ' ' + y(ov[i]).toFixed(1)).join('');
     el('path', { class: 'series', d: path, stroke: oColors[i], 'stroke-dasharray': '6 3' }, svg);
   });
+
+  // key events: module-provided markers (loan paid off…) plus, for two-path
+  // comparisons, the month the second path pulls ahead for good (sign of the
+  // gap is unit-independent — every conversion is a positive scale factor)
+  const events = (res.events || []).filter((e) => e.m > 0 && e.m <= res.months).slice();
+  if (N === 2 && res.diffLabel) {
+    let lastNeg = -1;
+    res.series.forEach((s, mm) => { if (s.v[1] - s.v[0] < 0) lastNeg = mm; });
+    if (lastNeg >= 0 && lastNeg < res.months) {
+      events.push({ m: lastNeg + 1, label: `${defs[1].short.toLowerCase()} ahead from yr ${((lastNeg + 1) / 12).toFixed(1)}` });
+    }
+  }
+  events.sort((a, b) => a.m - b.m);
+  events.forEach((ev, i) => drawEventLine(svg, x(ev.m), m, iw, ih, ev.label, i));
 
   const lastPt = pts[pts.length - 1];
   const endLabels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short }));
@@ -519,7 +537,7 @@ function renderWhyChart(res) {
   $('whyTitle').textContent = res.whyTitle;
   const rows = res.whyRows;
 
-  const W = 720, rowH = 32, m = { l: 250, r: 90, t: 6, b: 6 };
+  const W = 720, rowH = 32, m = { l: 250, r: 90, t: 20, b: 6 };
   const H = rows.length * rowH + m.t + m.b;
   const maxAbs = Math.max(...rows.map((r) => Math.abs(r.v)), 1);
   const half = (W - m.l - m.r) / 2;
@@ -532,6 +550,8 @@ function renderWhyChart(res) {
 
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': res.whyTitle }, host);
   el('line', { class: 'axisline', x1: x0, x2: x0, y1: m.t, y2: H - m.b }, svg);
+  el('text', { class: 'axis-title', x: x0 - 8, y: 12, 'text-anchor': 'end' }, svg).textContent = '← costs, nominal ₴';
+  el('text', { class: 'axis-title', x: x0 + 8, y: 12 }, svg).textContent = 'gains, nominal ₴ →';
 
   rows.forEach((r, i) => {
     const yC = m.t + i * rowH + rowH / 2;
@@ -555,7 +575,7 @@ function renderWhyChart(res) {
 function renderMacroChart(p, months) {
   const host = $('chartMacro');
   host.innerHTML = '';
-  const W = 720, H = 260, m = { t: 12, r: 88, b: 28, l: 46 };
+  const W = 720, H = 286, m = { t: 26, r: 88, b: 40, l: 46 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
 
   const defs = [
@@ -575,7 +595,8 @@ function renderMacroChart(p, months) {
   const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Assumed growth of the exchange rate and price levels, indexed to today' }, host);
   drawGrid(svg, ticks, m, iw, y, mult);
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
-  drawYearLabels(svg, months, x, H);
+  drawYearLabels(svg, months, x, H, 0, m.t + ih + 16);
+  axisTitles(svg, W, H, m, 'Years from today', 'Growth vs today (1× = today’s level)');
 
   const css = getComputedStyle(document.body);
   const colors = defs.map((d) => css.getPropertyValue(`--series-${d.slot}`).trim());
@@ -656,7 +677,7 @@ function renderSweepChart(res, p) {
   const lines = defs.map((d, i) => i).filter((i) => i !== base);
   const val = (r, i) => (base === null ? r.finals[i] : r.finals[i] - r.finals[base]);
 
-  const W = 720, H = 260, m = { t: 12, r: 88, b: 28, l: 56 };
+  const W = 720, H = 286, m = { t: 26, r: 88, b: 40, l: 56 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const vmin = values[0], vmax = values[values.length - 1];
   const allY = runs.flatMap((r) => lines.map((i) => val(r, i)));
@@ -670,11 +691,14 @@ function renderSweepChart(res, p) {
   drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
   if (base !== null && lo < 0 && hi > 0) {
-    el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
+    el('line', { class: 'zeroline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
   }
   for (const v of values) {
-    el('text', { x: x(v), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = xfmt(v);
+    el('text', { x: x(v), y: m.t + ih + 16, 'text-anchor': 'middle' }, svg).textContent = xfmt(v);
   }
+  axisTitles(svg, W, H, m, cfg.label, base === null
+    ? 'Final net worth — today’s $'
+    : `Final advantage over ${defs[base].short.toLowerCase()} — today’s $`);
 
   // dashed marker at the current setting
   el('line', { class: 'nowline', x1: x(cur), x2: x(cur), y1: m.t, y2: m.t + ih }, svg);
@@ -784,7 +808,7 @@ function renderMortCompare(res, p) {
   }));
   const months = res.months;
 
-  const W = 720, H = 260, m = { t: 12, r: 96, b: 28, l: 56 };
+  const W = 720, H = 286, m = { t: 26, r: 96, b: 40, l: 56 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const vals = runs.flatMap((r) => r.diff);
   const { lo, hi, ticks } = niceTicks(Math.min(...vals, 0), Math.max(...vals, 0));
@@ -796,9 +820,10 @@ function renderMortCompare(res, p) {
   drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
   if (lo < 0 && hi > 0) {
-    el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
+    el('line', { class: 'zeroline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
   }
-  drawYearLabels(svg, months, x, H);
+  drawYearLabels(svg, months, x, H, 0, m.t + ih + 16);
+  axisTitles(svg, W, H, m, 'Years from today', `Lead over ${baseName} — today’s $`);
 
   const css = getComputedStyle(document.body);
   const colors = runs.map((r) => css.getPropertyValue(`--series-${r.slot}`).trim());
@@ -806,6 +831,15 @@ function renderMortCompare(res, p) {
     const path = r.diff.map((v, mm) => (mm ? 'L' : 'M') + x(mm).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
     el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
   });
+
+  // break-even dots: the month each variant moves ahead of renting for good
+  if (lo < 0 && hi > 0) {
+    runs.forEach((r, i) => {
+      if (r.be !== null && r.be > 0) {
+        el('circle', { class: 'event-dot', cx: x(r.be), cy: y(0), r: 4.5, fill: colors[i] }, svg);
+      }
+    });
+  }
 
   drawEndLabels(svg, runs.map((r, i) => ({ i, y: y(r.diff[months]), text: `${r.dp}%/${r.yrs}y` })), colors, m, iw);
 
@@ -822,7 +856,7 @@ function renderMortCompare(res, p) {
 
   $('legendMort').innerHTML = runs.map((r, i) =>
     `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${r.label}</span>`
-  ).join('') + `<span class="key">(each line = mortgage minus ${baseName})</span>`;
+  ).join('') + `<span class="key">(each line = mortgage minus ${baseName}; ● on the zero line = ahead of ${baseName} for good)</span>`;
 
   const fmtBE = (r) =>
     r.be === null ? `not within ${p.horizonYears}y`
@@ -854,7 +888,7 @@ function renderMortCompare(res, p) {
   const debtUSD = $('debtUnit').value !== 'uah';
   const debtVal = (r, mm) => debtUSD ? r.debtHist[mm] / res.series[mm].fx : r.debtHist[mm];
   {
-    const W = 720, H = 260, m2 = { t: 12, r: 96, b: 28, l: 60 };
+    const W = 720, H = 286, m2 = { t: 26, r: 96, b: 40, l: 60 };
     const iw = W - m2.l - m2.r, ih = H - m2.t - m2.b;
     const maxDebt = Math.max(...runs.map((r) => debtVal(r, 0)), 1);
     const { lo, hi, ticks } = niceTicks(0, maxDebt);
@@ -867,11 +901,20 @@ function renderMortCompare(res, p) {
       'aria-label': 'Remaining loan debt over time per variant' }, debtHost);
     drawGrid(svg, ticks, m2, iw, y, (v) => moneyShort(v, sym));
     el('line', { class: 'axisline', x1: m2.l, x2: m2.l + iw, y1: m2.t + ih, y2: m2.t + ih }, svg);
-    drawYearLabels(svg, months, x, H);
+    drawYearLabels(svg, months, x, H, 0, m2.t + ih + 16);
+    axisTitles(svg, W, H, m2, 'Years from today', `Debt remaining — nominal ${sym}`);
     runs.forEach((r, i) => {
       const path = r.debtHist.map((v, mm) =>
         (mm ? 'L' : 'M') + x(mm).toFixed(1) + ' ' + y(debtVal(r, mm)).toFixed(1)).join('');
       el('path', { class: 'series', d: path, stroke: colors[i] }, svg);
+    });
+
+    // payoff dots: the month each loan hits zero
+    runs.forEach((r, i) => {
+      const pm = r.debtHist.findIndex((v, mm) => mm > 0 && v < 0.5);
+      if (pm > 0 && pm <= months) {
+        el('circle', { class: 'event-dot', cx: x(pm), cy: y(0), r: 4.5, fill: colors[i] }, svg);
+      }
     });
 
     drawEndLabels(svg,
@@ -892,7 +935,7 @@ function renderMortCompare(res, p) {
 
     $('legendDebt').innerHTML = runs.map((r, i) =>
       `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${r.label}</span>`
-    ).join('');
+    ).join('') + '<span class="key">(● = loan paid off)</span>';
   }
 
   // payments card: what each variant costs per month/year at the start
@@ -965,7 +1008,7 @@ function renderScenarioCompare(p) {
   scen.forEach((s, n) => {
     const host = $(`chartSc${n + 1}`);
     host.innerHTML = '';
-    const W = 460, H = 280, m = { t: 14, r: 14, b: 28, l: 56 };
+    const W = 460, H = 304, m = { t: 26, r: 14, b: 40, l: 56 };
     const iw = W - m.l - m.r, ih = H - m.t - m.b;
     const { lo, hi, ticks } = dom;
     const x = (mm) => m.l + (mm / s.months) * iw;
@@ -976,13 +1019,24 @@ function renderScenarioCompare(p) {
     drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
     el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
     if (lo < 0 && hi > 0) {
-      el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
+      el('line', { class: 'zeroline', x1: m.l, x2: m.l + iw, y1: y(0), y2: y(0) }, svg);
     }
-    drawYearLabels(svg, s.months, x, H);
+    drawYearLabels(svg, s.months, x, H, 0, m.t + ih + 16);
+    axisTitles(svg, W, H, m, 'Years from today', 'Lead over renting, $');
     [[s.nom, cNom], [s.real, cReal]].forEach(([data, color]) => {
       const path = data.map((v, mm) => (mm ? 'L' : 'M') + x(mm).toFixed(1) + ' ' + y(v).toFixed(1)).join('');
       el('path', { class: 'series', d: path, stroke: color }, svg);
     });
+
+    // break-even dot: the month the scenario moves ahead of renting for good
+    if (s.be !== null && s.be > 0 && lo < 0 && hi > 0) {
+      el('circle', { class: 'event-dot', cx: x(s.be), cy: y(0), r: 4.5, fill: cNom }, svg);
+      const flip = x(s.be) > m.l + iw * 0.7;
+      el('text', {
+        class: 'event-label', x: x(s.be) + (flip ? -7 : 7), y: y(0) - 7,
+        'text-anchor': flip ? 'end' : 'start',
+      }, svg).textContent = `in the plus, yr ${(s.be / 12).toFixed(1)}`;
+    }
 
     addChartHover({ svg, W, m, iw, ih, nDots: 2, colors: [cNom, cReal], onMove: (px) => {
       const mm = Math.max(0, Math.min(s.months, Math.round(((px - m.l) / iw) * s.months)));
@@ -1055,7 +1109,7 @@ function renderBurdenChart(res, p) {
   const host = $('chartBurden');
   host.innerHTML = '';
   const defs = res.seriesDefs;
-  const W = 720, H = 240, m = { t: 12, r: 88, b: 28, l: 46 };
+  const W = 720, H = 266, m = { t: 26, r: 88, b: 40, l: 46 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
 
   const salUSD = p.salaryCurrency === 'USD';
@@ -1083,7 +1137,8 @@ function renderBurdenChart(res, p) {
   el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: y(Math.max(lo, 0)), y2: y(Math.max(lo, 0)) }, svg);
   const years = res.months / 12;
   const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
-  drawYearLabels(svg, res.months, x, H, yearStep);
+  drawYearLabels(svg, res.months, x, H, yearStep, m.t + ih + 16);
+  axisTitles(svg, W, H, m, 'Years from today', 'Required payments — % of salary that month');
 
   const css = getComputedStyle(document.body);
   const colors = defs.map((d, i) => css.getPropertyValue(`--series-${i + 1}`).trim());

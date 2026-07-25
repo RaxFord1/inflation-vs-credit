@@ -216,6 +216,12 @@ function homeSim(p) {
       { short: 'CTL+own', legend: 'Cash-to-let (own home)' },
     ],
     adv,
+    events: (() => {
+      const loanMonths = Math.max(1, Math.round(p.h_loanYears * 12));
+      return s.principal > 0.5 && loanMonths < s.months
+        ? [{ m: loanMonths, label: `mortgage paid off, yr ${(loanMonths / 12).toFixed(1)}` }]
+        : [];
+    })(),
     paid: r.paid, paidUSD: r.paidUSD,
     baselineIndex: 1, // savings shown vs the cash purchase
     posName: HOME_NAMES[winner], negName: HOME_NAMES[winner],

@@ -57,13 +57,37 @@ function drawGrid(svg, ticks, m, iw, y, fmtTick) {
   }
 }
 
-/** Draw year labels along the x-axis. */
-function drawYearLabels(svg, months, x, H, startAt) {
+/** Draw year labels along the x-axis. yPos overrides the default baseline
+ * (H - 8) — charts with an x-axis title pass m.t + ih + 16 to leave room. */
+function drawYearLabels(svg, months, x, H, startAt, yPos) {
   const years = months / 12;
   const yearStep = years > 20 ? 5 : years > 10 ? 2 : 1;
   for (let yr = startAt || 0; yr <= years; yr += yearStep) {
-    el('text', { x: x(yr * 12), y: H - 8, 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
+    el('text', { x: x(yr * 12), y: yPos || (H - 8), 'text-anchor': 'middle' }, svg).textContent = yr + 'y';
   }
+}
+
+/* Axis captions: the y-axis unit sits above the plot at the top-left, the
+ * x-axis meaning is centered under the tick labels. Charts reserve room via
+ * margins (~26px top, ~40px bottom). */
+function axisTitles(svg, W, H, m, xTitle, yTitle) {
+  if (yTitle) el('text', { class: 'axis-title', x: 6, y: 12 }, svg).textContent = yTitle;
+  if (xTitle) {
+    el('text', {
+      class: 'axis-title', x: m.l + (W - m.l - m.r) / 2, y: H - 4, 'text-anchor': 'middle',
+    }, svg).textContent = xTitle;
+  }
+}
+
+/* Vertical dashed marker for a key event (loan paid off, break-even…).
+ * slot staggers labels vertically so neighbouring markers don't overlap. */
+function drawEventLine(svg, px, m, iw, ih, label, slot) {
+  el('line', { class: 'nowline', x1: px, x2: px, y1: m.t, y2: m.t + ih }, svg);
+  const flip = px > m.l + iw * 0.72; // near the right edge — label to the left
+  el('text', {
+    class: 'event-label', x: px + (flip ? -5 : 5), y: m.t + 11 + (slot % 3) * 12,
+    'text-anchor': flip ? 'end' : 'start',
+  }, svg).textContent = label;
 }
 
 /**

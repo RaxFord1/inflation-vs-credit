@@ -310,6 +310,10 @@ label.check small { flex-basis: 100%; }
 .chart .hoverdot { stroke: var(--surface-1); stroke-width: 2; }
 .chart .barlabel { fill: var(--text-secondary); }
 .chart .barvalue { fill: var(--text-primary); font-weight: 600; }
+.chart .axis-title { font-size: 10px; fill: var(--muted); letter-spacing: 0.02em; }
+.chart .zeroline { stroke: var(--muted); stroke-width: 1; }
+.chart .event-label { font-size: 10px; fill: var(--text-secondary); }
+.chart .event-dot { stroke: var(--surface-1); stroke-width: 1.5; }
 
 .tooltip {
   position: fixed;

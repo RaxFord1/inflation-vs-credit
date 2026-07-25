@@ -115,6 +115,12 @@ function carSim(p) {
       { short: 'Credit', legend: 'Credit + invest the rest' },
     ],
     diffLabel: 'Credit advantage',
+    events: (() => {
+      const loanMonths = Math.max(1, Math.round(p.loanYears * 12));
+      return s.principal > 0.5 && loanMonths < s.months
+        ? [{ m: loanMonths, label: `loan paid off, yr ${(loanMonths / 12).toFixed(1)}` }]
+        : [];
+    })(),
     adv,
     paid: r.paid, paidUSD: r.paidUSD,
     baselineIndex: 0, // savings shown vs the cash purchase
