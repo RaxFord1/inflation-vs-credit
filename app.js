@@ -1170,6 +1170,108 @@ function renderOutcomes(res, p) {
   });
 }
 
+/* ---------- installment vs cash chart (car mode only) ---------- */
+function renderInstallmentChart(data) {
+  const card = $('installCard');
+  if (!data) { card.hidden = true; return; }
+  card.hidden = false;
+
+  const host = $('chartInstall');
+  host.innerHTML = '';
+  const pts = data.points;
+  const W = 720, H = 300, m = { t: 12, r: 72, b: 28, l: 56 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b;
+
+  const allVals = pts.flatMap((p) => [p.cash, p.install, p.install + p.invest, p.car]);
+  const { lo, hi, ticks } = niceTicks(Math.min(...allVals, 0), Math.max(...allVals));
+  const x = (mm) => m.l + (mm / data.months) * iw;
+  const y = (v) => m.t + ih - ((v - lo) / (hi - lo)) * ih;
+
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img',
+    'aria-label': 'Installment vs cash — cumulative dollar cost' }, host);
+  drawGrid(svg, ticks, m, iw, y, (v) => moneyShort(v, '$'));
+  el('line', { class: 'axisline', x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
+  drawYearLabels(svg, data.months, x, H);
+
+  const css = getComputedStyle(document.body);
+  const cCash = css.getPropertyValue('--div-neg').trim();
+  const cInstall = css.getPropertyValue('--series-1').trim();
+  const cInvest = css.getPropertyValue('--series-2').trim();
+  const cCar = css.getPropertyValue('--series-3').trim();
+  const colors = [cCash, cInstall, cInvest, cCar];
+
+  const areaPath = pts.map((p, k) => (k ? 'L' : 'M') + x(p.m).toFixed(1) + ' ' + y(p.cash).toFixed(1)).join('')
+    + pts.slice().reverse().map((p) => 'L' + x(p.m).toFixed(1) + ' ' + y(p.install).toFixed(1)).join('') + 'Z';
+  el('path', { d: areaPath, fill: cInstall, opacity: 0.10 }, svg);
+
+  const termM = data.termMonths;
+  if (termM < data.months) {
+    el('line', { class: 'gridline', x1: x(termM), x2: x(termM), y1: m.t, y2: m.t + ih,
+      'stroke-dasharray': '4 3' }, svg);
+    el('text', { x: x(termM), y: m.t - 2, 'text-anchor': 'middle', 'font-size': '9' }, svg)
+      .textContent = 'loan ends';
+  }
+
+  const lineDefs = [
+    { key: 'cash',  color: cCash,    dash: '6 3' },
+    { key: 'install', color: cInstall, dash: null },
+    { key: 'car',  color: cCar,     dash: '6 3' },
+  ];
+  lineDefs.forEach((ld) => {
+    const path = pts.map((p, k) => (k ? 'L' : 'M') + x(p.m).toFixed(1) + ' ' + y(p[ld.key]).toFixed(1)).join('');
+    const attrs = { class: 'series', d: path, stroke: ld.color };
+    if (ld.dash) attrs['stroke-dasharray'] = ld.dash;
+    el('path', attrs, svg);
+  });
+  const investPath = pts.map((p, k) => (k ? 'L' : 'M') + x(p.m).toFixed(1) + ' ' + y(p.install + p.invest).toFixed(1)).join('');
+  el('path', { class: 'series', d: investPath, stroke: cInvest }, svg);
+
+  const last = pts[pts.length - 1];
+  const endLabels = [
+    { i: 0, y: y(last.cash), text: usd(last.cash) },
+    { i: 1, y: y(last.install), text: usd(last.install) },
+    { i: 2, y: y(last.install + last.invest), text: '+' + usd(last.invest) },
+    { i: 3, y: y(last.car), text: usd(last.car) },
+  ];
+  drawEndLabels(svg, endLabels, colors, m, iw);
+
+  addChartHover({ svg, W, m, iw, ih, nDots: 4, colors, onMove: (px) => {
+    const mm = Math.max(0, Math.min(data.months, Math.round(((px - m.l) / iw) * data.months)));
+    const p = pts[mm];
+    const cx = x(mm);
+    const saving = p.cash - p.install;
+    return { cx, dots: [
+      { cx, cy: y(p.cash) },
+      { cx, cy: y(p.install) },
+      { cx, cy: y(p.install + p.invest) },
+      { cx, cy: y(p.car) },
+    ],
+    html: `<div class="t-head">Year ${(mm / 12).toFixed(1)}</div>` +
+      `<div class="t-row"><span><span class="swatch" style="background:${cCash}"></span> Cash price</span><span class="v">${usd(p.cash)}</span></div>` +
+      `<div class="t-row"><span><span class="swatch" style="background:${cInstall}"></span> Paid so far</span><span class="v">${usd(p.install)}</span></div>` +
+      `<div class="t-row"><span><span class="swatch" style="background:${cInvest}"></span> Investment income</span><span class="v">+${usd(p.invest)}</span></div>` +
+      `<div class="t-row"><span><span class="swatch" style="background:${cCar}"></span> Car value</span><span class="v">${usd(p.car)}</span></div>` +
+      `<div class="t-row"><span>Devaluation saving</span><span class="v">${usd(saving)}</span></div>` +
+      `<div class="t-row"><span>Total advantage</span><span class="v">${usd(saving + p.invest)}</span></div>` };
+  }});
+
+  $('legendInstall').innerHTML = [
+    `<span class="key"><span class="swatch" style="background:${cCash}"></span>Cash price (full, day 0)</span>`,
+    `<span class="key"><span class="swatch" style="background:${cInstall}"></span>Cumulative installment payments</span>`,
+    `<span class="key"><span class="swatch" style="background:${cInvest}"></span>Investment income on remainder</span>`,
+    `<span class="key"><span class="swatch" style="background:${cCar}"></span>Car value (depreciation)</span>`,
+  ].join('');
+
+  $('kpisInstall').innerHTML = [
+    { label: 'Devaluation saving', value: usd(data.devalSaving), cls: data.devalSaving >= 0 ? 'good' : 'bad',
+      delta: 'cash price minus total paid in $' },
+    { label: 'Investment income', value: '+' + usd(data.investIncome),
+      delta: 'earned on the unpaid remainder' },
+    { label: 'Total advantage of installment', value: usd(data.totalAdv), cls: data.totalAdv >= 0 ? 'good' : 'bad',
+      delta: 'saving + investment income' },
+  ].map(kpi).join('');
+}
+
 /* ---------- burden chart: required payments as % of salary ---------- */
 function renderBurdenChart(res, p) {
   const host = $('chartBurden');
@@ -1617,6 +1719,7 @@ function render() {
   }
   renderOutcomes(res, p);
   renderWealthChart(res, $('chartUnit').value);
+  renderInstallmentChart(mode === 'car' ? carInstallmentData(p) : null);
   renderMortCompare(res, p);
   renderScenarioCompare(p);
   renderBurdenChart(res, p);

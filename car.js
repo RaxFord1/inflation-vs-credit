@@ -82,6 +82,71 @@ function carRun(p) {
   };
 }
 
+/**
+ * Installment-vs-cash breakdown: what you actually pay in dollars each month,
+ * how much devaluation saves you, and what the uninvested remainder earns.
+ * All values in nominal USD (FX-converted from UAH at each month's rate).
+ */
+function carInstallmentData(p) {
+  const fx = makeFx(p);
+  const priceUAH0 = p.priceCurrency === 'USD' ? p.price * p.fx0 : p.price;
+  const priceUSD0 = priceUAH0 / p.fx0;
+  const termMonths = Math.max(1, Math.round(p.loanYears * 12));
+  const horizonMonths = Math.round(p.horizonYears * 12);
+
+  const dpFrac = p.dpPct / 100;
+  const dpUAH = priceUAH0 * dpFrac;
+  const principalUAH = priceUAH0 - dpUAH;
+  const annuityUAH = calcAnnuity(principalUAH, p.loanRatePct, termMonths);
+  const im = p.loanRatePct / 100 / 12;
+
+  const isUSD = p.invCurrency === 'USD';
+  const yieldPct = p.investOff ? 0 : p.invYieldPct;
+  const taxRate = p.investOff ? 0 : p.invTaxPct / 100;
+  const driftPp = p.investOff ? 0 : (p.yieldDriftPp || 0);
+
+  let investBal = isUSD ? principalUAH / p.fx0 : principalUAH;
+  let investIncUSD = 0;
+
+  let debt = principalUAH;
+  let cumulPaidUSD = priceUSD0 * dpFrac;
+
+  const points = [{ m: 0, cash: priceUSD0, install: cumulPaidUSD,
+    invest: 0, car: priceUSD0 }];
+
+  for (let m = 1; m <= horizonMonths; m++) {
+    const effYield = Math.max(0, yieldPct + driftPp * m * MONTH);
+    const netRate = monthlyRate(effYield) * (1 - taxRate);
+    if (investBal > 0) {
+      const gain = investBal * netRate;
+      investBal += gain;
+      investIncUSD += isUSD ? gain : gain / fx(m);
+    }
+
+    if (m <= termMonths && debt > 0.005) {
+      const loanInt = debt * im;
+      const pay = Math.min(annuityUAH, debt + loanInt);
+      debt = Math.max(0, debt + loanInt - pay);
+      cumulPaidUSD += pay / fx(m);
+      investBal -= isUSD ? pay / fx(m) : pay;
+    }
+
+    points.push({ m, cash: priceUSD0, install: cumulPaidUSD,
+      invest: investIncUSD,
+      car: priceUSD0 * Math.pow(1 - p.carDepPct / 100, m * MONTH) });
+  }
+
+  const last = points[points.length - 1];
+  return {
+    points, months: horizonMonths, termMonths,
+    priceUSD: priceUSD0,
+    devalSaving: priceUSD0 - last.install,
+    investIncome: last.invest,
+    totalAdv: (priceUSD0 - last.install) + last.invest,
+    annuityUAH,
+  };
+}
+
 function carSim(p) {
   const s = carRun(p);
   const { r, t, adv } = s;
