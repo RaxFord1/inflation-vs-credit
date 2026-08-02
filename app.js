@@ -1642,8 +1642,27 @@ function render() {
   syncURL();
 }
 
+/* ---------- tab visibility toggle ---------- */
+const depTab = document.querySelector('.tab[data-mode="dep"]');
+const toggleDepBtn = $('toggleDep');
+let depHidden = localStorage.getItem('hideDepTab') === '1';
+
+function applyDepToggle() {
+  depTab.hidden = depHidden;
+  toggleDepBtn.classList.toggle('off', depHidden);
+  toggleDepBtn.title = depHidden ? 'Show Deposits tab' : 'Hide Deposits tab';
+  if (depHidden && mode === 'dep') setMode('car');
+}
+
+toggleDepBtn.addEventListener('click', () => {
+  depHidden = !depHidden;
+  localStorage.setItem('hideDepTab', depHidden ? '1' : '0');
+  applyDepToggle();
+});
+
 /* ---------- tabs ---------- */
 function setMode(next) {
+  if (next === 'dep' && depHidden) next = 'car';
   mode = next;
   document.querySelectorAll('.tabs .tab').forEach((b) =>
     b.classList.toggle('active', b.dataset.mode === mode));
@@ -1820,4 +1839,5 @@ window.LDM = {
 };
 
 syncCarFields();
+applyDepToggle();
 setMode(urlMode && ALL_MODES[urlMode] ? urlMode : 'dep');
