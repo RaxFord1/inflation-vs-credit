@@ -7,7 +7,7 @@
  *   node cli.js '<json>'                     (see JSON shape below)
  *   echo '<json>' | node cli.js
  *
- * Modes: car | home | mort | life | biz | solar
+ * Modes: dep | car | home | mort | life | biz | solar
  *
  * JSON input shape:
  *   { "mode": "life",
@@ -28,17 +28,17 @@ const vm = require('node:vm');
 
 // load the browser scripts into one shared context, like <script> tags do
 const ctx = vm.createContext({ console });
-for (const f of ['engine.js', 'decisions.js', 'defaults.js',
+for (const f of ['engine.js', 'decisions.js', 'defaults.js', 'dep.js',
   'car.js', 'home.js', 'mort.js', 'life.js', 'business.js', 'solar.js', 'carfinder.js']) {
   vm.runInContext(fs.readFileSync(path.join(__dirname, f), 'utf8'), ctx, { filename: f });
 }
 // top-level const/function bindings live in the context's lexical scope,
 // so pull the handles out with an in-context expression
-const { PARAM_DEFAULTS, summarizeResult, carSim, homeSim, mortSim, lifeSim, bizSim,
+const { PARAM_DEFAULTS, summarizeResult, depSim, carSim, homeSim, mortSim, lifeSim, bizSim,
   solarSim, findCars, findCarsLive, cfSummarize, CF_SAMPLE_LISTINGS } =
-  vm.runInContext('({ PARAM_DEFAULTS, summarizeResult, carSim, homeSim, mortSim, lifeSim, bizSim,' +
+  vm.runInContext('({ PARAM_DEFAULTS, summarizeResult, depSim, carSim, homeSim, mortSim, lifeSim, bizSim,' +
     ' solarSim, findCars, findCarsLive, cfSummarize, CF_SAMPLE_LISTINGS })', ctx);
-const SIMS = { car: carSim, home: homeSim, mort: mortSim, life: lifeSim, biz: bizSim, solar: solarSim };
+const SIMS = { dep: depSim, car: carSim, home: homeSim, mort: mortSim, life: lifeSim, biz: bizSim, solar: solarSim };
 
 function parseInput(argv) {
   const args = argv.slice(2);

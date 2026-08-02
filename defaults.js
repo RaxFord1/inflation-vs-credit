@@ -17,6 +17,38 @@ const PARAM_DEFAULTS = {
   usdInflPct: 3,       // US CPI, %/yr
   devalPct: 8,         // UAH devaluation vs USD, %/yr
 
+  /* --- deposits tab: where to keep money (route = destination × way in) ---
+   * Fees are % of the moved amount + a fixed USD charge per transfer; entry
+   * fees hit the initial amount and every monthly top-up, the exit fee is
+   * subtracted from every chart point (take-home value). */
+  dep_amountUSD: 10000,   // lump sum to place
+  dep_topUpUSD: 200,      // added monthly through the same route
+
+  dep1_on: true, dep1_name: 'UA bank — USD deposit', dep1_cur: 'USD',
+  dep1_ratePct: 2, dep1_taxPct: 23,
+  dep1_feeInPct: 0, dep1_feeInFixUSD: 0, dep1_feeOutPct: 0, dep1_feeOutFixUSD: 0,
+  dep1_monthlyFeeUSD: 0,
+
+  dep2_on: true, dep2_name: 'US bank — HYSA', dep2_cur: 'USD',
+  dep2_ratePct: 5, dep2_taxPct: 23,
+  dep2_feeInPct: 0.5, dep2_feeInFixUSD: 30, dep2_feeOutPct: 0.5, dep2_feeOutFixUSD: 30,
+  dep2_monthlyFeeUSD: 0,
+
+  dep3_on: true, dep3_name: 'UA bank — UAH deposit', dep3_cur: 'UAH',
+  dep3_ratePct: 13.5, dep3_taxPct: 23,
+  dep3_feeInPct: 0, dep3_feeInFixUSD: 0, dep3_feeOutPct: 0, dep3_feeOutFixUSD: 0,
+  dep3_monthlyFeeUSD: 0,
+
+  dep4_on: false, dep4_name: 'OVDP bonds (UAH)', dep4_cur: 'UAH',
+  dep4_ratePct: 16.5, dep4_taxPct: 0,
+  dep4_feeInPct: 0, dep4_feeInFixUSD: 0, dep4_feeOutPct: 0, dep4_feeOutFixUSD: 0,
+  dep4_monthlyFeeUSD: 0,
+
+  dep5_on: false, dep5_name: 'Cash at home', dep5_cur: 'USD',
+  dep5_ratePct: 0, dep5_taxPct: 0,
+  dep5_feeInPct: 0, dep5_feeInFixUSD: 0, dep5_feeOutPct: 0, dep5_feeOutFixUSD: 0,
+  dep5_monthlyFeeUSD: 0,
+
   /* --- your money (life & biz tabs) --- */
   savings: 10000,
   savingsCurrency: 'USD',

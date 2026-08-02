@@ -1,0 +1,203 @@
+/*
+ * Module: where to keep money — deposit routes (destination × way in).
+ * Each route combines a destination (bank / bonds / cash with its currency,
+ * rate and tax on interest) with a way of moving the money there (entry and
+ * exit fees, % + fixed). Every route starts from the same lump sum and
+ * receives the same monthly top-up; each chart point is net of the exit fee,
+ * i.e. what you would actually take home if you cashed out that month.
+ */
+
+const DEP_SLOTS = [1, 2, 3, 4, 5];
+
+function depReadRoute(p, i) {
+  return {
+    slot: i,
+    name: p[`dep${i}_name`] || `Route ${i}`,
+    cur: p[`dep${i}_cur`] === 'UAH' ? 'UAH' : 'USD',
+    ratePct: p[`dep${i}_ratePct`] || 0,
+    taxPct: p[`dep${i}_taxPct`] || 0,
+    feeInPct: p[`dep${i}_feeInPct`] || 0,
+    feeInFixUSD: p[`dep${i}_feeInFixUSD`] || 0,
+    feeOutPct: p[`dep${i}_feeOutPct`] || 0,
+    feeOutFixUSD: p[`dep${i}_feeOutFixUSD`] || 0,
+    monthlyFeeUSD: p[`dep${i}_monthlyFeeUSD`] || 0,
+  };
+}
+
+function depActiveRoutes(p) {
+  const routes = DEP_SLOTS.filter((i) => p[`dep${i}_on`]).map((i) => depReadRoute(p, i));
+  return routes.length ? routes : [depReadRoute(p, 1)];
+}
+
+/** One full simulation; returns per-month take-home values + fee/interest totals. */
+function depRun(p) {
+  const months = Math.max(1, Math.round(p.horizonYears * 12));
+  const fx = makeFx(p);
+  const routes = depActiveRoutes(p);
+  const amountUAH0 = Math.max(0, p.dep_amountUSD) * p.fx0;
+  const topUSD = Math.max(0, p.dep_topUpUSD);
+
+  const st = routes.map((r) => {
+    const feeIn0 = Math.min(amountUAH0,
+      amountUAH0 * r.feeInPct / 100 + (amountUAH0 > 0 ? r.feeInFixUSD * p.fx0 : 0));
+    const netUAH0 = amountUAH0 - feeIn0;
+    return {
+      r,
+      bal: r.cur === 'USD' ? netUAH0 / p.fx0 : netUAH0, // in the route's currency
+      interestUAH: 0, // net of tax, at accrual-month FX
+      feeIn0UAH: feeIn0,
+      feesInUAH: feeIn0,
+      feesMoUAH: 0,
+    };
+  });
+
+  // take-home value: balance marked to UAH minus the exit fee
+  const cashOut = (s, m) => {
+    const gross = s.bal * (s.r.cur === 'USD' ? fx(m) : 1);
+    const fee = Math.max(0, gross) * s.r.feeOutPct / 100 +
+      (s.bal > 0 ? s.r.feeOutFixUSD * fx(m) : 0);
+    return { v: gross - fee, fee };
+  };
+
+  const series = [{ m: 0, fx: fx(0), v: st.map((s) => cashOut(s, 0).v) }];
+  const paid = st.map(() => amountUAH0);
+  const paidUSD = st.map(() => amountUAH0 / p.fx0);
+
+  for (let m = 1; m <= months; m++) {
+    const f = fx(m);
+    const topUAH = topUSD * f;
+    st.forEach((s, i) => {
+      // interest compounds monthly, taxed as it accrues (like the invest engine)
+      const g = s.bal * monthlyRate(s.r.ratePct) * (1 - s.r.taxPct / 100);
+      s.bal += g;
+      s.interestUAH += g * (s.r.cur === 'USD' ? f : 1);
+      // monthly top-up goes through the same entry fees as the lump sum
+      if (topUSD > 0) {
+        const fee = Math.min(topUAH, topUAH * s.r.feeInPct / 100 + s.r.feeInFixUSD * f);
+        s.feesInUAH += fee;
+        const net = topUAH - fee;
+        s.bal += s.r.cur === 'USD' ? net / f : net;
+        paid[i] += topUAH;
+        paidUSD[i] += topUSD;
+      }
+      // account maintenance
+      if (s.r.monthlyFeeUSD > 0) {
+        s.feesMoUAH += s.r.monthlyFeeUSD * f;
+        s.bal -= s.r.cur === 'USD' ? s.r.monthlyFeeUSD : s.r.monthlyFeeUSD * f;
+      }
+    });
+    series.push({
+      m, fx: f,
+      v: st.map((s) => cashOut(s, m).v),
+      obl: st.map(() => topUAH),
+    });
+  }
+
+  const outs = st.map((s) => cashOut(s, months));
+  return { routes, st, series, months, paid, paidUSD,
+    finals: series[series.length - 1].v, fxEnd: fx(months),
+    feesOut: outs.map((o) => o.fee), amountUAH0 };
+}
+
+function depSim(p) {
+  const s = depRun(p);
+  const { routes, st, series, months, finals } = s;
+  const yrs = p.horizonYears;
+  const todayUSD = (v) => v / s.fxEnd / Math.pow(1 + p.usdInflPct / 100, yrs);
+
+  const base = 0; // first active route is the comparison point
+  let best = 0;
+  finals.forEach((v, i) => { if (v > finals[best]) best = i; });
+  // the route the "why" breakdown explains: the best one, or — when the
+  // baseline itself wins — the runner-up, so the bars show why it loses
+  let cmp = best;
+  if (cmp === base && routes.length > 1) {
+    cmp = finals.reduce((bi, v, i) => (i !== base && v > finals[bi] ? i : bi),
+      base === 0 ? 1 : 0);
+  }
+  const adv = finals[cmp] - finals[base];
+
+  const feesTotal = st.map((x, i) => x.feesInUAH + x.feesMoUAH + s.feesOut[i]);
+
+  // break-even: the month cmp pulls ahead of the baseline for good
+  let lastNeg = -1;
+  series.forEach((pt, mm) => { if (pt.v[cmp] - pt.v[base] < 0) lastNeg = mm; });
+  const be = lastNeg === -1 ? 0 : lastNeg >= months ? null : lastNeg + 1;
+  const events = routes.length > 1 && be !== null && be > 0
+    ? [{ m: be, label: `${routes[cmp].name} ahead from yr ${(be / 12).toFixed(1)}` }]
+    : [];
+
+  const whyRows = [
+    { label: `Extra interest earned (net of tax)`, v: st[cmp].interestUAH - st[base].interestUAH },
+    { label: 'Entry fees (initial + top-ups)', v: -(st[cmp].feesInUAH - st[base].feesInUAH) },
+    { label: 'Account fees', v: -(st[cmp].feesMoUAH - st[base].feesMoUAH) },
+    { label: 'Exit fee at the horizon', v: -(s.feesOut[cmp] - s.feesOut[base]) },
+  ].filter((row, i) => i === 0 || Math.abs(row.v) > 0.5);
+  const residual = adv - whyRows.reduce((a, row) => a + row.v, 0);
+  if (Math.abs(residual) > Math.max(1, Math.abs(adv)) * 0.005) {
+    whyRows.push({ label: 'FX effect (devaluation on the balance)', v: residual });
+  }
+  whyRows.push({ label: `Net result (${routes[cmp].name} vs ${routes[base].name})`, v: adv, total: true });
+
+  const bestName = routes[best].name;
+  const rateLine = (r) => `${r.cur} ${r.ratePct}%/yr` +
+    (r.taxPct > 0 ? `, tax ${r.taxPct}%` : '');
+  const verdict =
+    `<strong>${bestName} leaves you the most: ${usd(todayUSD(finals[best]))} in today’s dollars after ${yrs} years.</strong>` +
+    `<div class="why">${routes.map((r, i) =>
+      `${r.name} (${rateLine(r)}) → ${usd(todayUSD(finals[i]))}`).join(' · ')}.` +
+    ` A UAH rate must outrun ~${p.devalPct}%/yr devaluation before it really beats a dollar one;` +
+    ` a foreign rate must out-earn its transfer fees.</div>`;
+
+  const seriesDefs = routes.map((r) => ({
+    short: r.name.length > 18 ? r.name.slice(0, 17) + '…' : r.name,
+    legend: `${r.name} — ${rateLine(r)}`,
+  }));
+
+  const tableRows = [];
+  routes.forEach((r, i) => {
+    tableRows.push(
+      ['section', `${r.name} — ${rateLine(r)}`],
+      ['Placed on day 0 (after entry fee)',
+        `${uah(s.amountUAH0 - st[i].feeIn0UAH)} (${usd((s.amountUAH0 - st[i].feeIn0UAH) / p.fx0)})`],
+      ['Entry fees, total (initial + top-ups)', uah(st[i].feesInUAH)],
+      ['Interest earned, net of tax', uah(st[i].interestUAH)],
+      ['Account fees, total', st[i].feesMoUAH > 0.5 ? uah(st[i].feesMoUAH) : '—'],
+      ['Exit fee at the horizon', s.feesOut[i] > 0.5 ? uah(s.feesOut[i]) : '—'],
+      ['Take home at the horizon', `${uah(finals[i])} (${usd(finals[i] / s.fxEnd)})`],
+      ['…in today’s dollars', usd(todayUSD(finals[i]))],
+      ['Take-home vs money put in', `${(finals[i] / s.fxEnd / Math.max(1e-9, s.paidUSD[i])).toFixed(2)}× in nominal $`],
+    );
+  });
+  tableRows.push(
+    ['section', `Assumptions behind the race`],
+    ['Money put in per route', `${uah(s.paid[0])} (${usd(s.paidUSD[0])} at transfer-time rates)`],
+    ['Exchange rate at horizon', s.fxEnd.toFixed(1) + ' UAH/USD'],
+    ['UAH devaluation / UAH CPI / USD CPI', `${p.devalPct}% / ${p.inflPct}% / ${p.usdInflPct}% per year`],
+  );
+
+  return {
+    series, months,
+    seriesDefs,
+    events,
+    adv,
+    paid: s.paid, paidUSD: s.paidUSD,
+    baselineIndex: base,
+    verdict,
+    kpis: [
+      { label: 'Best route', value: seriesDefs[best].short,
+        delta: `${usd(todayUSD(finals[best]))} in today’s dollars` },
+      { label: `${routes[cmp].name} vs ${routes[base].name}`, value: signed(todayUSD(adv), usd),
+        cls: adv >= 0 ? 'good' : 'bad', delta: 'today’s dollars at the horizon' },
+      { label: 'Ahead of the baseline from', value: routes.length < 2 ? '—'
+          : be === null ? 'never (within horizon)' : be === 0 ? 'day 1' : `year ${(be / 12).toFixed(1)}`,
+        delta: routes.length < 2 ? 'add a second route to compare' : `${routes[cmp].name} vs ${routes[base].name}` },
+      { label: 'Fees drag — best route', value: uah(feesTotal[best]),
+        delta: `entry + account + exit (${usd(feesTotal[best] / s.fxEnd)})` },
+    ],
+    whyTitle: `Why: ${routes[cmp].name} vs ${routes[base].name} — what makes the difference`,
+    whyRows,
+    tableRows,
+    ctx: { inflPct: p.inflPct, usdInflPct: p.usdInflPct, horizonYears: yrs, fxEnd: s.fxEnd },
+  };
+}

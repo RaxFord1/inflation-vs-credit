@@ -12,7 +12,9 @@ node cli.js '<json>'
 echo '<json>' | node cli.js
 ```
 
-Modes: `car` (cash vs credit), `home` (mortgage vs cash vs rent vs buy-to-let),
+Modes: `dep` (deposit routes — where to keep money: destination bank/currency ×
+transfer method with entry/exit fees), `car` (cash vs credit),
+`home` (mortgage vs cash vs rent vs buy-to-let),
 `mort` (up to ten mortgage down-payment + term variants vs renting),
 `life` (multi-criteria life decisions), `biz` (business ideas vs keeping your job),
 `find` (car sourcing & vetting — Ukraine/Europe; see the dedicated section below,
@@ -107,6 +109,19 @@ year unless stated. Source of truth: `defaults.js`.
 - `investOff` (false) — true turns investment returns off everywhere: freed-up
   money accumulates as 0%-yield cash (still in `invCurrency`), so path gaps
   show pure costs (interest, fees, insurance, rent) with no investment income
+
+### Deposit routes (dep mode)
+- `dep_amountUSD` (10000) — lump sum every route starts from
+- `dep_topUpUSD` (200) — added monthly through the same route (entry fees apply
+  to each top-up; set 0 for a pure lump-sum race)
+- Route slots 1–5 (replace N; defaults: 1 = UA USD deposit 2%, 2 = US HYSA 5%
+  via SWIFT, 3 = UA UAH deposit 13.5%, 4 = OVDP off, 5 = cash off):
+  `depN_on`, `depN_name`, `depN_cur` ('USD'|'UAH'), `depN_ratePct`,
+  `depN_taxPct` (23 = UA tax on interest), `depN_feeInPct` + `depN_feeInFixUSD`
+  (entry fee: % of amount + fixed $ per transfer), `depN_feeOutPct` +
+  `depN_feeOutFixUSD` (exit fee — every reported value is net of it),
+  `depN_monthlyFeeUSD` (account maintenance)
+- UAH balances devalue at `devalPct`; the baseline is the first active route
 
 ### Car (car mode; life decisions carCash/carCredit/combo)
 - `price` (25000), `priceCurrency` ('USD'), `carDepPct` (12, USD-terms)

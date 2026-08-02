@@ -3,6 +3,7 @@
  * Low-level helpers ($, el, niceTicks, etc.) live in chart.js. */
 
 const MODULES = {
+  dep: { run: depSim },
   car: { run: carSim },
   home: { run: homeSim },
   mort: { run: mortSim },
@@ -11,9 +12,15 @@ const MODULES = {
   ev: { run: evSim },
   solar: { run: solarSim },
 };
-let mode = 'car';
+let mode = 'dep';
 
 const INTROS = {
+  dep: 'The base layer of every money decision: where should the money itself sit? A route combines a destination ' +
+    '(a UAH deposit at a high rate, a USD deposit at a low one, a foreign bank that pays more, bonds, cash) with a way ' +
+    'of getting the money there — SWIFT, Wise, stablecoins — each charging its own entry and exit fees. Build up to five ' +
+    'routes and race them: every route starts from the same amount and gets the same monthly top-up, every line is net ' +
+    'of exit fees (what you would actually take home), and devaluation plus both inflations are baked in — a 13.5% UAH ' +
+    'rate can still lose to a 2% dollar one, and a 5% foreign rate must first out-earn its transfer costs.',
   car: 'Which way of paying leaves you richer? Tweak the numbers on the left — results update instantly. ' +
     'To keep the comparison fair, every path spends the same amount of money each month: whoever is required to ' +
     'pay less than the others invests the difference. So the gap between the lines is the true cost (or benefit) of each choice.',
@@ -47,6 +54,14 @@ const INTROS = {
 };
 
 const NUM_IDS = [
+  // deposits
+  'dep_amountUSD', 'dep_topUpUSD',
+  ...Array.from({ length: 5 }, (_, k) => [
+    `dep${k + 1}_ratePct`, `dep${k + 1}_taxPct`,
+    `dep${k + 1}_feeInPct`, `dep${k + 1}_feeInFixUSD`,
+    `dep${k + 1}_feeOutPct`, `dep${k + 1}_feeOutFixUSD`,
+    `dep${k + 1}_monthlyFeeUSD`,
+  ]).flat(),
   // car
   'price', 'carDepPct', 'pensionPct', 'regFeeUAH', 'cashDiscountPct',
   'dpPct', 'loanYears', 'loanRatePct', 'commissionPct', 'monthlyFeeUAH',
@@ -175,6 +190,35 @@ SCENARIO_PRESETS.solarUsePreset = {
   selfuse2k:  { sol_selfUseKWh: 2000 },
 };
 
+/* Deposit-route presets: destinations (bank/instrument → currency, rate, tax)
+ * and ways in (transfer method → entry/exit fees, % + fixed USD). Mid-2026
+ * estimates; the two selects per route slot control disjoint field sets, so
+ * any bank × any method combination is possible. */
+const DEP_BANK_PRESETS = {
+  'ua-uah':  { _cur: 'UAH', _ratePct: 13.5, _taxPct: 23, _name: 'UA bank — UAH deposit' },
+  'ua-usd':  { _cur: 'USD', _ratePct: 2,    _taxPct: 23, _name: 'UA bank — USD deposit' },
+  'ovdp':    { _cur: 'UAH', _ratePct: 16.5, _taxPct: 0,  _name: 'OVDP bonds (UAH)' },
+  'us-hysa': { _cur: 'USD', _ratePct: 5,    _taxPct: 23, _name: 'US bank — HYSA' },
+  'eu-bank': { _cur: 'USD', _ratePct: 3,    _taxPct: 23, _name: 'EU bank deposit' },
+  'cash':    { _cur: 'USD', _ratePct: 0,    _taxPct: 0,  _name: 'Cash at home' },
+};
+const DEP_METHOD_PRESETS = {
+  local:  { _feeInPct: 0,   _feeInFixUSD: 0,  _feeOutPct: 0,   _feeOutFixUSD: 0 },
+  swift:  { _feeInPct: 0.5, _feeInFixUSD: 30, _feeOutPct: 0.5, _feeOutFixUSD: 30 },
+  wise:   { _feeInPct: 0.7, _feeInFixUSD: 3,  _feeOutPct: 0.7, _feeOutFixUSD: 3 },
+  crypto: { _feeInPct: 1.5, _feeInFixUSD: 2,  _feeOutPct: 1.5, _feeOutFixUSD: 2 },
+};
+for (let i = 1; i <= 5; i++) {
+  for (const [sel, src] of [[`dep${i}Preset`, DEP_BANK_PRESETS],
+                            [`dep${i}MethodPreset`, DEP_METHOD_PRESETS]]) {
+    SCENARIO_PRESETS[sel] = {};
+    for (const kind in src) {
+      SCENARIO_PRESETS[sel][kind] = {};
+      for (const f in src[kind]) SCENARIO_PRESETS[sel][kind][`dep${i}${f}`] = src[kind][f];
+    }
+  }
+}
+
 /* EV presets: old car types and new EV/PHEV models, mid-2026 estimates. */
 const EV_OLD_PRESETS = {
   sedan:     { eo_valueUSD: 4000,  eo_depPct: 6, eo_consumption: 8,  eo_maintUSD: 80,  eo_fuelType: 'petrol', ev_fuelUAH: 57 },
@@ -221,6 +265,17 @@ const INFL_SWEEP = {
 };
 
 const SWEEPS = {
+  dep: [
+    { id: 'dep_amountUSD', label: 'Amount to place, $', unit: 'money',
+      dyn: (p) => { const hi = Math.max(p.dep_amountUSD * 2, 20000); return [0, 1, 2, 3, 4, 5, 6, 7, 8].map((k) => Math.round(hi * k / 8)); } },
+    { id: 'dep_topUpUSD', label: 'Monthly top-up, $', unit: 'money', values: [0, 50, 100, 200, 300, 500, 1000] },
+    { id: 'dep2_ratePct', label: 'Route 2 rate, %/yr', unit: '%', values: [0, 1, 2, 3, 4, 5, 6, 8, 10] },
+    { id: 'dep2_feeInPct', label: 'Route 2 entry fee, %', unit: '%', values: [0, 0.5, 1, 1.5, 2, 3, 5] },
+    { id: 'dep3_ratePct', label: 'Route 3 rate, %/yr', unit: '%', values: [8, 10, 12, 13.5, 15, 18, 22, 26] },
+    { id: 'devalPct', label: 'UAH devaluation, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 25] },
+    INFL_SWEEP,
+    { id: 'horizonYears', label: 'Horizon, years', unit: 'y', values: [1, 2, 3, 5, 7, 10, 15, 20] },
+  ],
   car: [
     { id: 'dpPct', label: 'Down payment, %', unit: '%', values: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90] },
     { id: 'loanRatePct', label: 'Loan rate, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 24, 28] },
@@ -313,6 +368,11 @@ const sweepChoice = {}; // per mode, which input is being swept
  * preset selects. Chip state mirrors the selects; editing a covered field
  * flips the select to "custom" and the chip un-highlights on re-render. */
 const QUICKBAR = {
+  dep: [
+    { sel: 'dep2Preset', title: 'Route 2 bank', labels: { 'us-hysa': 'US bank 5%', 'eu-bank': 'EU bank 3%', 'ua-usd': 'UA USD 2%', ovdp: 'OVDP 16.5%' } },
+    { sel: 'dep2MethodPreset', title: 'Route 2 transfer', labels: { local: 'Free', swift: 'SWIFT', wise: 'Wise', crypto: 'USDT' } },
+    { sel: 'dep3Preset', title: 'Route 3 bank', labels: { 'ua-uah': 'UA UAH 13.5%', ovdp: 'OVDP 16.5%', cash: 'Cash 0%' } },
+  ],
   car: [
     { sel: 'carPreset', title: 'Car', labels: { used: 'Used ~$6k', new: 'New crossover ~$27k', premium: 'Premium SUV ~$45k' } },
     { sel: 'loanPreset', title: 'Loan', labels: { standard: 'Bank 16%', promo: 'Promo 0.01%', usedloan: 'Used-car 20%', nodown: 'No down payment 22%' } },
@@ -399,6 +459,11 @@ function readParams() {
     p.kaskoPct = p.ev_kaskoPct;
     p.pensionPct = p.ev_pensionPct;
     p.regFeeUAH = p.ev_regFeeUAH;
+  }
+  for (let i = 1; i <= 5; i++) {
+    p[`dep${i}_on`] = $(`dep${i}_on`).checked;
+    p[`dep${i}_cur`] = $(`dep${i}_cur`).value;
+    p[`dep${i}_name`] = $(`dep${i}_name`).value;
   }
   p.lifeActive = LIFE_DEC_IDS.filter((id) => $('d_' + id).checked);
   for (let i = 1; i <= 10; i++) p[`mv${i}_on`] = $(`mv${i}_on`).checked;
@@ -1730,4 +1795,4 @@ window.LDM = {
 };
 
 syncCarFields();
-setMode(urlMode && ALL_MODES[urlMode] ? urlMode : 'car');
+setMode(urlMode && ALL_MODES[urlMode] ? urlMode : 'dep');

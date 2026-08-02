@@ -12,7 +12,8 @@
   <h1>Life decision maker — evaluate your next big move</h1>
   <p class="sub" id="introSub"></p>
   <nav class="tabs">
-    <button class="tab active" data-mode="car">Car: cash vs credit</button>
+    <button class="tab active" data-mode="dep">Deposits: where to keep money</button>
+    <button class="tab" data-mode="car">Car: cash vs credit</button>
     <button class="tab" data-mode="home">Apartment: mortgage vs cash vs rent</button>
     <button class="tab" data-mode="mort">Mortgage variants: down payment &amp; term</button>
     <button class="tab" data-mode="life">Life decisions: what's my best move?</button>
@@ -27,6 +28,237 @@
 <div class="layout">
 
 <aside class="panel" id="inputs">
+
+  <section data-mode="dep">
+    <h2>Money to place</h2>
+    <label>Amount you have now, USD
+      <input type="number" id="dep_amountUSD" value="10000" min="0" step="500">
+      <small>The lump sum you're deciding where to keep. Every route below starts from this
+        same amount and pays its own entry fee on the way in.</small>
+    </label>
+    <label>Monthly top-up, USD
+      <input type="number" id="dep_topUpUSD" value="200" min="0" step="25">
+      <small>Added every month through the same route. Fixed per-transfer fees (e.g. SWIFT)
+        eat small top-ups alive — set 0 for a pure lump-sum comparison.</small>
+    </label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep1_on" checked> Route 1</label></h2>
+    <label>Name
+      <input type="text" id="dep1_name" value="UA bank — USD deposit"></label>
+    <label>Destination — where the money sits
+      <select id="dep1Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd" selected>UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select>
+      <small>Fills currency, rate and tax below. Edit anything to go custom.</small></label>
+    <label>Currency
+      <select id="dep1_cur"><option selected>USD</option><option>UAH</option></select>
+      <small>A UAH balance devalues against the dollar at the macro rate below; a USD balance holds.</small></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep1_ratePct" value="2" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep1_taxPct" value="23" min="0" max="60" step="0.5">
+      <small>Ukraine: 18% PIT + 5% military levy = 23%. OVDP interest is exempt.
+        Interest earned abroad must be declared in Ukraine too.</small></label>
+    <label>How the money gets there
+      <select id="dep1MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local" selected>Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select>
+      <small>Fills the entry/exit fees below.</small></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep1_feeInPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep1_feeInFixUSD" value="0" min="0" step="1">
+      </span>
+      <small>Charged on the initial amount and on every monthly top-up.</small></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep1_feeOutPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep1_feeOutFixUSD" value="0" min="0" step="1">
+      </span>
+      <small>Paid to bring the money home — every chart point is already net of it.</small></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep1_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep2_on" checked> Route 2</label></h2>
+    <label>Name
+      <input type="text" id="dep2_name" value="US bank — HYSA"></label>
+    <label>Destination — where the money sits
+      <select id="dep2Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa" selected>US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep2_cur"><option selected>USD</option><option>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep2_ratePct" value="5" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep2_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>How the money gets there
+      <select id="dep2MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local">Locally / cash — free</option>
+        <option value="swift" selected>SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep2_feeInPct" value="0.5" min="0" max="20" step="0.1">
+        <input type="number" id="dep2_feeInFixUSD" value="30" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep2_feeOutPct" value="0.5" min="0" max="20" step="0.1">
+        <input type="number" id="dep2_feeOutFixUSD" value="30" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep2_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep3_on" checked> Route 3</label></h2>
+    <label>Name
+      <input type="text" id="dep3_name" value="UA bank — UAH deposit"></label>
+    <label>Destination — where the money sits
+      <select id="dep3Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="ua-uah" selected>UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep3_cur"><option>USD</option><option selected>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep3_ratePct" value="13.5" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep3_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>How the money gets there
+      <select id="dep3MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local" selected>Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep3_feeInPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep3_feeInFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep3_feeOutPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep3_feeOutFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep3_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep4_on"> Route 4</label></h2>
+    <label>Name
+      <input type="text" id="dep4_name" value="OVDP bonds (UAH)"></label>
+    <label>Destination — where the money sits
+      <select id="dep4Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp" selected>OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep4_cur"><option>USD</option><option selected>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep4_ratePct" value="16.5" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep4_taxPct" value="0" min="0" max="60" step="0.5"></label>
+    <label>How the money gets there
+      <select id="dep4MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local" selected>Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep4_feeInPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep4_feeInFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep4_feeOutPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep4_feeOutFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep4_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep5_on"> Route 5</label></h2>
+    <label>Name
+      <input type="text" id="dep5_name" value="Cash at home"></label>
+    <label>Destination — where the money sits
+      <select id="dep5Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash" selected>Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep5_cur"><option selected>USD</option><option>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep5_ratePct" value="0" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep5_taxPct" value="0" min="0" max="60" step="0.5"></label>
+    <label>How the money gets there
+      <select id="dep5MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local" selected>Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep5_feeInPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep5_feeInFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep5_feeOutPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep5_feeOutFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep5_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
 
   <section data-mode="life biz solar">
     <h2>You today</h2>
@@ -55,7 +287,7 @@
     </label>
   </section>
 
-  <section data-mode="car home mort life biz ev solar">
+  <section data-mode="dep car home mort life biz ev solar">
     <h2>Your job &amp; income</h2>
     <label>Salary, per month
       <span class="row">
@@ -1400,6 +1632,7 @@
 
 <script src="engine.js"></script>
 <script src="defaults.js"></script>
+<script src="dep.js"></script>
 <script src="car.js"></script>
 <script src="home.js"></script>
 <script src="mort.js"></script>
