@@ -23,46 +23,47 @@ const PARAM_DEFAULTS = {
    * subtracted from every chart point (take-home value). */
   dep_amountUSD: 10000,   // lump sum to place
   dep_topUpUSD: 200,      // added monthly through the same route
+  dep_portfolio: false,   // portfolio mode: split money by share instead of full-sum comparison
 
   dep1_on: true, dep1_name: 'UA bank — USD deposit', dep1_cur: 'USD',
   dep1_comp: 'compound', dep1_ratePct: 2, dep1_taxPct: 23,
   dep1_feeInPct: 0, dep1_feeInFixUSD: 0, dep1_feeOutPct: 0, dep1_feeOutFixUSD: 0,
-  dep1_monthlyFeeUSD: 0,
+  dep1_monthlyFeeUSD: 0, dep1_sharePct: 40,
 
   dep2_on: true, dep2_name: 'US bank — HYSA', dep2_cur: 'USD',
   dep2_comp: 'compound', dep2_ratePct: 5, dep2_taxPct: 23,
   dep2_feeInPct: 0.5, dep2_feeInFixUSD: 30, dep2_feeOutPct: 0.5, dep2_feeOutFixUSD: 30,
-  dep2_monthlyFeeUSD: 0,
+  dep2_monthlyFeeUSD: 0, dep2_sharePct: 30,
 
   dep3_on: true, dep3_name: 'UA bank — UAH deposit', dep3_cur: 'UAH',
   dep3_comp: 'compound', dep3_ratePct: 13.5, dep3_taxPct: 23,
   dep3_feeInPct: 0, dep3_feeInFixUSD: 0, dep3_feeOutPct: 0, dep3_feeOutFixUSD: 0,
-  dep3_monthlyFeeUSD: 0,
+  dep3_monthlyFeeUSD: 0, dep3_sharePct: 30,
 
   dep4_on: false, dep4_name: 'OVDP bonds (UAH)', dep4_cur: 'UAH',
   dep4_comp: 'payout', dep4_ratePct: 16.5, dep4_taxPct: 0,
   dep4_feeInPct: 0, dep4_feeInFixUSD: 0, dep4_feeOutPct: 0, dep4_feeOutFixUSD: 0,
-  dep4_monthlyFeeUSD: 0,
+  dep4_monthlyFeeUSD: 0, dep4_sharePct: 0,
 
   dep5_on: false, dep5_name: 'Cash at home', dep5_cur: 'USD',
   dep5_comp: 'compound', dep5_ratePct: 0, dep5_taxPct: 0,
   dep5_feeInPct: 0, dep5_feeInFixUSD: 0, dep5_feeOutPct: 0, dep5_feeOutFixUSD: 0,
-  dep5_monthlyFeeUSD: 0,
+  dep5_monthlyFeeUSD: 0, dep5_sharePct: 0,
 
   dep6_on: false, dep6_name: 'EU bank via Wise', dep6_cur: 'USD',
   dep6_comp: 'compound', dep6_ratePct: 3, dep6_taxPct: 23,
   dep6_feeInPct: 0.7, dep6_feeInFixUSD: 3, dep6_feeOutPct: 0.7, dep6_feeOutFixUSD: 3,
-  dep6_monthlyFeeUSD: 0,
+  dep6_monthlyFeeUSD: 0, dep6_sharePct: 0,
 
   dep7_on: false, dep7_name: 'Route 7', dep7_cur: 'USD',
   dep7_comp: 'compound', dep7_ratePct: 4, dep7_taxPct: 23,
   dep7_feeInPct: 0, dep7_feeInFixUSD: 0, dep7_feeOutPct: 0, dep7_feeOutFixUSD: 0,
-  dep7_monthlyFeeUSD: 0,
+  dep7_monthlyFeeUSD: 0, dep7_sharePct: 0,
 
   dep8_on: false, dep8_name: 'Route 8', dep8_cur: 'UAH',
   dep8_comp: 'compound', dep8_ratePct: 10, dep8_taxPct: 23,
   dep8_feeInPct: 0, dep8_feeInFixUSD: 0, dep8_feeOutPct: 0, dep8_feeOutFixUSD: 0,
-  dep8_monthlyFeeUSD: 0,
+  dep8_monthlyFeeUSD: 0, dep8_sharePct: 0,
 
   /* --- your money (life & biz tabs) --- */
   savings: 10000,

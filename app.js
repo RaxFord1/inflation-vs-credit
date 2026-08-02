@@ -60,7 +60,7 @@ const NUM_IDS = [
     `dep${k + 1}_ratePct`, `dep${k + 1}_taxPct`,
     `dep${k + 1}_feeInPct`, `dep${k + 1}_feeInFixUSD`,
     `dep${k + 1}_feeOutPct`, `dep${k + 1}_feeOutFixUSD`,
-    `dep${k + 1}_monthlyFeeUSD`,
+    `dep${k + 1}_monthlyFeeUSD`, `dep${k + 1}_sharePct`,
   ]).flat(),
   // car
   'price', 'carDepPct', 'pensionPct', 'regFeeUAH', 'cashDiscountPct',
@@ -441,6 +441,7 @@ function readParams() {
   p.savingsCurrency = $('savingsCurrency').value;
   p.kaskoCash = $('kaskoCash').checked;
   p.investOff = $('investOff').checked;
+  p.dep_portfolio = $('dep_portfolio').checked;
   p.bz_scaleOn = $('bz_scaleOn').checked;
   p.ev_sellOld = $('ev_sellOld').checked;
   p.sol_region = $('sol_region').value;
@@ -1745,27 +1746,8 @@ function render() {
   syncURL();
 }
 
-/* ---------- tab visibility toggle ---------- */
-const depTab = document.querySelector('.tab[data-mode="dep"]');
-const toggleDepBtn = $('toggleDep');
-let depHidden = localStorage.getItem('hideDepTab') === '1';
-
-function applyDepToggle() {
-  depTab.hidden = depHidden;
-  toggleDepBtn.classList.toggle('off', depHidden);
-  toggleDepBtn.title = depHidden ? 'Show Deposits tab' : 'Hide Deposits tab';
-  if (depHidden && mode === 'dep') setMode('car');
-}
-
-toggleDepBtn.addEventListener('click', () => {
-  depHidden = !depHidden;
-  localStorage.setItem('hideDepTab', depHidden ? '1' : '0');
-  applyDepToggle();
-});
-
 /* ---------- tabs ---------- */
 function setMode(next) {
-  if (next === 'dep' && depHidden) next = 'car';
   mode = next;
   document.querySelectorAll('.tabs .tab').forEach((b) =>
     b.classList.toggle('active', b.dataset.mode === mode));
@@ -1822,11 +1804,15 @@ for (const id of LIFE_DEC_IDS) {
  * route" button opens the next collapsed slot (hidden when all 8 are open). */
 function syncDepFields() {
   let allOn = true;
+  const pf = $('dep_portfolio').checked;
   for (let i = 1; i <= 8; i++) {
     const on = $(`dep${i}_on`).checked;
     if (!on) allOn = false;
     const section = $(`dep${i}_on`).closest('section');
-    for (const lbl of section.querySelectorAll(':scope > label')) lbl.hidden = !on;
+    for (const lbl of section.querySelectorAll(':scope > label')) {
+      if (lbl.hasAttribute('data-portfolio')) lbl.hidden = !on || !pf;
+      else lbl.hidden = !on;
+    }
   }
   $('depAddRoute').hidden = allOn;
 }
@@ -1942,5 +1928,4 @@ window.LDM = {
 };
 
 syncCarFields();
-applyDepToggle();
 setMode(urlMode && ALL_MODES[urlMode] ? urlMode : 'dep');

@@ -22,6 +22,7 @@ function depReadRoute(p, i) {
     feeOutPct: p[`dep${i}_feeOutPct`] || 0,
     feeOutFixUSD: p[`dep${i}_feeOutFixUSD`] || 0,
     monthlyFeeUSD: p[`dep${i}_monthlyFeeUSD`] || 0,
+    sharePct: p[`dep${i}_sharePct`] || 0,
   };
 }
 
@@ -35,18 +36,22 @@ function depRun(p) {
   const months = Math.max(1, Math.round(p.horizonYears * 12));
   const fx = makeFx(p);
   const routes = depActiveRoutes(p);
-  const amountUAH0 = Math.max(0, p.dep_amountUSD) * p.fx0;
-  const topUSD = Math.max(0, p.dep_topUpUSD);
+  const portfolio = !!p.dep_portfolio;
+  const totalUAH0 = Math.max(0, p.dep_amountUSD) * p.fx0;
+  const totalTopUSD = Math.max(0, p.dep_topUpUSD);
 
   const st = routes.map((r) => {
-    const feeIn0 = Math.min(amountUAH0,
-      amountUAH0 * r.feeInPct / 100 + (amountUAH0 > 0 ? r.feeInFixUSD * p.fx0 : 0));
-    const netUAH0 = amountUAH0 - feeIn0;
+    const share = portfolio ? r.sharePct / 100 : 1;
+    const myUAH0 = totalUAH0 * share;
+    const myTopUSD = totalTopUSD * share;
+    const feeIn0 = Math.min(myUAH0,
+      myUAH0 * r.feeInPct / 100 + (myUAH0 > 0 ? r.feeInFixUSD * p.fx0 : 0));
+    const netUAH0 = myUAH0 - feeIn0;
     return {
-      r,
-      bal: r.cur === 'USD' ? netUAH0 / p.fx0 : netUAH0, // principal, in the route's currency
-      pile: 0, // paid-out coupons (payout mode) — same currency, earns nothing
-      interestUAH: 0, // net of tax, at accrual-month FX
+      r, myTopUSD, myUAH0,
+      bal: r.cur === 'USD' ? netUAH0 / p.fx0 : netUAH0,
+      pile: 0,
+      interestUAH: 0,
       feeIn0UAH: feeIn0,
       feesInUAH: feeIn0,
       feesMoUAH: 0,
@@ -62,12 +67,11 @@ function depRun(p) {
   };
 
   const series = [{ m: 0, fx: fx(0), v: st.map((s) => cashOut(s, 0).v) }];
-  const paid = st.map(() => amountUAH0);
-  const paidUSD = st.map(() => amountUAH0 / p.fx0);
+  const paid = st.map((s) => s.myUAH0);
+  const paidUSD = st.map((s) => s.myUAH0 / p.fx0);
 
   for (let m = 1; m <= months; m++) {
     const f = fx(m);
-    const topUAH = topUSD * f;
     st.forEach((s, i) => {
       // interest, taxed as it accrues. Capitalized: added to the principal and
       // compounds. Paid out (OVDP-style coupons): simple interest on the
@@ -82,13 +86,14 @@ function depRun(p) {
       }
       s.interestUAH += g * (s.r.cur === 'USD' ? f : 1);
       // monthly top-up goes through the same entry fees as the lump sum
-      if (topUSD > 0) {
+      const topUAH = s.myTopUSD * f;
+      if (s.myTopUSD > 0) {
         const fee = Math.min(topUAH, topUAH * s.r.feeInPct / 100 + s.r.feeInFixUSD * f);
         s.feesInUAH += fee;
         const net = topUAH - fee;
         s.bal += s.r.cur === 'USD' ? net / f : net;
         paid[i] += topUAH;
-        paidUSD[i] += topUSD;
+        paidUSD[i] += s.myTopUSD;
       }
       // account maintenance
       if (s.r.monthlyFeeUSD > 0) {
@@ -99,14 +104,14 @@ function depRun(p) {
     series.push({
       m, fx: f,
       v: st.map((s) => cashOut(s, m).v),
-      obl: st.map(() => topUAH),
+      obl: st.map((s) => s.myTopUSD * f),
     });
   }
 
   const outs = st.map((s) => cashOut(s, months));
-  return { routes, st, series, months, paid, paidUSD,
+  return { routes, st, series, months, paid, paidUSD, portfolio,
     finals: series[series.length - 1].v, fxEnd: fx(months),
-    feesOut: outs.map((o) => o.fee), amountUAH0 };
+    feesOut: outs.map((o) => o.fee), amountUAH0: totalUAH0 };
 }
 
 function depSim(p) {
@@ -153,12 +158,16 @@ function depSim(p) {
   const rateLine = (r) => `${r.cur} ${r.ratePct}%/yr` +
     (r.taxPct > 0 ? `, tax ${r.taxPct}%` : '') +
     (r.compound ? '' : ', coupons out');
-  const verdict =
-    `<strong>${bestName} leaves you the most: ${usd(todayUSD(finals[best]))} in today’s dollars after ${yrs} years.</strong>` +
-    `<div class="why">${routes.map((r, i) =>
-      `${r.name} (${rateLine(r)}) → ${usd(todayUSD(finals[i]))}`).join(' · ')}.` +
-    ` A UAH rate must outrun ~${p.devalPct}%/yr devaluation before it really beats a dollar one;` +
-    ` a foreign rate must out-earn its transfer fees.</div>`;
+  const portfolioTotal = s.portfolio ? finals.reduce((a, v) => a + v, 0) : 0;
+  const verdict = s.portfolio
+    ? `<strong>Portfolio total: ${usd(todayUSD(portfolioTotal))} in today’s dollars after ${yrs} years.</strong>` +
+      `<div class="why">${routes.map((r, i) =>
+        `${r.name} (${r.sharePct}%, ${rateLine(r)}) → ${usd(todayUSD(finals[i]))}`).join(' · ')}.</div>`
+    : `<strong>${bestName} leaves you the most: ${usd(todayUSD(finals[best]))} in today’s dollars after ${yrs} years.</strong>` +
+      `<div class="why">${routes.map((r, i) =>
+        `${r.name} (${rateLine(r)}) → ${usd(todayUSD(finals[i]))}`).join(' · ')}.` +
+      ` A UAH rate must outrun ~${p.devalPct}%/yr devaluation before it really beats a dollar one;` +
+      ` a foreign rate must out-earn its transfer fees.</div>`;
 
   const seriesDefs = routes.map((r) => ({
     short: r.name.length > 18 ? r.name.slice(0, 17) + '…' : r.name,
@@ -167,10 +176,11 @@ function depSim(p) {
 
   const tableRows = [];
   routes.forEach((r, i) => {
+    const shareLabel = s.portfolio ? ` (${r.sharePct}% of portfolio)` : '';
     tableRows.push(
-      ['section', `${r.name} — ${rateLine(r)}`],
+      ['section', `${r.name} — ${rateLine(r)}${shareLabel}`],
       ['Placed on day 0 (after entry fee)',
-        `${uah(s.amountUAH0 - st[i].feeIn0UAH)} (${usd((s.amountUAH0 - st[i].feeIn0UAH) / p.fx0)})`],
+        `${uah(st[i].myUAH0 - st[i].feeIn0UAH)} (${usd((st[i].myUAH0 - st[i].feeIn0UAH) / p.fx0)})`],
       ['Entry fees, total (initial + top-ups)', uah(st[i].feesInUAH)],
       ['Interest handling', r.compound
         ? 'capitalized — added to the balance, compounds monthly'
@@ -186,10 +196,13 @@ function depSim(p) {
     );
   });
   tableRows.push(
-    ['section', `Assumptions behind the race`],
-    ['Money put in per route', `${uah(s.paid[0])} (${usd(s.paidUSD[0])} at transfer-time rates)`],
+    ['section', `Assumptions behind the ${s.portfolio ? 'portfolio' : 'race'}`],
+    [s.portfolio ? 'Total money put in' : 'Money put in per route',
+      s.portfolio
+        ? `${uah(s.paid.reduce((a, v) => a + v, 0))} (${usd(s.paidUSD.reduce((a, v) => a + v, 0))} at transfer-time rates)`
+        : `${uah(s.paid[0])} (${usd(s.paidUSD[0])} at transfer-time rates)`],
     ['Exchange rate at horizon', s.fxEnd.toFixed(1) + ' UAH/USD'],
-    ['UAH devaluation / UAH CPI / USD CPI', `${p.devalPct}% / ${p.inflPct}% / ${p.usdInflPct}% per year`],
+    [`UAH devaluation / UAH CPI / USD CPI`, `${p.devalPct}% / ${p.inflPct}% / ${p.usdInflPct}% per year`],
   );
 
   return {
@@ -200,11 +213,20 @@ function depSim(p) {
     paid: s.paid, paidUSD: s.paidUSD,
     baselineIndex: base,
     verdict,
-    kpis: [
+    kpis: s.portfolio ? [
+      { label: 'Portfolio total', value: usd(todayUSD(portfolioTotal)),
+        delta: `in today’s dollars after ${yrs} years` },
+      { label: 'Total fees drag', value: uah(feesTotal.reduce((a, v) => a + v, 0)),
+        delta: `entry + account + exit (${usd(feesTotal.reduce((a, v) => a + v, 0) / s.fxEnd)})` },
+      { label: 'Largest share', value: `${seriesDefs[best].short} ${routes[best].sharePct}%`,
+        delta: `${usd(todayUSD(finals[best]))} in today’s dollars` },
+      { label: 'Total put in', value: usd(s.paidUSD.reduce((a, v) => a + v, 0)),
+        delta: 'across all routes at transfer-time rates' },
+    ] : [
       { label: 'Best route', value: seriesDefs[best].short,
         delta: `${usd(todayUSD(finals[best]))} in today’s dollars` },
       { label: `${routes[cmp].name} vs ${routes[base].name}`, value: signed(todayUSD(adv), usd),
-        cls: adv >= 0 ? 'good' : 'bad', delta: 'today’s dollars at the horizon' },
+        cls: adv >= 0 ? 'good' : 'bad', delta: `today’s dollars at the horizon` },
       { label: 'Ahead of the baseline from', value: routes.length < 2 ? '—'
           : be === null ? 'never (within horizon)' : be === 0 ? 'day 1' : `year ${(be / 12).toFixed(1)}`,
         delta: routes.length < 2 ? 'add a second route to compare' : `${routes[cmp].name} vs ${routes[base].name}` },
