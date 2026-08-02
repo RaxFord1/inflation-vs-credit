@@ -12,7 +12,7 @@
 const PARAM_DEFAULTS = {
   /* --- macro & horizon --- */
   horizonYears: 5,
-  fx0: 41.7,           // UAH per USD today
+  fx0: 45,             // UAH per USD today
   inflPct: 11,         // UAH CPI, %/yr
   usdInflPct: 3,       // US CPI, %/yr
   devalPct: 8,         // UAH devaluation vs USD, %/yr
