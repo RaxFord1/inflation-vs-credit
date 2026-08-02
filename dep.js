@@ -7,13 +7,14 @@
  * i.e. what you would actually take home if you cashed out that month.
  */
 
-const DEP_SLOTS = [1, 2, 3, 4, 5];
+const DEP_SLOTS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 function depReadRoute(p, i) {
   return {
     slot: i,
     name: p[`dep${i}_name`] || `Route ${i}`,
     cur: p[`dep${i}_cur`] === 'UAH' ? 'UAH' : 'USD',
+    compound: p[`dep${i}_comp`] !== 'payout', // payout = coupons not reinvested
     ratePct: p[`dep${i}_ratePct`] || 0,
     taxPct: p[`dep${i}_taxPct`] || 0,
     feeInPct: p[`dep${i}_feeInPct`] || 0,
@@ -43,7 +44,8 @@ function depRun(p) {
     const netUAH0 = amountUAH0 - feeIn0;
     return {
       r,
-      bal: r.cur === 'USD' ? netUAH0 / p.fx0 : netUAH0, // in the route's currency
+      bal: r.cur === 'USD' ? netUAH0 / p.fx0 : netUAH0, // principal, in the route's currency
+      pile: 0, // paid-out coupons (payout mode) — same currency, earns nothing
       interestUAH: 0, // net of tax, at accrual-month FX
       feeIn0UAH: feeIn0,
       feesInUAH: feeIn0,
@@ -51,11 +53,11 @@ function depRun(p) {
     };
   });
 
-  // take-home value: balance marked to UAH minus the exit fee
+  // take-home value: principal + accumulated coupons marked to UAH, minus the exit fee
   const cashOut = (s, m) => {
-    const gross = s.bal * (s.r.cur === 'USD' ? fx(m) : 1);
+    const gross = (s.bal + s.pile) * (s.r.cur === 'USD' ? fx(m) : 1);
     const fee = Math.max(0, gross) * s.r.feeOutPct / 100 +
-      (s.bal > 0 ? s.r.feeOutFixUSD * fx(m) : 0);
+      (s.bal + s.pile > 0 ? s.r.feeOutFixUSD * fx(m) : 0);
     return { v: gross - fee, fee };
   };
 
@@ -67,9 +69,17 @@ function depRun(p) {
     const f = fx(m);
     const topUAH = topUSD * f;
     st.forEach((s, i) => {
-      // interest compounds monthly, taxed as it accrues (like the invest engine)
-      const g = s.bal * monthlyRate(s.r.ratePct) * (1 - s.r.taxPct / 100);
-      s.bal += g;
+      // interest, taxed as it accrues. Capitalized: added to the principal and
+      // compounds. Paid out (OVDP-style coupons): simple interest on the
+      // principal only, piling up as non-earning cash beside it.
+      let g;
+      if (s.r.compound) {
+        g = s.bal * monthlyRate(s.r.ratePct) * (1 - s.r.taxPct / 100);
+        s.bal += g;
+      } else {
+        g = s.bal * (s.r.ratePct / 100 / 12) * (1 - s.r.taxPct / 100);
+        s.pile += g;
+      }
       s.interestUAH += g * (s.r.cur === 'USD' ? f : 1);
       // monthly top-up goes through the same entry fees as the lump sum
       if (topUSD > 0) {
@@ -141,7 +151,8 @@ function depSim(p) {
 
   const bestName = routes[best].name;
   const rateLine = (r) => `${r.cur} ${r.ratePct}%/yr` +
-    (r.taxPct > 0 ? `, tax ${r.taxPct}%` : '');
+    (r.taxPct > 0 ? `, tax ${r.taxPct}%` : '') +
+    (r.compound ? '' : ', coupons out');
   const verdict =
     `<strong>${bestName} leaves you the most: ${usd(todayUSD(finals[best]))} in today’s dollars after ${yrs} years.</strong>` +
     `<div class="why">${routes.map((r, i) =>
@@ -161,7 +172,12 @@ function depSim(p) {
       ['Placed on day 0 (after entry fee)',
         `${uah(s.amountUAH0 - st[i].feeIn0UAH)} (${usd((s.amountUAH0 - st[i].feeIn0UAH) / p.fx0)})`],
       ['Entry fees, total (initial + top-ups)', uah(st[i].feesInUAH)],
+      ['Interest handling', r.compound
+        ? 'capitalized — added to the balance, compounds monthly'
+        : 'paid out — coupons pile up as cash and earn nothing'],
       ['Interest earned, net of tax', uah(st[i].interestUAH)],
+      ['Coupons sitting as cash at the horizon', r.compound ? '—'
+        : uah(st[i].pile * (r.cur === 'USD' ? s.fxEnd : 1))],
       ['Account fees, total', st[i].feesMoUAH > 0.5 ? uah(st[i].feesMoUAH) : '—'],
       ['Exit fee at the horizon', s.feesOut[i] > 0.5 ? uah(s.feesOut[i]) : '—'],
       ['Take home at the horizon', `${uah(finals[i])} (${usd(finals[i] / s.fxEnd)})`],

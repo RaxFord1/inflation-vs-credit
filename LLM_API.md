@@ -114,9 +114,12 @@ year unless stated. Source of truth: `defaults.js`.
 - `dep_amountUSD` (10000) — lump sum every route starts from
 - `dep_topUpUSD` (200) — added monthly through the same route (entry fees apply
   to each top-up; set 0 for a pure lump-sum race)
-- Route slots 1–5 (replace N; defaults: 1 = UA USD deposit 2%, 2 = US HYSA 5%
-  via SWIFT, 3 = UA UAH deposit 13.5%, 4 = OVDP off, 5 = cash off):
-  `depN_on`, `depN_name`, `depN_cur` ('USD'|'UAH'), `depN_ratePct`,
+- Route slots 1–8 (replace N; defaults: 1 = UA USD deposit 2%, 2 = US HYSA 5%
+  via SWIFT, 3 = UA UAH deposit 13.5%, 4 = OVDP off, 5 = cash off, 6–8 off):
+  `depN_on`, `depN_name`, `depN_cur` ('USD'|'UAH'),
+  `depN_comp` ('compound' = interest capitalizes monthly | 'payout' =
+  OVDP-style coupons: simple interest piling up as non-earning cash),
+  `depN_ratePct`,
   `depN_taxPct` (23 = UA tax on interest), `depN_feeInPct` + `depN_feeInFixUSD`
   (entry fee: % of amount + fixed $ per transfer), `depN_feeOutPct` +
   `depN_feeOutFixUSD` (exit fee — every reported value is net of it),

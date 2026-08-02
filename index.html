@@ -67,6 +67,14 @@
       <input type="number" id="dep1_taxPct" value="23" min="0" max="60" step="0.5">
       <small>Ukraine: 18% PIT + 5% military levy = 23%. OVDP interest is exempt.
         Interest earned abroad must be declared in Ukraine too.</small></label>
+    <label>Interest handling
+      <select id="dep1_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select>
+      <small>Capitalized interest joins the balance and earns on itself. Paid-out coupons
+        (OVDP, some deposits) pile up as cash in the same currency and earn nothing —
+        by the horizon that gap is the whole power of compounding.</small></label>
     <label>How the money gets there
       <select id="dep1MethodPreset" data-preset>
         <option value="custom">Custom</option>
@@ -112,6 +120,11 @@
       <input type="number" id="dep2_ratePct" value="5" min="0" max="60" step="0.1"></label>
     <label>Tax on interest, %
       <input type="number" id="dep2_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep2_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select></label>
     <label>How the money gets there
       <select id="dep2MethodPreset" data-preset>
         <option value="custom">Custom</option>
@@ -154,6 +167,11 @@
       <input type="number" id="dep3_ratePct" value="13.5" min="0" max="60" step="0.1"></label>
     <label>Tax on interest, %
       <input type="number" id="dep3_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep3_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select></label>
     <label>How the money gets there
       <select id="dep3MethodPreset" data-preset>
         <option value="custom">Custom</option>
@@ -196,6 +214,13 @@
       <input type="number" id="dep4_ratePct" value="16.5" min="0" max="60" step="0.1"></label>
     <label>Tax on interest, %
       <input type="number" id="dep4_taxPct" value="0" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep4_comp">
+        <option value="compound">Capitalized — compounds monthly</option>
+        <option value="payout" selected>Paid out — not reinvested (OVDP-style)</option>
+      </select>
+      <small>OVDP coupons are paid to your account and don't grow the bond itself —
+        reinvesting them by hand means new purchases, modelled here as "paid out".</small></label>
     <label>How the money gets there
       <select id="dep4MethodPreset" data-preset>
         <option value="custom">Custom</option>
@@ -238,6 +263,11 @@
       <input type="number" id="dep5_ratePct" value="0" min="0" max="60" step="0.1"></label>
     <label>Tax on interest, %
       <input type="number" id="dep5_taxPct" value="0" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep5_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select></label>
     <label>How the money gets there
       <select id="dep5MethodPreset" data-preset>
         <option value="custom">Custom</option>
@@ -258,6 +288,153 @@
       </span></label>
     <label>Account fee, USD/month
       <input type="number" id="dep5_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep6_on"> Route 6</label></h2>
+    <label>Name
+      <input type="text" id="dep6_name" value="EU bank via Wise"></label>
+    <label>Destination — where the money sits
+      <select id="dep6Preset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank" selected>EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep6_cur"><option selected>USD</option><option>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep6_ratePct" value="3" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep6_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep6_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select></label>
+    <label>How the money gets there
+      <select id="dep6MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local">Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise" selected>Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep6_feeInPct" value="0.7" min="0" max="20" step="0.1">
+        <input type="number" id="dep6_feeInFixUSD" value="3" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep6_feeOutPct" value="0.7" min="0" max="20" step="0.1">
+        <input type="number" id="dep6_feeOutFixUSD" value="3" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep6_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep7_on"> Route 7</label></h2>
+    <label>Name
+      <input type="text" id="dep7_name" value="Route 7"></label>
+    <label>Destination — where the money sits
+      <select id="dep7Preset" data-preset>
+        <option value="custom" selected>Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep7_cur"><option selected>USD</option><option>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep7_ratePct" value="4" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep7_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep7_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select></label>
+    <label>How the money gets there
+      <select id="dep7MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local" selected>Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep7_feeInPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep7_feeInFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep7_feeOutPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep7_feeOutFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep7_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <h2><label class="check"><input type="checkbox" id="dep8_on"> Route 8</label></h2>
+    <label>Name
+      <input type="text" id="dep8_name" value="Route 8"></label>
+    <label>Destination — where the money sits
+      <select id="dep8Preset" data-preset>
+        <option value="custom" selected>Custom</option>
+        <option value="ua-uah">UA bank — UAH deposit ~13.5%</option>
+        <option value="ua-usd">UA bank — USD deposit ~2%</option>
+        <option value="ovdp">OVDP gov bonds — 16.5%, tax-free</option>
+        <option value="us-hysa">US bank (HYSA) — ~5%</option>
+        <option value="eu-bank">EU bank — ~3%</option>
+        <option value="cash">Cash at home — 0%</option>
+      </select></label>
+    <label>Currency
+      <select id="dep8_cur"><option>USD</option><option selected>UAH</option></select></label>
+    <label>Rate, %/yr
+      <input type="number" id="dep8_ratePct" value="10" min="0" max="60" step="0.1"></label>
+    <label>Tax on interest, %
+      <input type="number" id="dep8_taxPct" value="23" min="0" max="60" step="0.5"></label>
+    <label>Interest handling
+      <select id="dep8_comp">
+        <option value="compound" selected>Capitalized — compounds monthly</option>
+        <option value="payout">Paid out — not reinvested (OVDP-style)</option>
+      </select></label>
+    <label>How the money gets there
+      <select id="dep8MethodPreset" data-preset>
+        <option value="custom">Custom</option>
+        <option value="local" selected>Locally / cash — free</option>
+        <option value="swift">SWIFT transfer — 0.5% + $30 each way</option>
+        <option value="wise">Wise / Payoneer — 0.7% + $3 each way</option>
+        <option value="crypto">Stablecoins (USDT) — 1.5% + $2 each way</option>
+      </select></label>
+    <label>Entry fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep8_feeInPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep8_feeInFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Exit fee — % of amount + fixed, USD
+      <span class="row">
+        <input type="number" id="dep8_feeOutPct" value="0" min="0" max="20" step="0.1">
+        <input type="number" id="dep8_feeOutFixUSD" value="0" min="0" step="1">
+      </span></label>
+    <label>Account fee, USD/month
+      <input type="number" id="dep8_monthlyFeeUSD" value="0" min="0" step="1"></label>
+  </section>
+
+  <section data-mode="dep">
+    <button type="button" id="depAddRoute" class="chip">+ Add route</button>
+    <p class="dec-hint">Opens the next route slot (up to 8) — pick a destination and a transfer
+      method there to build a new combination. Untick a route's checkbox to drop it from the race.</p>
   </section>
 
   <section data-mode="life biz solar">

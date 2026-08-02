@@ -56,7 +56,7 @@ const INTROS = {
 const NUM_IDS = [
   // deposits
   'dep_amountUSD', 'dep_topUpUSD',
-  ...Array.from({ length: 5 }, (_, k) => [
+  ...Array.from({ length: 8 }, (_, k) => [
     `dep${k + 1}_ratePct`, `dep${k + 1}_taxPct`,
     `dep${k + 1}_feeInPct`, `dep${k + 1}_feeInFixUSD`,
     `dep${k + 1}_feeOutPct`, `dep${k + 1}_feeOutFixUSD`,
@@ -195,12 +195,12 @@ SCENARIO_PRESETS.solarUsePreset = {
  * estimates; the two selects per route slot control disjoint field sets, so
  * any bank × any method combination is possible. */
 const DEP_BANK_PRESETS = {
-  'ua-uah':  { _cur: 'UAH', _ratePct: 13.5, _taxPct: 23, _name: 'UA bank — UAH deposit' },
-  'ua-usd':  { _cur: 'USD', _ratePct: 2,    _taxPct: 23, _name: 'UA bank — USD deposit' },
-  'ovdp':    { _cur: 'UAH', _ratePct: 16.5, _taxPct: 0,  _name: 'OVDP bonds (UAH)' },
-  'us-hysa': { _cur: 'USD', _ratePct: 5,    _taxPct: 23, _name: 'US bank — HYSA' },
-  'eu-bank': { _cur: 'USD', _ratePct: 3,    _taxPct: 23, _name: 'EU bank deposit' },
-  'cash':    { _cur: 'USD', _ratePct: 0,    _taxPct: 0,  _name: 'Cash at home' },
+  'ua-uah':  { _cur: 'UAH', _ratePct: 13.5, _taxPct: 23, _comp: 'compound', _name: 'UA bank — UAH deposit' },
+  'ua-usd':  { _cur: 'USD', _ratePct: 2,    _taxPct: 23, _comp: 'compound', _name: 'UA bank — USD deposit' },
+  'ovdp':    { _cur: 'UAH', _ratePct: 16.5, _taxPct: 0,  _comp: 'payout',   _name: 'OVDP bonds (UAH)' },
+  'us-hysa': { _cur: 'USD', _ratePct: 5,    _taxPct: 23, _comp: 'compound', _name: 'US bank — HYSA' },
+  'eu-bank': { _cur: 'USD', _ratePct: 3,    _taxPct: 23, _comp: 'compound', _name: 'EU bank deposit' },
+  'cash':    { _cur: 'USD', _ratePct: 0,    _taxPct: 0,  _comp: 'compound', _name: 'Cash at home' },
 };
 const DEP_METHOD_PRESETS = {
   local:  { _feeInPct: 0,   _feeInFixUSD: 0,  _feeOutPct: 0,   _feeOutFixUSD: 0 },
@@ -208,7 +208,7 @@ const DEP_METHOD_PRESETS = {
   wise:   { _feeInPct: 0.7, _feeInFixUSD: 3,  _feeOutPct: 0.7, _feeOutFixUSD: 3 },
   crypto: { _feeInPct: 1.5, _feeInFixUSD: 2,  _feeOutPct: 1.5, _feeOutFixUSD: 2 },
 };
-for (let i = 1; i <= 5; i++) {
+for (let i = 1; i <= 8; i++) {
   for (const [sel, src] of [[`dep${i}Preset`, DEP_BANK_PRESETS],
                             [`dep${i}MethodPreset`, DEP_METHOD_PRESETS]]) {
     SCENARIO_PRESETS[sel] = {};
@@ -460,9 +460,10 @@ function readParams() {
     p.pensionPct = p.ev_pensionPct;
     p.regFeeUAH = p.ev_regFeeUAH;
   }
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 8; i++) {
     p[`dep${i}_on`] = $(`dep${i}_on`).checked;
     p[`dep${i}_cur`] = $(`dep${i}_cur`).value;
+    p[`dep${i}_comp`] = $(`dep${i}_comp`).value;
     p[`dep${i}_name`] = $(`dep${i}_name`).value;
   }
   p.lifeActive = LIFE_DEC_IDS.filter((id) => $('d_' + id).checked);
@@ -1562,6 +1563,7 @@ function syncURL() {
 
 function render() {
   syncCarFields();
+  syncDepFields();
   if (mode === 'find') { renderFinder(); syncURL(); return; }
   $('results').classList.remove('finder-only');
   $('finderCard').hidden = true;
@@ -1694,6 +1696,26 @@ for (const id of LIFE_DEC_IDS) {
     }
   });
 }
+/* Deposit routes: an unticked route collapses to its header; the "+ Add
+ * route" button opens the next collapsed slot (hidden when all 8 are open). */
+function syncDepFields() {
+  let allOn = true;
+  for (let i = 1; i <= 8; i++) {
+    const on = $(`dep${i}_on`).checked;
+    if (!on) allOn = false;
+    const section = $(`dep${i}_on`).closest('section');
+    for (const lbl of section.querySelectorAll(':scope > label')) lbl.hidden = !on;
+  }
+  $('depAddRoute').hidden = allOn;
+}
+$('depAddRoute').addEventListener('click', () => {
+  for (let i = 1; i <= 8; i++) {
+    if (!$(`dep${i}_on`).checked) { $(`dep${i}_on`).checked = true; break; }
+  }
+  syncDepFields();
+  render();
+});
+
 function syncCarFields() {
   for (const s of EV_SLOTS) {
     const on = $('e' + s + '_on').checked;
@@ -1711,7 +1733,10 @@ function syncCarFields() {
 document.getElementById('inputs').addEventListener('input', rafDebounce(render));
 document.getElementById('inputs').addEventListener('change', (e) => {
   if (e.target.tagName === 'SELECT' && /_type$/.test(e.target.id)) syncCarFields();
-  if (e.target.type === 'checkbox' && /_on$/.test(e.target.id)) syncCarFields();
+  if (e.target.type === 'checkbox' && /_on$/.test(e.target.id)) {
+    syncCarFields();
+    if (/^dep\d_on$/.test(e.target.id)) syncDepFields();
+  }
 });
 $('scCard').addEventListener('input', rafDebounce(render));
 
