@@ -52,7 +52,7 @@ try {
     cf_w_age: w.age != null ? w.age : 15, cf_w_condition: w.condition != null ? w.condition : 20,
     cf_w_history: w.history != null ? w.history : 15,
     cf_topN: (cfg.notify && cfg.notify.topN) || 5,
-    cf_thisYear: new Date().getFullYear(), fx0: 41.7,
+    cf_thisYear: new Date().getFullYear(), fx0: 45,
   };
 
   // strict pass = exactly the user's rules (built-ins on); relaxed pass = drop the

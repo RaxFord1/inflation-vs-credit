@@ -66,7 +66,7 @@ const CF_REGION_OF = (c) => {
  * pipeline only ever sees normalized listings. Missing fields are tolerated
  * (checks flag what they can't verify rather than crashing). */
 function cfNormalize(raw, fx0) {
-  fx0 = fx0 || 41.7;
+  fx0 = fx0 || 45;
   const num = (v) => (v === '' || v == null ? null : +String(v).replace(/[^\d.\-]/g, '') || 0);
   const cur = (raw.currency || 'USD').toUpperCase();
   let priceUSD = num(raw.priceUSD);
@@ -474,7 +474,7 @@ function cfMarketStats(listings) {
 /* ---------- orchestrator (pure, synchronous) ---------- */
 function findCars(p, listings) {
   const thisYear = p.cf_thisYear || 2026;
-  const fx0 = p.fx0 || 41.7;
+  const fx0 = p.fx0 || 45;
   const norm = (listings || []).map((raw) => (raw && raw._raw ? raw : cfNormalize(raw, fx0)));
   const allowDamageTypes = String(p.cf_allowDamageTypes || '')
     .split(/[,\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);

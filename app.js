@@ -546,19 +546,19 @@ function renderWealthChart(res, unit) {
     let lastNeg = -1;
     res.series.forEach((s, mm) => { if (s.v[1] - s.v[0] < 0) lastNeg = mm; });
     if (lastNeg >= 0 && lastNeg < res.months) {
-      events.push({ m: lastNeg + 1, label: `${defs[1].short.toLowerCase()} ahead from yr ${((lastNeg + 1) / 12).toFixed(1)}` });
+      events.push({ m: lastNeg + 1, label: `${defs[1].legend.toLowerCase()} ahead from yr ${((lastNeg + 1) / 12).toFixed(1)}` });
     }
   }
   events.sort((a, b) => a.m - b.m);
   events.forEach((ev, i) => drawEventLine(svg, x(ev.m), m, iw, ih, ev.label, i));
 
   const lastPt = pts[pts.length - 1];
-  const endLabels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short }));
+  const endLabels = defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.legend }));
   const allColors = colors.slice();
   if (hasOverlay) {
     const lastO = oPts[oPts.length - 1];
     oDefs.forEach((d, i) => {
-      endLabels.push({ i: N + i, y: y(lastO[i]), text: d.short });
+      endLabels.push({ i: N + i, y: y(lastO[i]), text: d.legend });
       allColors.push(oColors[i]);
     });
   }
@@ -570,8 +570,9 @@ function renderWealthChart(res, unit) {
     const mm = Math.max(0, Math.min(res.months, Math.round(((px - m.l) / iw) * res.months)));
     const s = pts[mm];
     const cx = x(mm);
-    let rows = defs.map((d, i) =>
-      `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${U.fmt(s.v[i])}</span></div>`
+    const sorted = defs.map((d, i) => ({ d, i, v: s.v[i] })).sort((a, b) => b.v - a.v);
+    let rows = sorted.map((o) =>
+      `<div class="t-row"><span><span class="swatch" style="background:${colors[o.i]}"></span> ${o.d.legend}</span><span class="v">${U.fmt(o.v)}</span></div>`
     ).join('');
     if (N === 2 && res.diffLabel) {
       rows += `<div class="t-row"><span>${res.diffLabel}</span><span class="v">${signed(s.v[1] - s.v[0], U.fmt)}</span></div>`;
@@ -580,7 +581,7 @@ function renderWealthChart(res, unit) {
     if (hasOverlay) {
       const ov = oPts[mm];
       oDefs.forEach((d, i) => {
-        rows += `<div class="t-row"><span><span class="swatch" style="background:${oColors[i]}"></span> ${d.short}</span><span class="v">${U.fmt(ov[i])}</span></div>`;
+        rows += `<div class="t-row"><span><span class="swatch" style="background:${oColors[i]}"></span> ${d.legend}</span><span class="v">${U.fmt(ov[i])}</span></div>`;
         dots.push({ cx, cy: y(ov[i]) });
       });
     }
@@ -673,7 +674,7 @@ function renderMacroChart(p, months) {
   });
 
   const lastPt = pts[pts.length - 1];
-  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short })), colors, m, iw);
+  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.legend })), colors, m, iw);
 
   addChartHover({ svg, W, m, iw, ih, nDots: 3, colors, onMove: (px) => {
     const mm = Math.max(0, Math.min(months, Math.round(((px - m.l) / iw) * months)));
@@ -688,12 +689,12 @@ function renderMacroChart(p, months) {
     return { cx, dots: defs.map((d, i) => ({ cx, cy: y(s.v[i]) })),
       html: `<div class="t-head">Year ${(mm / 12).toFixed(1)}</div>` +
         defs.map((d, i) =>
-          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${detail[i]}</span></div>`
+          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.legend}</span><span class="v">${detail[i]}</span></div>`
         ).join('') };
   }});
 
   $('legendMacro').innerHTML = defs.map((d, i) =>
-    `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${d.short}</span>`
+    `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${d.legend}</span>`
   ).join('');
 }
 
@@ -765,7 +766,7 @@ function renderSweepChart(res, p) {
   }
   axisTitles(svg, W, H, m, cfg.label, base === null
     ? 'Final net worth — today’s $'
-    : `Final advantage over ${defs[base].short.toLowerCase()} — today’s $`);
+    : `Final advantage over ${defs[base].legend.toLowerCase()} — today’s $`);
 
   // dashed marker at the current setting
   el('line', { class: 'nowline', x1: x(cur), x2: x(cur), y1: m.t, y2: m.t + ih }, svg);
@@ -779,7 +780,7 @@ function renderSweepChart(res, p) {
   });
 
   const lastRun = runs[runs.length - 1];
-  drawEndLabels(svg, lines.map((i) => ({ i, y: y(val(lastRun, i)), text: defs[i].short })), colors, m, iw);
+  drawEndLabels(svg, lines.map((i) => ({ i, y: y(val(lastRun, i)), text: defs[i].legend })), colors, m, iw);
 
   addChartHover({ svg, W, m, iw, ih, nDots: lines.length, colors: lines.map((i) => colors[i]), onMove: (px) => {
     let k = 0;
@@ -788,22 +789,23 @@ function renderSweepChart(res, p) {
     }
     const r = runs[k];
     const cx = x(r.v);
+    const sortedLines = lines.slice().sort((a, b) => val(r, b) - val(r, a));
     return { cx, dots: lines.map((i) => ({ cx, cy: y(val(r, i)) })),
-      html: `<div class="t-head">${cfg.label.split(',')[0]} ${xfmt(r.v)} · ` +
-        `${base === null ? "today’s $" : 'vs ' + defs[base].short.toLowerCase() + ", today’s $"} (Δ vs now)</div>` +
-        lines.map((i) => {
+      html: `<div class="t-head">${cfg.label.split(‘,’)[0]} ${xfmt(r.v)} · ` +
+        `${base === null ? "today’s $" : ‘vs ‘ + defs[base].legend.toLowerCase() + ", today’s $"} (Δ vs now)</div>` +
+        sortedLines.map((i) => {
           const delta = val(r, i) - val(curRun, i);
-          const flag = r.flags && r.flags[i] ? ' ⚠' : '';
+          const flag = r.flags && r.flags[i] ? ‘ ⚠’ : ‘’;
           const shown = base === null ? usd(val(r, i)) : signed(val(r, i), usd);
-          return `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${defs[i].short}${flag}</span>` +
-            `<span class="v">${shown} (${r.v === cur ? 'now' : signed(delta, usd)})</span></div>`;
-        }).join('') };
+          return `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${defs[i].legend}${flag}</span>` +
+            `<span class="v">${shown} (${r.v === cur ? ‘now’ : signed(delta, usd)})</span></div>`;
+        }).join(‘’) };
   }});
 
-  $('legendSweep').innerHTML =
+  $(‘legendSweep’).innerHTML =
     lines.map((i) =>
-      `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${defs[i].legend}${base !== null ? ' − ' + defs[base].short.toLowerCase() : ''}</span>`
-    ).join('') +
+      `<span class="key"><span class="swatch" style="background:${colors[i]}"></span>${defs[i].legend}${base !== null ? ‘ − ‘ + defs[base].legend.toLowerCase() : ‘’}</span>`
+    ).join(‘’) +
     (base !== null ? `<span class="key">(each line = advantage over ${defs[base].legend.toLowerCase()})</span>` : '');
 
   // takeaway: does the winning path change along the sweep, and which path
@@ -1317,7 +1319,7 @@ function renderBurdenChart(res, p) {
   });
 
   const lastPt = pts[pts.length - 1];
-  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.short })), colors, m, iw);
+  drawEndLabels(svg, defs.map((d, i) => ({ i, y: y(lastPt.v[i]), text: d.legend })), colors, m, iw);
 
   addChartHover({ svg, W, m, iw, ih, nDots: defs.length, colors, onMove: (px) => {
     const k = Math.max(0, Math.min(pts.length - 1,
@@ -1325,10 +1327,11 @@ function renderBurdenChart(res, p) {
     const s = pts[k];
     const cx = x(s.m);
     const pay = (o) => salUSD ? usd(o / s.fx) : uah(o);
+    const sortedDefs = defs.map((d, i) => ({ d, i })).sort((a, b) => s.v[a.i] - s.v[b.i]);
     return { cx, dots: defs.map((d, i) => ({ cx, cy: y(s.v[i]) })),
       html: `<div class="t-head">Year ${(s.m / 12).toFixed(1)} · salary ${salUSD ? usd(p.salaryAmt * Math.pow(1 + p.salaryGrowthPct / 100, s.m / 12)) : uah(salaryUAH(s.m, s.fx))}/mo</div>` +
-        defs.map((d, i) =>
-          `<div class="t-row"><span><span class="swatch" style="background:${colors[i]}"></span> ${d.short}</span><span class="v">${s.v[i].toFixed(0)}% · ${pay(s.obl[i])}</span></div>`
+        sortedDefs.map((o) =>
+          `<div class="t-row"><span><span class="swatch" style="background:${colors[o.i]}"></span> ${o.d.legend}</span><span class="v">${s.v[o.i].toFixed(0)}% · ${pay(s.obl[o.i])}</span></div>`
         ).join('') };
   }});
 
@@ -1398,7 +1401,7 @@ function readFinderParams() {
   for (const id of txtIds) { const e = $(id); if (e) p[id] = e.value; }
   p.cf_allowDamaged = $('cf_allowDamaged').checked;
   p.cf_useBuiltinRules = $('cf_useBuiltinRules').checked;
-  p.fx0 = parseFloat($('fx0').value) || 41.7;
+  p.fx0 = parseFloat($('fx0').value) || 45;
   return p;
 }
 
