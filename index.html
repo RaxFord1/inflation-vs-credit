@@ -13,6 +13,7 @@
   <p class="sub" id="introSub"></p>
   <nav class="tabs">
     <button class="tab active" data-mode="dep">Deposits: where to keep money</button>
+    <button class="tab" data-mode="ovdp">OVDP: government bonds</button>
     <button class="tab" data-mode="car">Car: cash vs credit</button>
     <button class="tab" data-mode="home">Apartment: mortgage vs cash vs rent</button>
     <button class="tab" data-mode="mort">Mortgage variants: down payment &amp; term</button>
@@ -456,6 +457,129 @@
     <button type="button" id="depAddRoute" class="chip">+ Add route</button>
     <p class="dec-hint">Opens the next route slot (up to 8) — pick a destination and a transfer
       method there to build a new combination. Untick a route's checkbox to drop it from the race.</p>
+  </section>
+
+  <!-- ===== OVDP bonds tab ===== -->
+  <section data-mode="ovdp">
+    <h2>OVDP scenario 1</h2>
+    <label><input type="checkbox" id="ovdp1_on" checked> Enabled</label>
+    <label>Bond name / ISIN
+      <input type="text" id="ovdp1_name" value="OVDP 15% 2026-12"></label>
+    <label>Nominal per bond, UAH
+      <input type="number" id="ovdp1_nominal" value="1000" min="100" step="100"></label>
+    <label>Quantity of bonds
+      <input type="number" id="ovdp1_qty" value="100" min="1" step="1"></label>
+    <label>Clean purchase price per bond, UAH
+      <input type="number" id="ovdp1_priceUAH" value="1000" min="1" step="1">
+      <small>At par = nominal (1000). Below par = discount, above = premium.</small></label>
+    <label>Coupon rate, %/year
+      <input type="number" id="ovdp1_ratePct" value="15" min="0" max="50" step="0.1"></label>
+    <label>Coupon frequency
+      <select id="ovdp1_freq">
+        <option value="semi" selected>Semi-annual (every 182 days)</option>
+        <option value="quarterly">Quarterly (every 91 days)</option>
+        <option value="annual">Annual</option>
+        <option value="maturity">At maturity (discount bond)</option>
+      </select></label>
+    <label>Purchase date
+      <input type="date" id="ovdp1_buyDate" value="2026-08-07"></label>
+    <label>Maturity date
+      <input type="date" id="ovdp1_matDate" value="2028-08-07"></label>
+    <label>Broker commission, %
+      <input type="number" id="ovdp1_commPct" value="0" min="0" max="5" step="0.1">
+      <small>Most banks charge 0% for OVDP. Check your broker.</small></label>
+  </section>
+
+  <section data-mode="ovdp">
+    <h2>OVDP scenario 2</h2>
+    <label><input type="checkbox" id="ovdp2_on"> Enabled</label>
+    <label>Bond name / ISIN
+      <input type="text" id="ovdp2_name" value="OVDP 16.5% 2027-06"></label>
+    <label>Nominal per bond, UAH
+      <input type="number" id="ovdp2_nominal" value="1000" min="100" step="100"></label>
+    <label>Quantity of bonds
+      <input type="number" id="ovdp2_qty" value="100" min="1" step="1"></label>
+    <label>Clean purchase price per bond, UAH
+      <input type="number" id="ovdp2_priceUAH" value="1000" min="1" step="1"></label>
+    <label>Coupon rate, %/year
+      <input type="number" id="ovdp2_ratePct" value="16.5" min="0" max="50" step="0.1"></label>
+    <label>Coupon frequency
+      <select id="ovdp2_freq">
+        <option value="semi" selected>Semi-annual (every 182 days)</option>
+        <option value="quarterly">Quarterly (every 91 days)</option>
+        <option value="annual">Annual</option>
+        <option value="maturity">At maturity (discount bond)</option>
+      </select></label>
+    <label>Purchase date
+      <input type="date" id="ovdp2_buyDate" value="2026-08-07"></label>
+    <label>Maturity date
+      <input type="date" id="ovdp2_matDate" value="2027-06-15"></label>
+    <label>Broker commission, %
+      <input type="number" id="ovdp2_commPct" value="0" min="0" max="5" step="0.1"></label>
+  </section>
+
+  <section data-mode="ovdp">
+    <h2>OVDP scenario 3</h2>
+    <label><input type="checkbox" id="ovdp3_on"> Enabled</label>
+    <label>Bond name / ISIN
+      <input type="text" id="ovdp3_name" value="OVDP USD 4.5% 2028"></label>
+    <label>Nominal per bond, UAH
+      <input type="number" id="ovdp3_nominal" value="1000" min="100" step="100"></label>
+    <label>Quantity of bonds
+      <input type="number" id="ovdp3_qty" value="100" min="1" step="1"></label>
+    <label>Clean purchase price per bond, UAH
+      <input type="number" id="ovdp3_priceUAH" value="1000" min="1" step="1"></label>
+    <label>Coupon rate, %/year
+      <input type="number" id="ovdp3_ratePct" value="4.5" min="0" max="50" step="0.1"></label>
+    <label>Coupon frequency
+      <select id="ovdp3_freq">
+        <option value="semi" selected>Semi-annual (every 182 days)</option>
+        <option value="quarterly">Quarterly (every 91 days)</option>
+        <option value="annual">Annual</option>
+        <option value="maturity">At maturity (discount bond)</option>
+      </select></label>
+    <label>Purchase date
+      <input type="date" id="ovdp3_buyDate" value="2026-08-07"></label>
+    <label>Maturity date
+      <input type="date" id="ovdp3_matDate" value="2028-08-07"></label>
+    <label>Broker commission, %
+      <input type="number" id="ovdp3_commPct" value="0" min="0" max="5" step="0.1"></label>
+  </section>
+
+  <section data-mode="ovdp">
+    <h2>OVDP scenario 4</h2>
+    <label><input type="checkbox" id="ovdp4_on"> Enabled</label>
+    <label>Bond name / ISIN
+      <input type="text" id="ovdp4_name" value="Discount bond 2027"></label>
+    <label>Nominal per bond, UAH
+      <input type="number" id="ovdp4_nominal" value="1000" min="100" step="100"></label>
+    <label>Quantity of bonds
+      <input type="number" id="ovdp4_qty" value="100" min="1" step="1"></label>
+    <label>Clean purchase price per bond, UAH
+      <input type="number" id="ovdp4_priceUAH" value="920" min="1" step="1">
+      <small>Discount bonds are bought below nominal; the difference is your income.</small></label>
+    <label>Coupon rate, %/year
+      <input type="number" id="ovdp4_ratePct" value="0" min="0" max="50" step="0.1"></label>
+    <label>Coupon frequency
+      <select id="ovdp4_freq">
+        <option value="semi">Semi-annual (every 182 days)</option>
+        <option value="quarterly">Quarterly (every 91 days)</option>
+        <option value="annual">Annual</option>
+        <option value="maturity" selected>At maturity (discount bond)</option>
+      </select></label>
+    <label>Purchase date
+      <input type="date" id="ovdp4_buyDate" value="2026-08-07"></label>
+    <label>Maturity date
+      <input type="date" id="ovdp4_matDate" value="2027-02-07"></label>
+    <label>Broker commission, %
+      <input type="number" id="ovdp4_commPct" value="0" min="0" max="5" step="0.1"></label>
+  </section>
+
+  <section data-mode="ovdp">
+    <button type="button" id="ovdpAddBond" class="chip">+ Add scenario</button>
+    <p class="dec-hint">Compare up to 4 OVDP bond scenarios side by side. OVDP interest is
+      tax-free for individuals (no PDFO, no military levy). Coupon dates are generated
+      backwards from maturity every 182/91/365 days depending on frequency.</p>
   </section>
 
   <section data-mode="life biz solar">
@@ -1852,6 +1976,7 @@
 <script src="business.js"></script>
 <script src="ev.js"></script>
 <script src="solar.js"></script>
+<script src="ovdp.js"></script>
 <script src="carfinder.js"></script>
 <script src="chart.js"></script>
 <script src="app.js"></script>

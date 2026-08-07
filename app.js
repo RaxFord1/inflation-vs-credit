@@ -4,6 +4,7 @@
 
 const MODULES = {
   dep: { run: depSim },
+  ovdp: { run: ovdpSim },
   car: { run: carSim },
   home: { run: homeSim },
   mort: { run: mortSim },
@@ -15,6 +16,10 @@ const MODULES = {
 let mode = 'dep';
 
 const INTROS = {
+  ovdp: 'OVDP (government bonds) scenario calculator. Enter bond parameters — nominal, purchase price, coupon rate, ' +
+    'payment frequency, purchase and maturity dates — and see the full payment schedule, net profit, effective yield, ' +
+    'break-even date, and equivalent taxable deposit rate. Compare up to 4 bonds side by side. OVDP interest is ' +
+    'tax-free for individuals in Ukraine (no PDFO, no military levy).',
   dep: 'The base layer of every money decision: where should the money itself sit? A route combines a destination ' +
     '(a UAH deposit at a high rate, a USD deposit at a low one, a foreign bank that pays more, bonds, cash) with a way ' +
     'of getting the money there — SWIFT, Wise, stablecoins — each charging its own entry and exit fees. Build up to five ' +
@@ -61,6 +66,11 @@ const NUM_IDS = [
     `dep${k + 1}_feeInPct`, `dep${k + 1}_feeInFixUSD`,
     `dep${k + 1}_feeOutPct`, `dep${k + 1}_feeOutFixUSD`,
     `dep${k + 1}_monthlyFeeUSD`, `dep${k + 1}_sharePct`,
+  ]).flat(),
+  // ovdp
+  ...Array.from({ length: 4 }, (_, k) => [
+    `ovdp${k + 1}_nominal`, `ovdp${k + 1}_qty`, `ovdp${k + 1}_priceUAH`,
+    `ovdp${k + 1}_ratePct`, `ovdp${k + 1}_commPct`,
   ]).flat(),
   // car
   'price', 'carDepPct', 'pensionPct', 'regFeeUAH', 'cashDiscountPct',
@@ -276,6 +286,11 @@ const SWEEPS = {
     INFL_SWEEP,
     { id: 'horizonYears', label: 'Horizon, years', unit: 'y', values: [1, 2, 3, 5, 7, 10, 15, 20] },
   ],
+  ovdp: [
+    { id: 'ovdp1_ratePct', label: 'Bond 1 coupon rate, %/yr', unit: '%', values: [5, 8, 10, 12, 15, 18, 20, 25] },
+    { id: 'ovdp1_priceUAH', label: 'Bond 1 price, UAH', unit: '₴', values: [850, 900, 920, 950, 980, 1000, 1020, 1050] },
+    { id: 'ovdp1_qty', label: 'Bond 1 quantity', unit: 'pcs', values: [10, 25, 50, 100, 200, 500, 1000] },
+  ],
   car: [
     { id: 'dpPct', label: 'Down payment, %', unit: '%', values: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90] },
     { id: 'loanRatePct', label: 'Loan rate, %/yr', unit: '%', values: [0, 4, 8, 12, 16, 20, 24, 28] },
@@ -466,6 +481,13 @@ function readParams() {
     p[`dep${i}_cur`] = $(`dep${i}_cur`).value;
     p[`dep${i}_comp`] = $(`dep${i}_comp`).value;
     p[`dep${i}_name`] = $(`dep${i}_name`).value;
+  }
+  for (let i = 1; i <= 4; i++) {
+    p[`ovdp${i}_on`] = $(`ovdp${i}_on`).checked;
+    p[`ovdp${i}_freq`] = $(`ovdp${i}_freq`).value;
+    p[`ovdp${i}_name`] = $(`ovdp${i}_name`).value;
+    p[`ovdp${i}_buyDate`] = $(`ovdp${i}_buyDate`).value;
+    p[`ovdp${i}_matDate`] = $(`ovdp${i}_matDate`).value;
   }
   p.lifeActive = LIFE_DEC_IDS.filter((id) => $('d_' + id).checked);
   for (let i = 1; i <= 10; i++) p[`mv${i}_on`] = $(`mv${i}_on`).checked;
@@ -1670,6 +1692,7 @@ function syncURL() {
 function render() {
   syncCarFields();
   syncDepFields();
+  syncOvdpFields();
   if (mode === 'find') { renderFinder(); syncURL(); return; }
   $('results').classList.remove('finder-only');
   $('finderCard').hidden = true;
@@ -1824,6 +1847,26 @@ $('depAddRoute').addEventListener('click', () => {
     if (!$(`dep${i}_on`).checked) { $(`dep${i}_on`).checked = true; break; }
   }
   syncDepFields();
+  render();
+});
+
+function syncOvdpFields() {
+  let allOn = true;
+  for (let i = 1; i <= 4; i++) {
+    const on = $(`ovdp${i}_on`).checked;
+    if (!on) allOn = false;
+    const section = $(`ovdp${i}_on`).closest('section');
+    for (const lbl of section.querySelectorAll(':scope > label')) {
+      lbl.hidden = !on;
+    }
+  }
+  $('ovdpAddBond').hidden = allOn;
+}
+$('ovdpAddBond').addEventListener('click', () => {
+  for (let i = 1; i <= 4; i++) {
+    if (!$(`ovdp${i}_on`).checked) { $(`ovdp${i}_on`).checked = true; break; }
+  }
+  syncOvdpFields();
   render();
 });
 

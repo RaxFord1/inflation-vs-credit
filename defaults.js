@@ -25,6 +25,27 @@ const PARAM_DEFAULTS = {
   dep_topUpUSD: 200,      // added monthly through the same route
   dep_portfolio: false,   // portfolio mode: split money by share instead of full-sum comparison
 
+  /* --- OVDP bonds tab: government bond scenarios --- */
+  ovdp1_on: true, ovdp1_name: 'OVDP 15% 2026-12', ovdp1_nominal: 1000,
+  ovdp1_qty: 100, ovdp1_priceUAH: 1000, ovdp1_ratePct: 15,
+  ovdp1_freq: 'semi', ovdp1_buyDate: '2026-08-07', ovdp1_matDate: '2028-08-07',
+  ovdp1_commPct: 0,
+
+  ovdp2_on: false, ovdp2_name: 'OVDP 16.5% 2027-06', ovdp2_nominal: 1000,
+  ovdp2_qty: 100, ovdp2_priceUAH: 1000, ovdp2_ratePct: 16.5,
+  ovdp2_freq: 'semi', ovdp2_buyDate: '2026-08-07', ovdp2_matDate: '2027-06-15',
+  ovdp2_commPct: 0,
+
+  ovdp3_on: false, ovdp3_name: 'OVDP USD 4.5% 2028', ovdp3_nominal: 1000,
+  ovdp3_qty: 100, ovdp3_priceUAH: 1000, ovdp3_ratePct: 4.5,
+  ovdp3_freq: 'semi', ovdp3_buyDate: '2026-08-07', ovdp3_matDate: '2028-08-07',
+  ovdp3_commPct: 0,
+
+  ovdp4_on: false, ovdp4_name: 'Discount bond 2027', ovdp4_nominal: 1000,
+  ovdp4_qty: 100, ovdp4_priceUAH: 920, ovdp4_ratePct: 0,
+  ovdp4_freq: 'maturity', ovdp4_buyDate: '2026-08-07', ovdp4_matDate: '2027-02-07',
+  ovdp4_commPct: 0,
+
   dep1_on: true, dep1_name: 'UA bank — USD deposit', dep1_cur: 'USD',
   dep1_comp: 'compound', dep1_ratePct: 2, dep1_taxPct: 23,
   dep1_feeInPct: 0, dep1_feeInFixUSD: 0, dep1_feeOutPct: 0, dep1_feeOutFixUSD: 0,
